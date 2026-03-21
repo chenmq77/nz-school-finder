@@ -1,0 +1,12 @@
+# 数据文件（schools.db 可通过 python3 init_db.py 从 CSV 重新生成）
+schools.db
+directory.csv
+
+# Python 缓存
+__pycache__/
+*.pyc
+*.pyo
+
+# 系统文件
+.DS_Store
+Thumbs.db
