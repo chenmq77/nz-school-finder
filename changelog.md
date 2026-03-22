@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-03-23 — 修复 clearSearch 后详情无法再次显示的 bug
+
+### Why
+点击 "NZ School Finder" 标题或搜索框的 × 按钮回到首页后，再次搜索学校时详情页无法显示。
+
+### What
+`clearSearch()` 中用 inline style (`style.display = 'none'`) 隐藏详情，但 `loadSchool()` 用 CSS class (`.show`) 显示详情。inline style 优先级高于 class，导致一旦 clearSearch 执行后，后续加 `.show` class 永远无法覆盖 inline `display: none`。
+
+### How
+将 `$detail.style.display = 'none'` 改为 `$detail.classList.remove('show')`，统一使用 class 切换显示状态。
+
+---
+
 ## 2026-03-22 — 信息架构重排 A-H + 新增 C/D/E 区展示爬取数据
 
 ### Why

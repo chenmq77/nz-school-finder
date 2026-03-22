@@ -713,7 +713,7 @@ function clearSearch() {
   $input.value = '';
   $results.classList.remove('show');
   $results.innerHTML = '';
-  $detail.style.display = 'none';
+  $detail.classList.remove('show');
   $empty.style.display = '';
   $schoolTag.classList.remove('show');
   $clearBtn.style.display = 'none';
