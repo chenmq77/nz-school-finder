@@ -1117,8 +1117,10 @@ function renderActivities(w) {
   // Activities/Clubs
   let activitiesHtml = '';
   if (activities.length) {
+    const actUrl = safeUrl(w.activities_url);
+    const actLink = actUrl ? `<a href="${esc(actUrl)}" target="_blank" rel="noopener" style="font-size:11px;color:var(--text-muted)">[来源]</a>` : '';
     activitiesHtml = `<div class="sub-section">
-      <div class="sub-section-title">Clubs / 社团 (${activities.length})</div>
+      <div class="sub-section-title" style="display:flex;justify-content:space-between">Clubs / 社团 (${activities.length}) ${actLink}</div>
       <div style="font-size:13px">${activities.map(a => esc(a)).join('  ·  ')}</div>
     </div>`;
   }
