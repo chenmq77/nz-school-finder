@@ -283,7 +283,7 @@ body {
 .highlight-card.intl { border-color: var(--primary); background: var(--primary-light); }
 .highlight-card.intl .card-value { color: var(--primary); }
 
-/* ── D. Quality ───────────────────────────────────── */
+/* ── EQI & Gauge Cards ────────────────────────────── */
 .gauge-row { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
 
 .gauge-card {
@@ -293,6 +293,7 @@ body {
   border-radius: 10px;
   background: #f8fafc;
   border: 1px solid var(--border);
+  position: relative;
 }
 
 .gauge-card .gauge-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; }
@@ -304,6 +305,159 @@ body {
 .gauge-bar.iso { background: linear-gradient(90deg, #10b981, #3b82f6, #8b5cf6); }
 
 .gauge-card .gauge-interpret { font-size: 12px; color: var(--text-secondary); }
+
+/* EQI help button */
+.eqi-help-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--text-muted);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  line-height: 1;
+}
+.eqi-help-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+
+/* EQI Band indicator */
+.eqi-band-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+.eqi-band-tag.fewer { background: #d1fae5; color: #065f46; }
+.eqi-band-tag.moderate { background: #fef3c7; color: #92400e; }
+.eqi-band-tag.more { background: #fee2e2; color: #991b1b; }
+
+/* EQI Modal */
+.eqi-modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.eqi-modal-overlay.show { display: flex; }
+
+.eqi-modal {
+  background: #fff;
+  border-radius: 14px;
+  max-width: 520px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 28px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.eqi-modal h3 { margin: 0 0 12px; font-size: 18px; color: var(--text); }
+.eqi-modal p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0 0 16px; }
+.eqi-modal-close {
+  float: right;
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+.eqi-modal-close:hover { color: var(--text); }
+
+/* EQI Band Chart */
+.eqi-band-chart { margin: 16px 0; }
+.eqi-band-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+.eqi-band-row .band-color {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+.eqi-band-row .band-name { width: 110px; color: var(--text); font-weight: 500; }
+.eqi-band-row .band-range { color: var(--text-secondary); }
+
+.eqi-group-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 6px 0 4px;
+  margin-top: 4px;
+}
+.eqi-group-label.fewer { color: #065f46; }
+.eqi-group-label.moderate { color: #92400e; }
+.eqi-group-label.more { color: #991b1b; }
+
+/* EQI segmented bar in modal */
+.eqi-seg-bar {
+  display: flex;
+  height: 18px;
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 12px 0 8px;
+}
+.eqi-seg-bar .seg {
+  height: 100%;
+  position: relative;
+}
+.eqi-seg-bar .seg-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 9px;
+  font-weight: 600;
+  color: rgba(0,0,0,0.5);
+  white-space: nowrap;
+}
+.eqi-seg-bar .seg.fewer1 { background: #6ee7b7; }
+.eqi-seg-bar .seg.fewer2 { background: #a7f3d0; }
+.eqi-seg-bar .seg.mod1 { background: #fde68a; }
+.eqi-seg-bar .seg.mod2 { background: #fcd34d; }
+.eqi-seg-bar .seg.mod3 { background: #fbbf24; }
+.eqi-seg-bar .seg.more1 { background: #fca5a5; }
+.eqi-seg-bar .seg.more2 { background: #f87171; }
+
+/* EQI current marker */
+.eqi-marker-wrap { position: relative; height: 14px; margin-bottom: 16px; }
+.eqi-marker {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text);
+}
+.eqi-marker::before {
+  content: '';
+  display: block;
+  width: 0; height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid var(--text);
+  margin: 0 auto 1px;
+}
 
 .detail-grid {
   display: grid;
@@ -462,6 +616,55 @@ body {
   </div><!-- /school-detail -->
 
   <div class="footer">NZ School Finder &copy; 2026 &mdash; Data from Education Counts, New Zealand</div>
+</div>
+
+<!-- EQI Help Modal -->
+<div class="eqi-modal-overlay" id="eqiModal" onclick="closeEqiModal(event)">
+  <div class="eqi-modal" onclick="event.stopPropagation()">
+    <button class="eqi-modal-close" onclick="closeEqiModal()">&times;</button>
+    <h3>EQI / 公平指数</h3>
+    <p>
+      Equity Index (EQI) 公平指数由新西兰教育部制定，用于估算学生面临社会经济障碍的程度。
+      <strong>EQI 不是学校质量评分</strong>，而是反映学校所在社区的经济条件。
+      数值越高，表示学生面临的社会经济障碍越多；数值越低，表示障碍越少。
+    </p>
+    <p style="font-size:12px;color:var(--text-muted)">
+      EQI 取代了旧的 Decile（十分位）制度，于 2023 年 1 月正式启用。学校的 EQI 每年更新一次。
+    </p>
+
+    <h3 style="font-size:15px;margin-top:20px">Bands & Groups / 分段与分组</h3>
+    <p>所有学校按 EQI 数值分为 <strong>3 个组 (Group)</strong>，细分为 <strong>7 个段 (Band)</strong>：</p>
+
+    <div class="eqi-seg-bar" id="eqiSegBar">
+      <div class="seg fewer1" style="width:25.78%"><span class="seg-label">Fewest</span></div>
+      <div class="seg fewer2" style="width:11.56%"><span class="seg-label">Few</span></div>
+      <div class="seg mod1" style="width:8.00%"><span class="seg-label">Below Avg</span></div>
+      <div class="seg mod2" style="width:8.89%"><span class="seg-label">Average</span></div>
+      <div class="seg mod3" style="width:10.22%"><span class="seg-label">Above Avg</span></div>
+      <div class="seg more1" style="width:12.00%"><span class="seg-label">Many</span></div>
+      <div class="seg more2" style="width:20.89%"><span class="seg-label">Most</span></div>
+    </div>
+    <div class="eqi-marker-wrap" id="eqiMarkerWrap"></div>
+
+    <div class="eqi-band-chart">
+      <div class="eqi-group-label fewer">Fewer / 较少障碍 — 社区条件较优越</div>
+      <div class="eqi-band-row"><div class="band-color" style="background:#6ee7b7"></div><span class="band-name">Fewest / 最少障碍</span><span class="band-range">344 – 402</span></div>
+      <div class="eqi-band-row"><div class="band-color" style="background:#a7f3d0"></div><span class="band-name">Few / 较少障碍</span><span class="band-range">403 – 429</span></div>
+
+      <div class="eqi-group-label moderate">Moderate / 中等障碍 — 社区条件中等</div>
+      <div class="eqi-band-row"><div class="band-color" style="background:#fde68a"></div><span class="band-name">Below Average / 低于平均</span><span class="band-range">430 – 448</span></div>
+      <div class="eqi-band-row"><div class="band-color" style="background:#fcd34d"></div><span class="band-name">Average / 平均水平</span><span class="band-range">449 – 469</span></div>
+      <div class="eqi-band-row"><div class="band-color" style="background:#fbbf24"></div><span class="band-name">Above Average / 高于平均</span><span class="band-range">470 – 493</span></div>
+
+      <div class="eqi-group-label more">More / 较多障碍 — 社区条件较弱</div>
+      <div class="eqi-band-row"><div class="band-color" style="background:#fca5a5"></div><span class="band-name">Many / 较多障碍</span><span class="band-range">494 – 521</span></div>
+      <div class="eqi-band-row"><div class="band-color" style="background:#f87171"></div><span class="band-name">Most / 最多障碍</span><span class="band-range">522 – 569</span></div>
+    </div>
+
+    <p style="font-size:11px;color:var(--text-muted);margin-top:16px">
+      数据来源：Education Counts, Ministry of Education NZ (2026)
+    </p>
+  </div>
 </div>
 
 <script>
@@ -640,6 +843,29 @@ function renderSectionA(s) {
   `;
 }
 
+/* ── EQI Band/Group helpers ─────────────────────── */
+const EQI_BANDS = [
+  { name: 'Fewest',        cn: '最少障碍', min: 344, max: 402, group: 'fewer' },
+  { name: 'Few',           cn: '较少障碍', min: 403, max: 429, group: 'fewer' },
+  { name: 'Below Average', cn: '低于平均', min: 430, max: 448, group: 'moderate' },
+  { name: 'Average',       cn: '平均水平', min: 449, max: 469, group: 'moderate' },
+  { name: 'Above Average', cn: '高于平均', min: 470, max: 493, group: 'moderate' },
+  { name: 'Many',          cn: '较多障碍', min: 494, max: 521, group: 'more' },
+  { name: 'Most',          cn: '最多障碍', min: 522, max: 569, group: 'more' },
+];
+const EQI_GROUPS = {
+  fewer:    { name: 'Fewer / 较少',    cn: '社区条件较优越', color: '#065f46' },
+  moderate: { name: 'Moderate / 中等',  cn: '社区条件中等',   color: '#92400e' },
+  more:     { name: 'More / 较多',      cn: '社区条件较弱',   color: '#991b1b' },
+};
+
+function getEqiBand(eqi) {
+  for (const b of EQI_BANDS) {
+    if (eqi >= b.min && eqi <= b.max) return b;
+  }
+  return null;
+}
+
 function renderSectionB(s) {
   const parts = [s.street, s.suburb, s.town_city].filter(v => hasValue(v));
   const address = parts.length ? parts.map(v => String(v).trim()).join(', ') : '--';
@@ -653,13 +879,44 @@ function renderSectionB(s) {
   const email = safe(s.email);
   const emailLink = email !== '--' ? `<a href="mailto:${esc(email)}">${esc(email)}</a>` : '--';
 
+  // Location (coordinates + map link) — moved from D
+  const lat = safe(s.latitude);
+  const lng = safe(s.longitude);
+  const coordParts = [lat, lng].filter(p => p !== '--');
+  const coord = coordParts.length ? coordParts.join(', ') : '--';
+  const latNum = parseFloat(lat);
+  const lngNum = parseFloat(lng);
+  const hasCoords = coordParts.length === 2 && !isNaN(latNum) && !isNaN(lngNum);
+  const mapLink = hasCoords ? `<a href="https://www.google.com/maps?q=${latNum},${lngNum}" target="_blank" rel="noopener">[Open Map]</a>` : '';
+
+  // EQI — moved from D
+  const eqi = parseFloat(s.equity_index_eqi) || 0;
+  _currentEqi = eqi;
+  const eqiDisplay = eqi > 0 ? eqi : '--';
+  const eqiPct = eqi > 0 ? Math.min(100, Math.max(0, (eqi - 344) / (569 - 344) * 100)) : 0;
+  const band = eqi > 0 ? getEqiBand(eqi) : null;
+  const group = band ? EQI_GROUPS[band.group] : null;
+  const bandTag = band ? `<span class="eqi-band-tag ${band.group}">${esc(band.name)} / ${esc(band.cn)}</span>` : '';
+  const eqiInterpret = group ? `${group.cn} / ${group.name}` : '--';
+
   document.getElementById('bodyB').innerHTML = `
     <div class="info-row"><span class="info-label">Address / 详细地址</span><span class="info-value">${esc(address)}</span></div>
     <div class="info-row"><span class="info-label">Post / 邮寄地址</span><span class="info-value">${esc(postal)}</span></div>
     <div class="info-row"><span class="info-label">Area / 城乡属性</span><span class="info-value">${esc(safe(s.urban_rural))}</span></div>
+    <div class="info-row"><span class="info-label">Location / 地理坐标</span><span class="info-value">${esc(coord)} ${mapLink}</span></div>
     <div class="divider"></div>
     <div class="info-row"><span class="info-label">Tel / 电话</span><span class="info-value">${telLink}</span></div>
     <div class="info-row"><span class="info-label">Email / 邮箱</span><span class="info-value">${emailLink}</span></div>
+    <div class="divider"></div>
+    <div class="gauge-row">
+      <div class="gauge-card">
+        <div class="gauge-label">EQI / 公平指数</div>
+        <button class="eqi-help-btn" onclick="openEqiModal(event)" title="What is EQI? / 什么是EQI？">?</button>
+        <div class="gauge-value">${eqiDisplay} ${bandTag}</div>
+        <div class="gauge-bar-wrap"><div class="gauge-bar eqi" style="width:${eqiPct}%"></div></div>
+        <div class="gauge-interpret">${eqiInterpret}</div>
+      </div>
+    </div>
   `;
 }
 
@@ -718,11 +975,6 @@ function renderSectionC(s) {
 }
 
 function renderSectionD(s) {
-  const eqi = parseFloat(s.equity_index_eqi) || 0;
-  const eqiDisplay = eqi > 0 ? eqi : '--';
-  const eqiPct = eqi > 0 ? Math.min(100, Math.max(0, (eqi - 300) / 400 * 100)) : 0;
-  const eqiInterpret = eqi <= 0 ? '--' : eqi < 400 ? '社区条件较优越 / Advantaged' : eqi <= 500 ? '社区条件中等 / Mid-range' : '社区条件较弱 / Disadvantaged';
-
   const iso = parseFloat(s.isolation_index);
   const isoValid = !isNaN(iso) && hasValue(s.isolation_index);
   const isoDisplay = isoValid ? iso : '--';
@@ -736,24 +988,8 @@ function renderSectionD(s) {
   const cohort = safe(s.cohort_entry);
   const cohortCn = cohort === 'Yes' ? '群体入学' : cohort === 'No' ? '非群体入学' : cohort;
 
-  const lat = safe(s.latitude);
-  const lng = safe(s.longitude);
-  const coordParts = [lat, lng].filter(p => p !== '--');
-  const coord = coordParts.length ? coordParts.join(', ') : '--';
-  // 只有合法数字坐标才生成 map link
-  const latNum = parseFloat(lat);
-  const lngNum = parseFloat(lng);
-  const hasCoords = coordParts.length === 2 && !isNaN(latNum) && !isNaN(lngNum);
-  const mapLink = hasCoords ? `<a href="https://www.google.com/maps?q=${latNum},${lngNum}" target="_blank" rel="noopener">[Open Map]</a>` : '';
-
   document.getElementById('bodyD').innerHTML = `
     <div class="gauge-row">
-      <div class="gauge-card">
-        <div class="gauge-label">EQI / 公平指数</div>
-        <div class="gauge-value">${eqiDisplay}</div>
-        <div class="gauge-bar-wrap"><div class="gauge-bar eqi" style="width:${eqiPct}%"></div></div>
-        <div class="gauge-interpret">${eqiInterpret}</div>
-      </div>
       <div class="gauge-card">
         <div class="gauge-label">Isolation / 偏远指数</div>
         <div class="gauge-value">${isoDisplay}</div>
@@ -764,7 +1000,6 @@ function renderSectionD(s) {
     <div class="info-row"><span class="info-label">Teaching Language / 教学语言</span><span class="info-value">${esc(safe(s.language_of_instruction))}</span></div>
     <div class="info-row"><span class="info-label">Donations / 捐赠政策</span><span class="info-value">${esc(safe(s.donations))}</span></div>
     <div class="info-row"><span class="info-label">KME Peak Body / 毛利教育机构</span><span class="info-value">${esc(safe(s.kme_peak_body))}</span></div>
-    <div class="info-row"><span class="info-label">Location / 地理坐标</span><span class="info-value">${esc(coord)} ${mapLink}</span></div>
     <div class="info-row"><span class="info-label">Principal / 校长</span><span class="info-value">${esc(safe(s.principal))}</span></div>
     <div class="info-row"><span class="info-label">Definition / 办学定义</span><span class="info-value">${esc(safe(s.definition))}</span></div>
     <div class="info-row"><span class="info-label">Status / 运营状态</span><span class="info-value"><span class="status-badge ${esc(statusClass)}">${esc(statusText)}</span></span></div>
@@ -831,6 +1066,27 @@ function toggleSection(key) {
   toggle.classList.toggle('open');
 }
 
+/* ── EQI Modal ───────────────────────────────────── */
+let _currentEqi = 0;
+function openEqiModal(e) {
+  if (e) e.stopPropagation();
+  const overlay = document.getElementById('eqiModal');
+  overlay.classList.add('show');
+  // Show marker for current school's EQI
+  const markerWrap = document.getElementById('eqiMarkerWrap');
+  if (_currentEqi > 0) {
+    const pct = Math.min(100, Math.max(0, (_currentEqi - 344) / (569 - 344) * 100));
+    markerWrap.innerHTML = `<div class="eqi-marker" style="left:${pct}%">${_currentEqi}</div>`;
+  } else {
+    markerWrap.innerHTML = '';
+  }
+  document.body.style.overflow = 'hidden';
+}
+function closeEqiModal(e) {
+  if (e && e.target !== e.currentTarget) return;
+  document.getElementById('eqiModal').classList.remove('show');
+  document.body.style.overflow = '';
+}
 
 /* ── Helpers ──────────────────────────────────────── */
 function safe(v) {

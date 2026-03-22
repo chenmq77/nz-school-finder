@@ -1,5 +1,32 @@
 # Changelog
 
+## 2026-03-22 — EQI 和 Location 布局调整 + EQI 帮助弹窗
+
+### Why
+家长查看学校时，地理位置和社区经济条件（EQI）是最先关心的信息，不应该藏在默认折叠的 D 区。同时 EQI 指数对普通家长不够直观，需要提供官方分段说明的入口。
+
+### What
+- **Location（地理坐标 + Google Map 链接）从 D 区移到 B 区** — 和地址、城乡属性放在一起，形成完整的"位置"信息块
+- **EQI 公平指数从 D 区移到 B 区** — 默认展开可见，不再需要手动展开 D 区
+- **EQI 显示升级**：
+  - 采用 NZ 教育部官方 2026 年 7 Band / 3 Group 分段标准（Fewest 344-402 → Most 522-569）
+  - 数值旁显示所属 Band 标签（带 Group 对应色：绿/黄/红）
+  - 进度条范围从 300-700 修正为官方 344-569
+- **EQI 帮助弹窗（Modal）** — 卡片右上角 `?` 按钮，点击弹出：
+  - EQI 定义说明（不是学校质量评分）
+  - 7 段彩色分段条，当前学校 EQI 位置标记
+  - 3 Group × 7 Band 完整列表（含中英文名和数值范围）
+
+### How
+- 修改 `index.html`：
+  - `renderSectionB()` — 新增 Location、EQI gauge card、`?` 帮助按钮
+  - `renderSectionD()` — 移除 EQI 和 Location（只保留 Isolation Index 等）
+  - 新增 CSS：EQI help button、band tag、modal overlay、segmented bar、marker
+  - 新增 JS：`EQI_BANDS`/`EQI_GROUPS` 常量、`getEqiBand()`、`openEqiModal()`/`closeEqiModal()`
+  - 新增 Modal HTML：分段说明、颜色图例、当前位置标记
+
+---
+
 ## 2026-03-21 — 新建 Web 版 NZ School Finder（index.html + server.py）
 
 ### Why
