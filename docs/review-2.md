@@ -1,25 +1,24 @@
-# Review Round 2 of 20
+# GPT 挑战 — 第 2 轮（最终轮）
 
-**Model**: gpt-5.4-xhigh-fast
-**Files**: index.html,server.py
-**Date**: 2026-03-21 21:42:57
+**日期**: 2026-03-22
+**挑战者**: GPT
+**评分**: 7/10
+**结论**: CHANGES_REQUESTED（但方向已认可）
 
 ---
 
-### VERDICT: CHANGES_REQUESTED
+## ISSUES
 
-### SCORE: 7
+1. **[major] EQI 移到 B 区与原始 V2 分类不一致** — 建议仍放 D 区，在默认视图做摘要提示
+2. **[major] 搜索定义仍不够产品化** — 缺匹配优先级、大小写归一、同名消歧、空结果状态
+3. **[major] 场景 3 合并过粗** — 毛利家庭和太平洋岛裔家庭关注点不同，"文化项目"不在 CSV 中
+4. **[minor] Phase 2 外链可行性需验证** — ERO/NCEA URL 规则是否稳定需要先测试
+5. **[minor] 缺少"解释层"** — Enrolment Scheme、State:Integrated、Cohort Entry 对非本地家长不直观
 
-### REQUIREMENT_COVERAGE
-- Search by school English name and show the selected school's information: PARTIAL — the basic search/detail flow exists, but async responses are not sequenced, so stale search results or the wrong school detail can overwrite the latest user action.
-- Five-category V2 layout and interaction model: MET — the UI follows the required A→E parent-decision order, keeps A/B/C expanded by default, and makes D/E collapsible.
-- Coverage of all 49 CSV fields and required presentation emphasis: PARTIAL — the implementation renders all listed fields and includes the required merged address/community rows, clickable contact links, ethnic bars, international-student emphasis, and EQI interpretation, but `Total School Roll` is shown as `--` instead of `0` for legitimate zero-roll schools.
-- Previous round 1 fixes: MET — `loadSchool()` now checks `res.ok`, `showDetailError()` preserves the detail shell/back button while hiding B-E, unknown GET routes return 404, and the search API/frontend now return and display a separate total count.
+## SCENARIOS_ASSESSMENT
+- 场景 1（本地家长选小学）: WELL_DEFINED
+- 场景 2（留学家庭选高中）: WELL_DEFINED
+- 场景 3（毛利/太平洋岛裔家庭）: NEEDS_WORK
 
-### ISSUES
-1. [major] index.html:505, index.html:552 — `doSearch()` and `loadSchool()` do not guard against out-of-order async responses, so an older slower request can overwrite a newer query or school selection and leave the UI showing stale results or the wrong school. Suggested fix: use `AbortController` or a monotonically increasing request token for both flows, and ignore responses that are no longer the latest request.
-2. [minor] index.html:543 — `loadSchool()` shows the detail pane before clearing previous content or rendering a loading state, so switching between schools briefly displays the last school's data under the new interaction. Suggested fix: clear `bodyA`-`bodyE` or render a loading placeholder before revealing the detail pane, or only show the pane after fresh data is ready.
-3. [minor] index.html:655 — `Total School Roll` is rendered as `--` whenever the parsed value is `0`, which misstates valid zero-roll schools such as `New`, `Proposed`, or `Not Yet Open` records. Suggested fix: distinguish missing/invalid values from numeric zero and render `0` explicitly.
-
-### SUMMARY
-The implementation is close: the V2 five-section structure, 49-field coverage, and round-1 fixes are largely in place, and the overall organization matches the requirement well. Approval is still blocked by the async correctness bug that can show stale results or the wrong school after rapid user interactions, plus two smaller display-accuracy issues around transient stale detail content and zero-roll schools.
+## SUMMARY
+方向已收敛到 CSV-first 的 MVP，Phase 分层清楚。剩余问题是搜索规格、信息架构一致性、场景 3 用户画像、Phase 2 外链验证需要收口。

@@ -1,41 +1,48 @@
-# Review Feedback — Round 1 (HTML version)
+# 审查反馈 — 第 1 轮
 
-This document addresses **docs/review-1.md**.
-
-**Date**: 2026-03-21
-**Files**: index.html, server.py
+本文档回应 **docs/review-1.md**。
+**日期**: 2026-03-22
 
 ---
 
-## Issues Response
+## 问题回应
 
-### Issue 1: loadSchool() never checks res.ok
-- **GPT said**: Non-2xx responses are treated as valid school data and rendered as blank profile.
-- **Action**: FIXED
-- **Solution**: Added `res.ok` check before parsing. Non-2xx returns show error via `showDetailError()`. Also checks for `s.error` in JSON response.
-- **Files changed**: index.html:551-558
+### 问题 1: 偏离当前 V2 核心目标
+- **GPT 意见**: 提案把重心转向 CSV 之外的信息，偏离 MVP
+- **处理方式**: ACCEPTED
+- **回应**: 同意。改进提案明确分为 Phase 1（当前 CSV 完善）和 Phase 2（外链增强），不做多源数据集成
 
-### Issue 2: Fetch failure destroys detail DOM structure
-- **GPT said**: Replacing `$detail.innerHTML` removes back button and section bodies, page can't recover.
-- **Action**: FIXED
-- **Solution**: Created `showDetailError()` function that shows error inside section A body only, hides sections B-E, preserves back button. `renderSchool()` restores section visibility when loading successfully.
-- **Files changed**: index.html:762-775, index.html:563
+### 问题 2: 缺失搜索匹配定义
+- **GPT 意见**: 没有定义匹配规则
+- **处理方式**: REFINED
+- **回应**: 当前已实现模糊匹配（SQL LIKE），但提案确实未描述。改进提案中补充说明现有搜索机制
 
-### Issue 3: super().do_GET() exposes arbitrary files
-- **GPT said**: Falling through to SimpleHTTPRequestHandler serves any file from working directory.
-- **Action**: FIXED
-- **Solution**: Replaced `super().do_GET()` with `self.send_error(404, "Not Found")` for unknown routes.
-- **Files changed**: server.py:75-76
+### 问题 3: 家长决策路径过于高中化
+- **GPT 意见**: NCEA 不适用小学/中学前段
+- **处理方式**: ACCEPTED
+- **回应**: 同意。改进提案按学校类型区分家长关注点
 
-### Issue 4: Search count misleading with hard cap
-- **GPT said**: Count shows capped results as if they were the total, hiding valid matches.
-- **Action**: FIXED
-- **Solution**: Added separate COUNT query for real total. API now returns `{results, count, total}`. Frontend shows "找到 N 所学校（显示前 50 所）" when results are capped.
-- **Files changed**: server.py:27-45, server.py:56, index.html:519,523
+### 问题 4: 数据可获得性被低估
+- **GPT 意见**: 大部分扩展数据没有稳定公开数据源
+- **处理方式**: ACCEPTED
+- **回应**: 同意。Phase 2 仅做外链跳转，不做数据集成
 
-## Summary
+### 问题 5: 缺少阶段切分
+- **GPT 意见**: MVP 和增强没分清
+- **处理方式**: ACCEPTED
+- **回应**: 改进提案严格分 Phase 1 / Phase 2 / Phase 3
 
-- Fixed: 4 issues
-- Rejected: 0 issues
-- Out of scope: 0 issues
-- Confidence: All security, error handling, and UX issues resolved.
+### 问题 6: 未定义按学校类型的条件展示
+- **GPT 意见**: NCEA 等字段不适用所有学校
+- **处理方式**: ACCEPTED
+- **回应**: 这属于 Phase 2+ 的范畴，Phase 1 只展示 CSV 已有数据不存在此问题
+
+### 问题 7: 术语定义不清
+- **GPT 意见**: "智能引导"等概念太模糊
+- **处理方式**: ACCEPTED
+- **回应**: 改进提案中移除这些模糊概念，改为具体可执行的描述
+
+## 摘要
+- 已接受: 6 个问题
+- 已改进: 1 个问题
+- 已拒绝: 0 个问题

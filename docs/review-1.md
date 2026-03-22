@@ -1,27 +1,37 @@
-# Review Round 1 of 20
+# GPT 挑战 — 第 1 轮
 
-**Model**: gpt-5.4-xhigh-fast
-**Files**: index.html,server.py
-**Date**: 2026-03-21 21:35:37
+**日期**: 2026-03-22
+**挑战者**: GPT
+**评分**: 5/10
+**结论**: CHANGES_REQUESTED
 
 ---
 
-### VERDICT: CHANGES_REQUESTED
+## COMPLETENESS
+- 学术信息: PARTIAL
+- 生活信息: PARTIAL
+- 家长决策支持: PARTIAL
 
-### SCORE: 6
+## ISSUES
 
-### REQUIREMENT_COVERAGE
-- Core flow ("user enters an English school name -> system matches data -> structured display"): PARTIAL — the happy path works, but broad searches are silently capped and non-2xx detail responses are rendered incorrectly instead of showing a recoverable error state.
-- Five-category V2 layout aligned to the parent/student decision flow: MET — the UI is split into A-E and the grouping of identity, contact, student profile, quality/features, and administration matches the requirement.
-- Coverage of all 49 CSV fields across A-E: MET — sections A-E reference every listed field, including combined address/postal fields, coordinates, and SA2/community fields.
-- Default expansion/collapse behavior: MET — A/B/C are expanded by default, while D/E are collapsible and initially collapsed.
-- Required visuals and bilingual presentation: MET — ethnic distribution bar charts, international-student highlighting, EQI interpretation, and bilingual labels are implemented.
+1. **[critical] 偏离当前 V2 核心目标** — 原始需求的重点是"从 CSV 49 列中匹配并按 5 大类展示"，提案把重心转向补齐 CSV 之外的信息缺口，会让 MVP 从单源展示页膨胀成多源数据聚合产品，不适合当前学习项目阶段。
 
-### ISSUES
-1. [major] index.html:552 — `loadSchool()` never checks `res.ok`, so a 404/500 JSON payload from `/api/school/<num>` is treated as a valid school object and rendered as a mostly blank profile instead of an error state. Suggested fix: throw on non-2xx responses before calling `renderSchool()`.
-2. [major] index.html:556 — the fetch-failure path replaces the entire `#schoolDetail` container with a single error div, which removes the back button and section bodies and leaves the page unable to recover without a full refresh. Suggested fix: keep the detail scaffold intact and render errors inside a dedicated message area.
-3. [major] server.py:75 — falling through to `super().do_GET()` exposes arbitrary files from the working directory, including `schools.db` and source files, which is unnecessary for this app and expands the attack surface. Suggested fix: return 404 for unknown routes or serve only an explicit safe static directory.
-4. [minor] server.py:37 — search results are hard-capped at 50 while the UI reports `count` as if it were the full match count, so broad fuzzy queries can hide valid schools and mislead users. Suggested fix: remove the hard cap for this small dataset, or return a real total count plus pagination/capped-results messaging.
+2. **[critical] 缺失最核心的搜索匹配定义** — 提案没有回答：精确匹配还是模糊匹配、是否支持别名和拼写纠错、同名学校如何消歧、无结果和多结果时如何反馈。
 
-### SUMMARY
-This is a strong first-round implementation of the V2 information architecture: the five-section layout, field mapping, expansion behavior, and key visual elements all line up well with the requirement. However, it is not ready for approval yet because the detail-loading flow fails badly on backend errors and the server still exposes unintended files; those issues should be fixed before the next review round.
+3. **[major] 家长决策路径过于"高中化"** — "NCEA 学术成绩是家长选校第一指标"不适用于小学/中学前段家庭；学区、通勤距离、学校文化与安全感往往优先于考试成绩。
+
+4. **[major] 数据可获得性与标准化风险被低估** — 学区地图、课程体系、费用、课外活动等通常没有统一、稳定、结构化的数据源；如想做自动集成，成本和维护风险很高。
+
+5. **[major] 缺少清晰的阶段切分** — "方案 A/B/C"太宽，没有把 MVP 与后续增强严格分开。
+
+6. **[major] 未定义按学校类型的条件展示规则** — NCEA、UE、国际生支持等并非所有学校都适用；不基于 School Type 做条件展示，会出现大量空白字段。
+
+7. **[minor] 若干术语与行为定义不清** — "智能引导""选校清单"等没有说明展示粒度、数据来源、更新频率。
+
+## SCENARIOS_ASSESSMENT
+- 场景 1（本地家长选公立小学）: NEEDS_WORK
+- 场景 2（留学家庭选高中）: NEEDS_WORK
+- 场景 3（毛利/太平洋岛裔家庭）: NEEDS_WORK
+
+## SUMMARY
+提案更像是"Phase 2 信息增强路线图"，而不是对当前 V2 需求的直接响应。应先回到单一 CSV 数据源、补齐搜索匹配与条件展示规则，再把 ERO/NZQA/官网跳转作为低风险增强项。
