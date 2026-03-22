@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026-03-23 — 搜索下拉支持键盘导航（↑/↓/Enter/Escape）
+
+### Why
+用户希望纯键盘操作即可完成"搜索 → 选择学校"的流程，提升交互效率。
+
+### What
+在搜索结果下拉列表中增加键盘导航功能：↑/↓ 方向键上下移动高亮、Enter 选中当前高亮项、Escape 关闭下拉。键盘与鼠标 hover/click 共存，互不冲突，谁最后操作谁生效。到达边界时循环跳转。
+
+### How
+- CSS：`.result-item.active` 与 `:hover` 共用同一高亮样式
+- JS：新增 `_activeIndex` 状态变量和 `_setActiveIndex()` 函数管理高亮 + 滚动
+- `keydown` 事件：处理 ArrowUp/ArrowDown/Enter/Escape
+- `mouseenter/mouseleave`：鼠标悬停时同步 `_activeIndex`，离开时清除高亮
+- 搜索结果刷新、清除搜索、点击外部时均重置 `_activeIndex`
+
+---
+
 ## 2026-03-23 — 修复 clearSearch 后详情无法再次显示的 bug
 
 ### Why
