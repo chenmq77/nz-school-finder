@@ -953,6 +953,7 @@ function renderSectionB(s) {
     </div>
     <div class="divider"></div>
     <div class="info-row"><span class="info-label">Enrolment / 招生计划</span><span class="info-value">${esc(enrol)} (${esc(enrolCn)})</span></div>
+    <div id="zoneRow"></div>
   `;
 }
 
@@ -998,22 +999,16 @@ function safeUrl(url) {
 function appendZoneToB(w) {
   if (!w.zone_map_url && !w.zone_streets_url && !w.zone_page_url) return;
   const bodyB = document.getElementById('bodyB');
-  let zoneHtml = '<div class="divider"></div>';
-  zoneHtml += '<div class="sub-section"><div class="sub-section-title">Zone Map / 学区地图</div>';
+  let zoneLinks = [];
   const zoneMapSafe = safeUrl(w.zone_map_url);
   const zoneStreetsSafe = safeUrl(w.zone_streets_url);
   const zonePageSafe = safeUrl(w.zone_page_url);
-  if (zoneMapSafe) {
-    zoneHtml += `<div style="margin:4px 0"><a href="${esc(zoneMapSafe)}" target="_blank" rel="noopener" style="font-size:13px;color:var(--primary)">[查看学区地图 / View zone map]</a></div>`;
-  }
-  if (zoneStreetsSafe) {
-    zoneHtml += `<div style="margin:4px 0"><a href="${esc(zoneStreetsSafe)}" target="_blank" rel="noopener" style="font-size:13px;color:var(--primary)">[查看学区街道列表 / Zone streets PDF]</a></div>`;
-  }
-  if (zonePageSafe) {
-    zoneHtml += `<div style="margin:4px 0"><a href="${esc(zonePageSafe)}" target="_blank" rel="noopener" style="font-size:13px;color:var(--primary)">[查看入学详情 / Enrolment details]</a></div>`;
-  }
-  zoneHtml += '</div>';
-  bodyB.innerHTML += zoneHtml;
+  if (zoneMapSafe) zoneLinks.push(`<a href="${esc(zoneMapSafe)}" target="_blank" rel="noopener">[学区地图 / Zone map]</a>`);
+  if (zoneStreetsSafe) zoneLinks.push(`<a href="${esc(zoneStreetsSafe)}" target="_blank" rel="noopener">[街道列表 / Streets PDF]</a>`);
+  if (zonePageSafe) zoneLinks.push(`<a href="${esc(zonePageSafe)}" target="_blank" rel="noopener">[入学详情 / Enrolment]</a>`);
+  const zoneHtml = `<div class="info-row"><span class="info-label">Zone / 学区</span><span class="info-value" style="font-size:13px">${zoneLinks.join('  ')}</span></div>`;
+  const zoneRow = document.getElementById('zoneRow');
+  if (zoneRow) zoneRow.innerHTML = zoneHtml;
 }
 
 function renderFees(w) {
