@@ -1,37 +1,40 @@
-# GPT 挑战 — 第 1 轮
+# Requirement Challenge — Round 1 of 2
 
-**日期**: 2026-03-22
-**挑战者**: GPT
-**评分**: 5/10
-**结论**: CHANGES_REQUESTED
+**Model**: gpt-5.4-xhigh-fast
+**Date**: 2026-03-23 11:21:17
 
 ---
 
-## COMPLETENESS
-- 学术信息: PARTIAL
-- 生活信息: PARTIAL
-- 家长决策支持: PARTIAL
+### VERDICT: CHANGES_REQUESTED
 
-## ISSUES
+### SCORE: 5
 
-1. **[critical] 偏离当前 V2 核心目标** — 原始需求的重点是"从 CSV 49 列中匹配并按 5 大类展示"，提案把重心转向补齐 CSV 之外的信息缺口，会让 MVP 从单源展示页膨胀成多源数据聚合产品，不适合当前学习项目阶段。
+### COMPLETENESS
+- Crawl flow coverage: PARTIAL — The proposal covers fetch, clean, extract, and validate, but does not define how relevant pages and PDFs are discovered before extraction.
+- Human-in-the-loop process: GAP — The requirement says some subject classification needs manual judgment, but no review or escalation workflow is defined.
+- Refresh/update strategy: GAP — Scheduled updates are raised as a core question but never resolved into a concrete policy.
+- Operational model: PARTIAL — robots.txt compliance and 2-second rate limiting are stated, but concurrency, retries, crawl budget, and runtime at 2577-school scale are unspecified.
+- Data quality and auditability: PARTIAL — Validation is mentioned, but provenance, source snapshots, conflict handling, and partial-data rules are missing.
 
-2. **[critical] 缺失最核心的搜索匹配定义** — 提案没有回答：精确匹配还是模糊匹配、是否支持别名和拼写纠错、同名学校如何消歧、无结果和多结果时如何反馈。
+### ISSUES
+1. [critical] Crawl scope and source discovery — The design assumes a general crawler plus a school URL list is enough, but the required data is typically spread across multiple subpages, PDFs, and sometimes external domains — define page discovery, crawl depth, document selection, and per-field source tracing.
+2. [major] Human review and uncertainty handling — The requirement explicitly allows cases where AI cannot safely decide, but the architecture has no confidence thresholds, review queue, or partial approval flow — add manual verification steps for ambiguous mappings and low-confidence extractions.
+3. [major] Scale and failure behavior — Batch crawling with dynamic rendering and LLM extraction across 2577 schools may be slow, costly, and fragile under rate limits — specify retries, backoff, stop/resume behavior, render budget, token budget, and what happens on blocked pages, broken links, missing robots rules, or timeouts.
+4. [minor] Persistence strategy — Rejecting per-school scripts is reasonable, but the proposal does not define what still must be persisted for reproducibility — persist extraction schema versions, prompts, crawl logs, discovered page maps, and field-level provenance even if the crawler code stays generic.
+5. [question] For user — What should v1 optimize for first: maximum school coverage, highest data accuracy, lowest maintenance effort, or lowest API/runtime cost?
 
-3. **[major] 家长决策路径过于"高中化"** — "NCEA 学术成绩是家长选校第一指标"不适用于小学/中学前段家庭；学区、通勤距离、学校文化与安全感往往优先于考试成绩。
+### SCENARIOS_ASSESSMENT
+- Single-school crawl across homepage, subpages, and PDFs: NEEDS_WORK — The target outcome is clear, but navigation and source selection rules are not defined.
+- Batch expansion from 5 schools to 2577 schools: NEEDS_WORK — Batch mode is named, but prioritization, throughput expectations, and recovery behavior are missing.
+- Dynamic sites such as Wix or JS-heavy pages: NEEDS_WORK — A dynamic fetcher is mentioned, but fallback behavior and cost controls are undefined.
+- Ambiguous subject/category mapping requiring human judgment: MISSING — No manual review scenario is described.
+- Periodic re-crawl of already processed schools: MISSING — No update cadence or change-detection rules are provided.
+- Partial extraction or conflicting sources: MISSING — There is no defined behavior for incomplete records or disagreements between pages/documents.
 
-4. **[major] 数据可获得性与标准化风险被低估** — 学区地图、课程体系、费用、课外活动等通常没有统一、稳定、结构化的数据源；如想做自动集成，成本和维护风险很高。
+### ARCHITECTURE_ASSESSMENT
+- Fitness: 5/10
+- Risks: [multi-page discovery is underspecified, LLM extraction may be inconsistent or hallucinatory, no formal human-review loop exists, reproducibility/debugging will be weak without persisted artifacts, full-scale runtime and token cost may grow beyond the intended learning-project scope]
+- Suggestions: [use a staged pipeline of discovery -> retrieval -> extraction -> validation -> review, classify sites by common patterns before falling back to LLM-heavy extraction, persist provenance and run artifacts for every extracted field, define measurable acceptance criteria and confidence thresholds, add crawl-budget and failure-recovery controls before attempting large-scale batch runs]
 
-5. **[major] 缺少清晰的阶段切分** — "方案 A/B/C"太宽，没有把 MVP 与后续增强严格分开。
-
-6. **[major] 未定义按学校类型的条件展示规则** — NCEA、UE、国际生支持等并非所有学校都适用；不基于 School Type 做条件展示，会出现大量空白字段。
-
-7. **[minor] 若干术语与行为定义不清** — "智能引导""选校清单"等没有说明展示粒度、数据来源、更新频率。
-
-## SCENARIOS_ASSESSMENT
-- 场景 1（本地家长选公立小学）: NEEDS_WORK
-- 场景 2（留学家庭选高中）: NEEDS_WORK
-- 场景 3（毛利/太平洋岛裔家庭）: NEEDS_WORK
-
-## SUMMARY
-提案更像是"Phase 2 信息增强路线图"，而不是对当前 V2 需求的直接响应。应先回到单一 CSV 数据源、补齐搜索匹配与条件展示规则，再把 ERO/NZQA/官网跳转作为低风险增强项。
+### SUMMARY
+The proposal is directionally promising because it correctly rejects fully custom per-school scripts as the long-term default and recognizes that heterogeneous sites require more than selector-based scraping. However, it is not implementation-ready yet: the biggest gaps are page discovery, human review for ambiguous data, operational behavior at scale, and reproducibility of crawl results. Without those pieces, the architecture does not yet fully support the stated goal of moving from 5 manually processed schools to reliable coverage of 2577 schools.
