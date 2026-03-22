@@ -1,6 +1,6 @@
 # 爬虫指南 — NZ School Finder
 
-从 AGS、Rangitoto、Avondale 三所学校的爬取经验中总结的规则和教训。
+从 AGS、Rangitoto、Avondale、Westlake Boys 四所学校的爬取经验中总结的规则和教训。
 
 ---
 
@@ -195,6 +195,12 @@ p.stop()
 | Classics | Classical Studies | NZQA 官方名 |
 | Social Sciences | → group，看学校有没有细科目 | 有细科目时不展开 |
 | Technology | → group，看学校有没有细科目 | 有细科目时不展开 |
+| Building & Construction | Construction | 别名 |
+| Product Design | Product Development | 别名 |
+| Mechanical Manufacturing | 不匹配 Wood Technology | 机械 ≠ 木工，不能乱映射 |
+| Art Design | Design | Visual Arts 下的子科目 |
+| Digital Technologies Programming | Digital Technology | pool 标准名 |
+| Food and Hospitality | 拆分为 Food Technology + Hospitality | 看学校实际开设 |
 
 ---
 
@@ -204,3 +210,40 @@ p.stop()
 - 来源应为 NZQA 官方科目 或 学校 coursebook PDF 确认的课程
 - 不加入 pool 的：支持服务（Learning Support, Counselling）、非学科（Careers）、过细的变体（Music Technology, Fashion Technology）
 - Pool 当前状态：11 groups, 60+ subjects
+- 不加入 pool 的变体：Music Technology, Fashion Technology, Mechanical Engineering, Outdoor Education
+
+---
+
+## 14. Curriculum Systems 验证规则
+
+- **不能用 JS 变量名匹配**：Westlake 的 `var ib = {}` 不是 International Baccalaureate
+- 必须在页面正文（非 JS 代码）中找到 "International Baccalaureate" / "IB Diploma" / "Cambridge" / "A-Level" 等关键词
+- 最好有专门的页面（如 /ib-review/, /cambridge-caie/）作为 evidence_url
+- 只有 NCEA 的学校不显示 curriculum badge（因为所有学校都有 NCEA）
+
+---
+
+## 15. 数据完整性检查清单
+
+每所学校爬完后，检查以下项目：
+
+| 检查项 | 要求 |
+|--------|------|
+| Subjects | 有 PDF/coursebook 依据，不能凭猜测 |
+| Sports | 来源页面链接有效 |
+| Arts | 只含表演团体 + Kapa Haka |
+| Clubs | 有来源链接（activities_url） |
+| Fees | 有 PDF 来源，金额为最新年度 |
+| Curriculum | 有 evidence_url，不能从 JS 代码匹配 |
+| 新增 pool 科目 | 必须经过用户批准 |
+
+---
+
+## 16. 已爬学校记录
+
+| # | 学校 | Subjects | Sports | Arts | Clubs | Fees | Curriculum | 网站类型 |
+|---|------|----------|--------|------|-------|------|-----------|---------|
+| 54 | Auckland Grammar | 27 | 32 | 16 | 6 | $25,750 | NCEA, A-Level | WordPress |
+| 28 | Rangitoto College | 40 | 30 | 6 | 87 | $20,500 | NCEA, IB | 标准 HTML |
+| 78 | Avondale College | 37 | 29 | 14 | 20 | $21,000 | NCEA, A-Level | Wix (需 Playwright) |
+| 37 | Westlake Boys | 40 | 31 | 15 | 21 | $23,000 | NCEA | 标准 HTML |
