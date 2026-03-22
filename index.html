@@ -590,26 +590,26 @@ body {
       <div class="section-body" id="bodyB"></div>
     </div>
 
-    <!-- C. 费用 -->
+    <!-- C. 课程 -->
     <div class="section" id="sectionC">
       <div class="section-header">
-        <div class="section-title"><span class="section-icon">&#128176;</span> C. 费用 / Fees</div>
+        <div class="section-title"><span class="section-icon">&#128218;</span> C. 课程 / Subjects</div>
       </div>
       <div class="section-body" id="bodyC"></div>
     </div>
 
-    <!-- D. 课程 -->
+    <!-- D. 课外活动 -->
     <div class="section" id="sectionD">
       <div class="section-header">
-        <div class="section-title"><span class="section-icon">&#128218;</span> D. 课程 / Subjects</div>
+        <div class="section-title"><span class="section-icon">&#9917;</span> D. 课外活动 / Extra-curricular</div>
       </div>
       <div class="section-body" id="bodyD"></div>
     </div>
 
-    <!-- E. 课外活动 -->
+    <!-- E. 国际生费用 -->
     <div class="section" id="sectionE">
       <div class="section-header">
-        <div class="section-title"><span class="section-icon">&#9917;</span> E. 课外活动 / Extra-curricular</div>
+        <div class="section-title"><span class="section-icon">&#128176;</span> E. 国际生费用 / International Fees</div>
       </div>
       <div class="section-body" id="bodyE"></div>
     </div>
@@ -966,10 +966,10 @@ async function loadWebData(schoolNum) {
   _webDataController = new AbortController();
   _webDataSchoolNum = schoolNum;
 
-  // 默认显示"暂无数据"
-  document.getElementById('bodyC').innerHTML = '<div class="info-row" style="color:var(--text-muted);padding:12px 0">暂无费用数据 / No fee data available</div>';
-  document.getElementById('bodyD').innerHTML = '<div class="info-row" style="color:var(--text-muted);padding:12px 0">暂无课程数据 / No subject data available</div>';
-  document.getElementById('bodyE').innerHTML = '<div class="info-row" style="color:var(--text-muted);padding:12px 0">暂无活动数据 / No activity data available</div>';
+  // 默认显示"暂无数据"（C=课程, D=活动, E=费用）
+  document.getElementById('bodyC').innerHTML = '<div class="info-row" style="color:var(--text-muted);padding:12px 0">暂无课程数据 / No subject data available</div>';
+  document.getElementById('bodyD').innerHTML = '<div class="info-row" style="color:var(--text-muted);padding:12px 0">暂无活动数据 / No activity data available</div>';
+  document.getElementById('bodyE').innerHTML = '<div class="info-row" style="color:var(--text-muted);padding:12px 0">暂无费用数据 / No fee data available</div>';
 
   try {
     const res = await fetch(`/api/school/${schoolNum}/web`, { signal: _webDataController.signal });
@@ -978,9 +978,9 @@ async function loadWebData(schoolNum) {
     if (_webDataSchoolNum !== schoolNum) return;
     const w = await res.json();
     if (w.error) return;
-    renderSectionC(w);
-    renderSectionD(w);
-    renderSectionE(w);
+    renderSubjects(w);    // → bodyC
+    renderActivities(w);  // → bodyD
+    renderFees(w);        // → bodyE
     appendZoneToB(w);
   } catch (e) {
     if (e.name === 'AbortError') return; // 正常取消
@@ -1004,7 +1004,7 @@ function appendZoneToB(w) {
   const zoneStreetsSafe = safeUrl(w.zone_streets_url);
   const zonePageSafe = safeUrl(w.zone_page_url);
   if (zoneMapSafe) {
-    zoneHtml += `<div style="margin:8px 0"><img src="${esc(zoneMapSafe)}" alt="Zone Map" style="max-width:100%;border-radius:8px;border:1px solid var(--border)"></div>`;
+    zoneHtml += `<div style="margin:4px 0"><a href="${esc(zoneMapSafe)}" target="_blank" rel="noopener" style="font-size:13px;color:var(--primary)">[查看学区地图 / View zone map]</a></div>`;
   }
   if (zoneStreetsSafe) {
     zoneHtml += `<div style="margin:4px 0"><a href="${esc(zoneStreetsSafe)}" target="_blank" rel="noopener" style="font-size:13px;color:var(--primary)">[查看学区街道列表 / Zone streets PDF]</a></div>`;
@@ -1016,7 +1016,7 @@ function appendZoneToB(w) {
   bodyB.innerHTML += zoneHtml;
 }
 
-function renderSectionC(w) {
+function renderFees(w) {
   if (!w.intl_tuition_annual && !w.intl_homestay_weekly) return;
   const tuition = w.intl_tuition_annual ? `$${Number(w.intl_tuition_annual).toLocaleString()}` : '--';
   const homestay = w.intl_homestay_weekly ? `$${Number(w.intl_homestay_weekly).toLocaleString()}` : '--';
@@ -1024,7 +1024,7 @@ function renderSectionC(w) {
   const feesUrl = safeUrl(w.intl_fees_url);
   const feesLink = feesUrl ? `<a href="${esc(feesUrl)}" target="_blank" rel="noopener" style="font-size:12px;color:var(--primary)">[查看完整费用政策 / Full fees]</a>` : '';
 
-  document.getElementById('bodyC').innerHTML = `
+  document.getElementById('bodyE').innerHTML = `
     <div class="highlight-cards">
       <div class="highlight-card">
         <div class="card-label">Tuition / 年学费</div>
@@ -1041,7 +1041,7 @@ function renderSectionC(w) {
   `;
 }
 
-function renderSectionD(w) {
+function renderSubjects(w) {
   if (!w.subjects) return;
   let subjects;
   try { subjects = JSON.parse(w.subjects); } catch(e) { return; }
@@ -1055,7 +1055,7 @@ function renderSectionD(w) {
   const srcUrl = safeUrl(w.subjects_url);
   const srcLink = srcUrl ? `<a href="${esc(srcUrl)}" target="_blank" rel="noopener" style="font-size:11px;color:var(--text-muted)">[来源 / Source]</a>` : '';
 
-  document.getElementById('bodyD').innerHTML = `
+  document.getElementById('bodyC').innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <span style="font-size:14px;font-weight:600;color:var(--text)">${subjects.length} Subjects / 科目</span>
       ${srcLink}
@@ -1064,7 +1064,7 @@ function renderSectionD(w) {
   `;
 }
 
-function renderSectionE(w) {
+function renderActivities(w) {
   let sports = [], music = [], cultural = [], activities = [];
   try { if (w.sports) sports = JSON.parse(w.sports); } catch(e) {}
   try { if (w.music) music = JSON.parse(w.music); } catch(e) {}
@@ -1081,25 +1081,19 @@ function renderSectionE(w) {
   if (artsCulturalCount) cards += `<div class="highlight-card"><div class="card-value">${artsCulturalCount}</div><div class="card-label">Arts & Culture / 艺术文化</div></div>`;
   cards += '</div>';
 
-  // Sports 列表
+  // Sports — 点分隔排版（同音乐）
   let sportsHtml = '';
   if (sports.length) {
     const srcUrl = safeUrl(w.sports_url);
     const srcLink = srcUrl ? `<a href="${esc(srcUrl)}" target="_blank" rel="noopener" style="font-size:11px;color:var(--text-muted)">[来源]</a>` : '';
+    const sportNames = sports.map(s => typeof s === 'string' ? s : s.name);
     sportsHtml = `<div class="sub-section">
       <div class="sub-section-title" style="display:flex;justify-content:space-between">Sports / 体育 (${sports.length}) ${srcLink}</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 16px;font-size:13px">
-        ${sports.map(s => {
-          const name = typeof s === 'string' ? s : s.name;
-          const terms = typeof s === 'object' && s.terms ? s.terms.replace(/,/g, ' ') : '';
-          const termsBadge = terms ? `<span style="font-size:10px;color:var(--text-muted);margin-left:4px">${esc(terms === 'all_year' ? 'All Year' : terms.toUpperCase())}</span>` : '';
-          return `<div style="padding:3px 0">${esc(name)} ${termsBadge}</div>`;
-        }).join('')}
-      </div>
+      <div style="font-size:13px">${sportNames.map(n => esc(n)).join('  ·  ')}</div>
     </div>`;
   }
 
-  // Music 列表
+  // Music
   let musicHtml = '';
   if (music.length) {
     musicHtml = `<div class="sub-section">
@@ -1123,7 +1117,7 @@ function renderSectionE(w) {
     </div>`;
   }
 
-  document.getElementById('bodyE').innerHTML = cards + sportsHtml + musicHtml + otherHtml;
+  document.getElementById('bodyD').innerHTML = cards + sportsHtml + musicHtml + otherHtml;
 }
 
 function renderSectionF(s) {
