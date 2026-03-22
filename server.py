@@ -120,6 +120,8 @@ class SchoolFinderHandler(http.server.SimpleHTTPRequestHandler):
             self._handle_school(school_number)
         elif path == "/" or path == "/index.html":
             self._serve_file("index.html", "text/html; charset=utf-8")
+        elif path.endswith(".png") and "/" not in path[1:]:
+            self._serve_file(path[1:], "image/png")
         else:
             # 不暴露任意文件，未知路由返回 404
             self.send_error(404, "Not Found")

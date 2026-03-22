@@ -199,7 +199,7 @@ body {
 /* ── A. Identity ──────────────────────────────────── */
 .school-name-row {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 12px;
   margin-bottom: 20px;
   flex-wrap: wrap;
@@ -859,9 +859,12 @@ function renderSectionA(s) {
   const websiteLink = website !== '--' && isSafeUrl(websiteUrl) ? `<a href="${esc(websiteUrl)}" target="_blank" rel="noopener">${esc(website)}</a>` : esc(website);
 
   document.getElementById('bodyA').innerHTML = `
-    <div class="school-name-row">
-      <span class="school-main-name">${esc(safe(s.school_name))}</span>
-      <span class="school-number">No. ${esc(safe(s.school_number))}</span>
+    <div style="position:relative">
+      <img id="schoolLogo" src="" alt="" style="display:none;position:absolute;right:8px;top:8px;width:72px;height:72px;object-fit:contain;opacity:0.6">
+      <div class="school-name-row">
+        <span class="school-main-name">${esc(safe(s.school_name))}</span>
+        <span class="school-number">No. ${esc(safe(s.school_number))}</span>
+      </div>
     </div>
     <div class="tag-row">
       <div class="tag"><span class="en">${esc(safe(s.school_type))}</span><span class="cn">${esc(typeCn)}</span></div>
@@ -980,6 +983,17 @@ async function loadWebData(schoolNum) {
     if (_webDataSchoolNum !== schoolNum) return;
     const w = await res.json();
     if (w.error) return;
+    // Logo
+    const logoEl = document.getElementById('schoolLogo');
+    const logoUrl = safeUrl(w.logo_url);
+    if (logoEl && logoUrl) {
+      logoEl.onerror = function() { this.style.display = 'none'; };
+      logoEl.src = logoUrl;
+      logoEl.style.display = 'block';
+    } else if (logoEl) {
+      logoEl.style.display = 'none';
+    }
+
     renderCurriculumBadges(w);
     renderSubjects(w);    // → bodyC
     renderActivities(w);  // → bodyD
@@ -994,7 +1008,7 @@ async function loadWebData(schoolNum) {
 function safeUrl(url) {
   if (!url) return '';
   const s = String(url).trim();
-  if (s.startsWith('http://') || s.startsWith('https://')) return s;
+  if (s.startsWith('http://') || s.startsWith('https://') || s.startsWith('/')) return s;
   return '';
 }
 
