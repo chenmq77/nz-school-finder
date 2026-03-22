@@ -143,10 +143,7 @@ class SchoolFinderHandler(http.server.SimpleHTTPRequestHandler):
 
     def _handle_school_web(self, school_number):
         data = fetch_school_web(school_number)
-        if data:
-            self._json_response(data)
-        else:
-            self._json_response({"error": "No web data available"}, 404)
+        self._json_response(data or {})
 
     def _json_response(self, data, status=200):
         body = json.dumps(data, ensure_ascii=False).encode("utf-8")
