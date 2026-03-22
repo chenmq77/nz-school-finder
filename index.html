@@ -100,7 +100,7 @@ body {
 .search-box input {
   flex: 1;
   border: none;
-  padding: 10px 14px;
+  padding: 10px 36px 10px 14px;
   font-size: 14px;
   outline: none;
   background: transparent;
@@ -552,11 +552,12 @@ body {
 <!-- Header (sticky, Google News style) -->
 <div class="header">
   <div class="header-row">
-    <div class="brand"><span>NZ</span> School Finder</div>
+    <div class="brand" onclick="clearSearch()" style="cursor:pointer" title="Back to home"><span>NZ</span> School Finder</div>
     <div class="search-wrap">
       <div class="search-box">
         <div class="search-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></div>
         <input type="text" id="searchInput" placeholder="Search for schools..." autocomplete="off">
+        <button id="clearBtn" onclick="clearSearch()" title="Clear search" style="display:none;position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:18px;padding:4px 8px;line-height:1">&times;</button>
       </div>
       <div class="search-results" id="searchResults"></div>
     </div>
@@ -709,9 +710,23 @@ const $empty = document.getElementById('emptyState');
 const $schoolTag = document.getElementById('currentSchoolTag');
 
 /* ── Search ───────────────────────────────────────── */
+const $clearBtn = document.getElementById('clearBtn');
+
+function clearSearch() {
+  $input.value = '';
+  $results.classList.remove('show');
+  $results.innerHTML = '';
+  $detail.style.display = 'none';
+  $empty.style.display = '';
+  $schoolTag.classList.remove('show');
+  $clearBtn.style.display = 'none';
+  $input.focus();
+}
+
 $input.addEventListener('input', () => {
   clearTimeout(searchTimer);
   const q = $input.value.trim();
+  $clearBtn.style.display = q ? 'block' : 'none';
   if (q.length < 2) { $results.classList.remove('show'); return; }
   searchTimer = setTimeout(() => doSearch(q), 250);
 });
