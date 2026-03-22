@@ -942,6 +942,9 @@ function renderSectionB(s) {
     <div class="info-row"><span class="info-label">Tel / 电话</span><span class="info-value">${telLink}</span></div>
     <div class="info-row"><span class="info-label">Email / 邮箱</span><span class="info-value">${emailLink}</span></div>
     <div class="divider"></div>
+    <div class="info-row"><span class="info-label">Enrolment / 招生计划</span><span class="info-value">${esc(enrol)} (${esc(enrolCn)})</span></div>
+    <div id="zoneRow"></div>
+    <div class="divider"></div>
     <div class="gauge-row">
       <div class="gauge-card">
         <div class="gauge-label">EQI / 公平指数</div>
@@ -951,9 +954,6 @@ function renderSectionB(s) {
         <div class="gauge-interpret">${eqiInterpret}</div>
       </div>
     </div>
-    <div class="divider"></div>
-    <div class="info-row"><span class="info-label">Enrolment / 招生计划</span><span class="info-value">${esc(enrol)} (${esc(enrolCn)})</span></div>
-    <div id="zoneRow"></div>
   `;
 }
 
