@@ -577,68 +577,65 @@ body {
 
     <!-- A. 学校身份概览 -->
     <div class="section" id="sectionA">
-      <div class="section-header">
+      <div class="section-header collapsible" onclick="toggleSection('A')">
         <div class="section-title">A. 学校身份概览 / School Identity</div>
+        <span class="section-toggle open" id="toggleA">&#9660;</span>
       </div>
       <div class="section-body" id="bodyA"></div>
     </div>
 
     <!-- B. 位置与入学 -->
     <div class="section" id="sectionB">
-      <div class="section-header">
+      <div class="section-header collapsible" onclick="toggleSection('B')">
         <div class="section-title">B. 位置与入学 / Location & Admissions</div>
+        <span class="section-toggle open" id="toggleB">&#9660;</span>
       </div>
       <div class="section-body" id="bodyB"></div>
     </div>
 
     <!-- C. 课程 -->
     <div class="section" id="sectionC">
-      <div class="section-header">
+      <div class="section-header collapsible" onclick="toggleSection('C')">
         <div class="section-title">C. 课程 / Subjects</div>
+        <span class="section-toggle open" id="toggleC">&#9660;</span>
       </div>
       <div class="section-body" id="bodyC"></div>
     </div>
 
     <!-- D. 课外活动 -->
     <div class="section" id="sectionD">
-      <div class="section-header">
+      <div class="section-header collapsible" onclick="toggleSection('D')">
         <div class="section-title">D. 课外活动 / Extra-curricular</div>
+        <span class="section-toggle open" id="toggleD">&#9660;</span>
       </div>
       <div class="section-body" id="bodyD"></div>
     </div>
 
     <!-- E. 国际生费用 -->
     <div class="section" id="sectionE">
-      <div class="section-header">
+      <div class="section-header collapsible" onclick="toggleSection('E')">
         <div class="section-title">E. 国际生费用 / International Fees</div>
+        <span class="section-toggle open" id="toggleE">&#9660;</span>
       </div>
       <div class="section-body" id="bodyE"></div>
     </div>
 
     <!-- F. 学生规模与构成 -->
     <div class="section" id="sectionF">
-      <div class="section-header">
+      <div class="section-header collapsible" onclick="toggleSection('F')">
         <div class="section-title">F. 学生规模与构成 / Students</div>
+        <span class="section-toggle open" id="toggleF">&#9660;</span>
       </div>
       <div class="section-body" id="bodyF"></div>
     </div>
 
-    <!-- G. 学校质量与特色 -->
+    <!-- G. 其他信息 -->
     <div class="section" id="sectionG">
       <div class="section-header collapsible" onclick="toggleSection('G')">
-        <div class="section-title">G. 学校质量与特色 / Quality & Features</div>
+        <div class="section-title">G. 其他信息 / Other Details</div>
         <span class="section-toggle" id="toggleG">&#9660;</span>
       </div>
       <div class="section-body collapsed" id="bodyG"></div>
-    </div>
-
-    <!-- H. 行政与区域归属 -->
-    <div class="section" id="sectionH">
-      <div class="section-header collapsible" onclick="toggleSection('H')">
-        <div class="section-title">H. 行政与区域归属 / Administrative</div>
-        <span class="section-toggle" id="toggleH">&#9660;</span>
-      </div>
-      <div class="section-body collapsed" id="bodyH"></div>
     </div>
 
   </div><!-- /school-detail -->
@@ -811,21 +808,21 @@ async function loadSchool(num, schoolName) {
   $detail.classList.add('show');
 
   // 立即清空旧内容，显示 loading 状态
-  ['A','B','C','D','E'].forEach(k => {
-    document.getElementById('body' + k).innerHTML = '';
-    document.getElementById('section' + k).style.display = '';
+  ['A','B','C','D','E','F','G'].forEach(k => {
+    const body = document.getElementById('body' + k);
+    const section = document.getElementById('section' + k);
+    if (body) body.innerHTML = '';
+    if (section) section.style.display = '';
   });
   document.getElementById('bodyA').innerHTML = '<div class="spinner"></div>';
-  document.getElementById('sectionB').style.display = 'none';
-  document.getElementById('sectionC').style.display = 'none';
-  document.getElementById('sectionD').style.display = 'none';
-  document.getElementById('sectionE').style.display = 'none';
 
-  // 重置 D/E 为折叠状态
+  // A-F 展开，G 折叠
+  ['A','B','C','D','E','F'].forEach(k => {
+    document.getElementById('body' + k).classList.remove('collapsed');
+    document.getElementById('toggle' + k).classList.add('open');
+  });
   document.getElementById('bodyG').classList.add('collapsed');
-  document.getElementById('bodyH').classList.add('collapsed');
   document.getElementById('toggleG').classList.remove('open');
-  document.getElementById('toggleH').classList.remove('open');
 
   // 滚动到顶部（跳过 hero），让搜索栏 sticky 在顶部、详情从搜索栏下方开始
   window.scrollTo({ top: 0, behavior: 'instant' });
@@ -848,15 +845,14 @@ async function loadSchool(num, schoolName) {
 /* ── Render School ────────────────────────────────── */
 function renderSchool(s) {
   // 确保所有 section 可见（从错误状态恢复时）
-  ['B','C','D','E','F','G','H'].forEach(k => { document.getElementById('section' + k).style.display = ''; });
+  ['B','C','D','E','F','G'].forEach(k => { document.getElementById('section' + k).style.display = ''; });
   // 显示当前学校名标签
   $schoolTag.textContent = safe(s.school_name);
   $schoolTag.classList.add('show');
   renderSectionA(s);
   renderSectionB(s);
-  renderSectionF(s);  // 学生构成（原C）
-  renderSectionG(s);  // 质量特色（原D）
-  renderSectionH(s);  // 行政归属（原E）
+  renderSectionF(s);  // 学生构成
+  renderSectionG(s);  // 其他信息（合并原 G+H）
 
   // 加载爬取数据（C/D/E 区）
   loadWebData(s.school_number);
@@ -1209,9 +1205,8 @@ function renderSectionF(s) {
 function renderSectionG(s) {
   const iso = parseFloat(s.isolation_index);
   const isoValid = !isNaN(iso) && hasValue(s.isolation_index);
-  const isoDisplay = isoValid ? iso : '--';
-  const isoPct = isoValid ? Math.min(100, Math.max(0, iso / 15 * 100)) : 0;
   const isoInterpret = !isoValid ? '--' : iso < 1 ? '靠近市中心 / Near city centre' : iso < 5 ? '郊区 / Suburban' : iso < 10 ? '偏远地区 / Remote' : '极偏远 / Very remote';
+  const isoText = isoValid ? `${iso} (${isoInterpret})` : '--';
 
   const status = safe(s.status).toLowerCase();
   const statusMap = { 'open': ['Open (运营中)', 'open'], 'closed': ['Closed (已关闭)', 'closed'], 'merger': ['Merger (合并中)', 'other'], 'new': ['New (筹建中)', 'other'], 'not yet open': ['Not Yet Open (未开放)', 'other'], 'proposed': ['Proposed (规划中)', 'other'] };
@@ -1220,26 +1215,6 @@ function renderSectionG(s) {
   const cohort = safe(s.cohort_entry);
   const cohortCn = cohort === 'Yes' ? '群体入学' : cohort === 'No' ? '非群体入学' : cohort;
 
-  document.getElementById('bodyG').innerHTML = `
-    <div class="gauge-row">
-      <div class="gauge-card">
-        <div class="gauge-label">Isolation / 偏远指数</div>
-        <div class="gauge-value">${isoDisplay}</div>
-        <div class="gauge-bar-wrap"><div class="gauge-bar iso" style="width:${isoPct}%"></div></div>
-        <div class="gauge-interpret">${isoInterpret}</div>
-      </div>
-    </div>
-    <div class="info-row"><span class="info-label">Teaching Language / 教学语言</span><span class="info-value">${esc(safe(s.language_of_instruction))}</span></div>
-    <div class="info-row"><span class="info-label">Donations / 捐赠政策</span><span class="info-value">${esc(safe(s.donations))}</span></div>
-    <div class="info-row"><span class="info-label">KME Peak Body / 毛利教育机构</span><span class="info-value">${esc(safe(s.kme_peak_body))}</span></div>
-    <div class="info-row"><span class="info-label">Principal / 校长</span><span class="info-value">${esc(safe(s.principal))}</span></div>
-    <div class="info-row"><span class="info-label">Definition / 办学定义</span><span class="info-value">${esc(safe(s.definition))}</span></div>
-    <div class="info-row"><span class="info-label">Status / 运营状态</span><span class="info-value"><span class="status-badge ${esc(statusClass)}">${esc(statusText)}</span></span></div>
-    <div class="info-row"><span class="info-label">Cohort Entry / 群体入学</span><span class="info-value">${esc(cohort)} (${esc(cohortCn)})</span></div>
-  `;
-}
-
-function renderSectionH(s) {
   const sa2Name = safe(s.neighbourhood_sa2);
   const sa2Code = safe(s.neighbourhood_sa2_code);
   let nb;
@@ -1248,7 +1223,18 @@ function renderSectionH(s) {
   else if (sa2Code !== '--') nb = sa2Code;
   else nb = '--';
 
-  document.getElementById('bodyH').innerHTML = `
+  document.getElementById('bodyG').innerHTML = `
+    <div class="sub-section">
+      <div class="sub-section-title">Quality / 质量特色</div>
+      <div class="info-row"><span class="info-label">Isolation / 偏远指数</span><span class="info-value">${esc(isoText)}</span></div>
+      <div class="info-row"><span class="info-label">Teaching Language / 教学语言</span><span class="info-value">${esc(safe(s.language_of_instruction))}</span></div>
+      <div class="info-row"><span class="info-label">Donations / 捐赠政策</span><span class="info-value">${esc(safe(s.donations))}</span></div>
+      <div class="info-row"><span class="info-label">KME Peak Body / 毛利教育机构</span><span class="info-value">${esc(safe(s.kme_peak_body))}</span></div>
+      <div class="info-row"><span class="info-label">Principal / 校长</span><span class="info-value">${esc(safe(s.principal))}</span></div>
+      <div class="info-row"><span class="info-label">Definition / 办学定义</span><span class="info-value">${esc(safe(s.definition))}</span></div>
+      <div class="info-row"><span class="info-label">Status / 运营状态</span><span class="info-value"><span class="status-badge ${esc(statusClass)}">${esc(statusText)}</span></span></div>
+      <div class="info-row"><span class="info-label">Cohort Entry / 群体入学</span><span class="info-value">${esc(cohort)} (${esc(cohortCn)})</span></div>
+    </div>
     <div class="sub-section">
       <div class="sub-section-title">Region / 区域管辖</div>
       <div class="info-row"><span class="info-label">Education Region / 教育大区</span><span class="info-value">${esc(safe(s.education_region))}</span></div>
@@ -1278,17 +1264,17 @@ function renderSectionH(s) {
 /* ── Toggle D/E ───────────────────────────────────── */
 function showDetailError(msg) {
   // 在各 section body 中显示错误信息，不破坏 DOM 结构
-  ['A','B','C','D','E','F','G','H'].forEach(k => {
+  ['A','B','C','D','E','F','G'].forEach(k => {
     const body = document.getElementById('body' + k);
     if (body) body.innerHTML = '';
   });
   document.getElementById('bodyA').innerHTML = `<div class="no-results" style="padding:40px 20px">${esc(msg)}<br><small style="color:var(--text-muted)">请在搜索框中重新输入查询</small></div>`;
   $schoolTag.classList.remove('show');
-  // 显示 B-E 为空但不隐藏整个 detail
-  document.getElementById('sectionB').style.display = 'none';
-  document.getElementById('sectionC').style.display = 'none';
-  document.getElementById('sectionD').style.display = 'none';
-  document.getElementById('sectionE').style.display = 'none';
+  // 隐藏除 A 外的所有 section
+  ['B','C','D','E','F','G'].forEach(k => {
+    const section = document.getElementById('section' + k);
+    if (section) section.style.display = 'none';
+  });
 }
 
 function toggleSection(key) {
