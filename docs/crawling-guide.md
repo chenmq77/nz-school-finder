@@ -1,6 +1,6 @@
 # 爬虫指南 — NZ School Finder
 
-从 AGS 和 Rangitoto 两所学校的爬取经验中总结的规则和教训。
+从 AGS、Rangitoto、Avondale 三所学校的爬取经验中总结的规则和教训。
 
 ---
 
@@ -144,3 +144,63 @@
 | 支持服务当学科 | Information Services | 排除非学科项目 |
 | 自动加 pool | 爬到新名称直接写入 | 打印警告，等用户批准 |
 | 费用找不到 | Rangitoto 官网没显示金额 | Google 搜索找 PDF |
+| Wix 网站爬不到 | Avondale 用 Wix，普通 Fetcher 拿到空内容 | 用 Playwright sync API 渲染 |
+| Art ≠ 所有 Visual Arts | AGS 有 Art 系但没开 Sculpture | 只加学校实际开设的子科目 |
+| 科目别名 | Carpentry = Wood Technology, Samoan = Gagana Samoa | 用 pool 标准名，raw_name 保留原始名 |
+| Coursebook PDF | 官网看不到细颗粒度科目 | 找学校 prospectus/coursebook PDF 提取 |
+
+---
+
+## 11. Wix 网站处理（Avondale 经验）
+
+部分学校使用 Wix 建站（JS 渲染），普通 HTTP Fetcher 只能拿到 JS 脚手架代码。
+
+### 解决方案：Playwright sync API
+
+```python
+from playwright.sync_api import sync_playwright
+import time
+
+p = sync_playwright().start()
+browser = p.chromium.launch(headless=True)
+page = browser.new_page()
+page.goto(url, wait_until='domcontentloaded', timeout=30000)
+time.sleep(5)  # Wix 需要时间渲染
+text = page.inner_text('body')
+browser.close()
+p.stop()
+```
+
+### 注意事项
+- 不要用 `with` 语句（Wix 页面 networkidle 可能超时导致 context manager crash）
+- 用 `sync_playwright().start()` + `p.stop()` 代替
+- 每个页面独立启动浏览器（避免跨页面 crash）
+- `wait_until='domcontentloaded'` + `time.sleep(5)` 比 `networkidle` 更稳定
+- Wix 页面的导航噪音更多，需要过滤
+
+---
+
+## 12. Subject 别名映射表
+
+爬虫遇到不同学校对同一科目的不同叫法时，用 pool 标准名匹配：
+
+| 学校原始名 | Pool 标准名 | 说明 |
+|-----------|-----------|------|
+| Commerce | → 展开为 Accounting, Business Studies, Economics | group 展开 |
+| Art | → 展开为 Visual Arts 子科目 | 看学校实际开了哪些 |
+| Carpentry | Wood Technology | 别名 |
+| Samoan | Gagana Samoa | NZQA 官方名 |
+| Travel and Tourism | Tourism | pool 标准名 |
+| Physical Education And Health | Physical Education + Health | 拆分为两个 |
+| Classics | Classical Studies | NZQA 官方名 |
+| Social Sciences | → group，看学校有没有细科目 | 有细科目时不展开 |
+| Technology | → group，看学校有没有细科目 | 有细科目时不展开 |
+
+---
+
+## 13. Subject Pool 管理规则
+
+- **新增科目必须经过用户批准**
+- 来源应为 NZQA 官方科目 或 学校 coursebook PDF 确认的课程
+- 不加入 pool 的：支持服务（Learning Support, Counselling）、非学科（Careers）、过细的变体（Music Technology, Fashion Technology）
+- Pool 当前状态：11 groups, 60+ subjects
