@@ -582,38 +582,62 @@ body {
       <div class="section-body" id="bodyA"></div>
     </div>
 
-    <!-- B. 位置与联系方式 -->
+    <!-- B. 位置与入学 -->
     <div class="section" id="sectionB">
       <div class="section-header">
-        <div class="section-title"><span class="section-icon">&#128205;</span> B. 位置与联系方式 / Location & Contact</div>
+        <div class="section-title"><span class="section-icon">&#128205;</span> B. 位置与入学 / Location & Admissions</div>
       </div>
       <div class="section-body" id="bodyB"></div>
     </div>
 
-    <!-- C. 学生规模与构成 -->
+    <!-- C. 费用 -->
     <div class="section" id="sectionC">
       <div class="section-header">
-        <div class="section-title"><span class="section-icon">&#128104;&#8205;&#127891;</span> C. 学生规模与构成 / Students</div>
+        <div class="section-title"><span class="section-icon">&#128176;</span> C. 费用 / Fees</div>
       </div>
       <div class="section-body" id="bodyC"></div>
     </div>
 
-    <!-- D. 学校质量与特色 -->
+    <!-- D. 课程 -->
     <div class="section" id="sectionD">
-      <div class="section-header collapsible" onclick="toggleSection('D')">
-        <div class="section-title"><span class="section-icon">&#128200;</span> D. 学校质量与特色 / Quality & Features</div>
-        <span class="section-toggle" id="toggleD">&#9660;</span>
+      <div class="section-header">
+        <div class="section-title"><span class="section-icon">&#128218;</span> D. 课程 / Subjects</div>
       </div>
-      <div class="section-body collapsed" id="bodyD"></div>
+      <div class="section-body" id="bodyD"></div>
     </div>
 
-    <!-- E. 行政与区域归属 -->
+    <!-- E. 课外活动 -->
     <div class="section" id="sectionE">
-      <div class="section-header collapsible" onclick="toggleSection('E')">
-        <div class="section-title"><span class="section-icon">&#128451;</span> E. 行政与区域归属 / Administrative</div>
-        <span class="section-toggle" id="toggleE">&#9660;</span>
+      <div class="section-header">
+        <div class="section-title"><span class="section-icon">&#9917;</span> E. 课外活动 / Extra-curricular</div>
       </div>
-      <div class="section-body collapsed" id="bodyE"></div>
+      <div class="section-body" id="bodyE"></div>
+    </div>
+
+    <!-- F. 学生规模与构成 -->
+    <div class="section" id="sectionF">
+      <div class="section-header">
+        <div class="section-title"><span class="section-icon">&#128104;&#8205;&#127891;</span> F. 学生规模与构成 / Students</div>
+      </div>
+      <div class="section-body" id="bodyF"></div>
+    </div>
+
+    <!-- G. 学校质量与特色 -->
+    <div class="section" id="sectionG">
+      <div class="section-header collapsible" onclick="toggleSection('G')">
+        <div class="section-title"><span class="section-icon">&#128200;</span> G. 学校质量与特色 / Quality & Features</div>
+        <span class="section-toggle" id="toggleG">&#9660;</span>
+      </div>
+      <div class="section-body collapsed" id="bodyG"></div>
+    </div>
+
+    <!-- H. 行政与区域归属 -->
+    <div class="section" id="sectionH">
+      <div class="section-header collapsible" onclick="toggleSection('H')">
+        <div class="section-title"><span class="section-icon">&#128451;</span> H. 行政与区域归属 / Administrative</div>
+        <span class="section-toggle" id="toggleH">&#9660;</span>
+      </div>
+      <div class="section-body collapsed" id="bodyH"></div>
     </div>
 
   </div><!-- /school-detail -->
@@ -783,10 +807,10 @@ async function loadSchool(num, schoolName) {
   document.getElementById('sectionE').style.display = 'none';
 
   // 重置 D/E 为折叠状态
-  document.getElementById('bodyD').classList.add('collapsed');
-  document.getElementById('bodyE').classList.add('collapsed');
-  document.getElementById('toggleD').classList.remove('open');
-  document.getElementById('toggleE').classList.remove('open');
+  document.getElementById('bodyG').classList.add('collapsed');
+  document.getElementById('bodyH').classList.add('collapsed');
+  document.getElementById('toggleG').classList.remove('open');
+  document.getElementById('toggleH').classList.remove('open');
 
   // 滚动到顶部（跳过 hero），让搜索栏 sticky 在顶部、详情从搜索栏下方开始
   window.scrollTo({ top: 0, behavior: 'instant' });
@@ -809,15 +833,18 @@ async function loadSchool(num, schoolName) {
 /* ── Render School ────────────────────────────────── */
 function renderSchool(s) {
   // 确保所有 section 可见（从错误状态恢复时）
-  ['B','C','D','E'].forEach(k => { document.getElementById('section' + k).style.display = ''; });
+  ['B','C','D','E','F','G','H'].forEach(k => { document.getElementById('section' + k).style.display = ''; });
   // 显示当前学校名标签
   $schoolTag.textContent = safe(s.school_name);
   $schoolTag.classList.add('show');
   renderSectionA(s);
   renderSectionB(s);
-  renderSectionC(s);
-  renderSectionD(s);
-  renderSectionE(s);
+  renderSectionF(s);  // 学生构成（原C）
+  renderSectionG(s);  // 质量特色（原D）
+  renderSectionH(s);  // 行政归属（原E）
+
+  // 加载爬取数据（C/D/E 区）
+  loadWebData(s.school_number);
 }
 
 function renderSectionA(s) {
@@ -892,7 +919,7 @@ function renderSectionB(s) {
   const hasCoords = coordParts.length === 2 && !isNaN(latNum) && !isNaN(lngNum);
   const mapLink = hasCoords ? `<a href="https://www.google.com/maps?q=${latNum},${lngNum}" target="_blank" rel="noopener">[Open Map]</a>` : '';
 
-  // EQI — moved from D
+  // EQI
   const eqi = parseFloat(s.equity_index_eqi) || 0;
   _currentEqi = eqi;
   const eqiDisplay = eqi > 0 ? eqi : '--';
@@ -901,6 +928,10 @@ function renderSectionB(s) {
   const group = band ? EQI_GROUPS[band.group] : null;
   const bandTag = band ? `<span class="eqi-band-tag ${band.group}">${esc(band.name)} / ${esc(band.cn)}</span>` : '';
   const eqiInterpret = group ? `${group.cn} / ${group.name}` : '--';
+
+  // Enrolment Scheme
+  const enrol = safe(s.enrolment_scheme);
+  const enrolCn = enrol === 'Yes' ? '有学区限制' : enrol === 'No' ? '无学区限制' : enrol;
 
   document.getElementById('bodyB').innerHTML = `
     <div class="info-row"><span class="info-label">Address / 详细地址</span><span class="info-value">${esc(address)}</span></div>
@@ -920,10 +951,182 @@ function renderSectionB(s) {
         <div class="gauge-interpret">${eqiInterpret}</div>
       </div>
     </div>
+    <div class="divider"></div>
+    <div class="info-row"><span class="info-label">Enrolment / 招生计划</span><span class="info-value">${esc(enrol)} (${esc(enrolCn)})</span></div>
   `;
 }
 
-function renderSectionC(s) {
+/* ── Web Data (C/D/E) ────────────────────────────── */
+let _webDataController = null;
+let _webDataSchoolNum = null;
+
+async function loadWebData(schoolNum) {
+  // 取消之前的请求（防止竞态）
+  if (_webDataController) _webDataController.abort();
+  _webDataController = new AbortController();
+  _webDataSchoolNum = schoolNum;
+
+  // 默认显示"暂无数据"
+  document.getElementById('bodyC').innerHTML = '<div class="info-row" style="color:var(--text-muted);padding:12px 0">暂无费用数据 / No fee data available</div>';
+  document.getElementById('bodyD').innerHTML = '<div class="info-row" style="color:var(--text-muted);padding:12px 0">暂无课程数据 / No subject data available</div>';
+  document.getElementById('bodyE').innerHTML = '<div class="info-row" style="color:var(--text-muted);padding:12px 0">暂无活动数据 / No activity data available</div>';
+
+  try {
+    const res = await fetch(`/api/school/${schoolNum}/web`, { signal: _webDataController.signal });
+    if (!res.ok) return;
+    // 检查是否仍然是当前学校
+    if (_webDataSchoolNum !== schoolNum) return;
+    const w = await res.json();
+    if (w.error) return;
+    renderSectionC(w);
+    renderSectionD(w);
+    renderSectionE(w);
+    appendZoneToB(w);
+  } catch (e) {
+    if (e.name === 'AbortError') return; // 正常取消
+    /* silently ignore — web data is optional */
+  }
+}
+
+function safeUrl(url) {
+  if (!url) return '';
+  const s = String(url).trim();
+  if (s.startsWith('http://') || s.startsWith('https://')) return s;
+  return '';
+}
+
+function appendZoneToB(w) {
+  if (!w.zone_map_url && !w.zone_streets_url && !w.zone_page_url) return;
+  const bodyB = document.getElementById('bodyB');
+  let zoneHtml = '<div class="divider"></div>';
+  zoneHtml += '<div class="sub-section"><div class="sub-section-title">Zone Map / 学区地图</div>';
+  const zoneMapSafe = safeUrl(w.zone_map_url);
+  const zoneStreetsSafe = safeUrl(w.zone_streets_url);
+  const zonePageSafe = safeUrl(w.zone_page_url);
+  if (zoneMapSafe) {
+    zoneHtml += `<div style="margin:8px 0"><img src="${esc(zoneMapSafe)}" alt="Zone Map" style="max-width:100%;border-radius:8px;border:1px solid var(--border)"></div>`;
+  }
+  if (zoneStreetsSafe) {
+    zoneHtml += `<div style="margin:4px 0"><a href="${esc(zoneStreetsSafe)}" target="_blank" rel="noopener" style="font-size:13px;color:var(--primary)">[查看学区街道列表 / Zone streets PDF]</a></div>`;
+  }
+  if (zonePageSafe) {
+    zoneHtml += `<div style="margin:4px 0"><a href="${esc(zonePageSafe)}" target="_blank" rel="noopener" style="font-size:13px;color:var(--primary)">[查看入学详情 / Enrolment details]</a></div>`;
+  }
+  zoneHtml += '</div>';
+  bodyB.innerHTML += zoneHtml;
+}
+
+function renderSectionC(w) {
+  if (!w.intl_tuition_annual && !w.intl_homestay_weekly) return;
+  const tuition = w.intl_tuition_annual ? `$${Number(w.intl_tuition_annual).toLocaleString()}` : '--';
+  const homestay = w.intl_homestay_weekly ? `$${Number(w.intl_homestay_weekly).toLocaleString()}` : '--';
+  const homestayAnnual = w.intl_homestay_weekly ? `($${Math.round(w.intl_homestay_weekly * 46).toLocaleString()} /46wks)` : '';
+  const feesUrl = safeUrl(w.intl_fees_url);
+  const feesLink = feesUrl ? `<a href="${esc(feesUrl)}" target="_blank" rel="noopener" style="font-size:12px;color:var(--primary)">[查看完整费用政策 / Full fees]</a>` : '';
+
+  document.getElementById('bodyC').innerHTML = `
+    <div class="highlight-cards">
+      <div class="highlight-card">
+        <div class="card-label">Tuition / 年学费</div>
+        <div class="card-value">${tuition}</div>
+        <div class="card-sub">NZD per year</div>
+      </div>
+      <div class="highlight-card">
+        <div class="card-label">Homestay / 住宿费</div>
+        <div class="card-value">${homestay} <small style="font-size:13px;font-weight:400">/week</small></div>
+        <div class="card-sub">${homestayAnnual}</div>
+      </div>
+    </div>
+    <div style="text-align:right;padding-top:8px">${feesLink}</div>
+  `;
+}
+
+function renderSectionD(w) {
+  if (!w.subjects) return;
+  let subjects;
+  try { subjects = JSON.parse(w.subjects); } catch(e) { return; }
+  if (!subjects.length) return;
+
+  const cols = subjects.length > 15 ? 4 : 3;
+  let grid = '<div style="display:grid;grid-template-columns:repeat(' + cols + ',1fr);gap:4px 16px;font-size:13px">';
+  subjects.forEach(s => { grid += `<div style="padding:3px 0">${esc(s)}</div>`; });
+  grid += '</div>';
+
+  const srcUrl = safeUrl(w.subjects_url);
+  const srcLink = srcUrl ? `<a href="${esc(srcUrl)}" target="_blank" rel="noopener" style="font-size:11px;color:var(--text-muted)">[来源 / Source]</a>` : '';
+
+  document.getElementById('bodyD').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <span style="font-size:14px;font-weight:600;color:var(--text)">${subjects.length} Subjects / 科目</span>
+      ${srcLink}
+    </div>
+    ${grid}
+  `;
+}
+
+function renderSectionE(w) {
+  let sports = [], music = [], cultural = [], activities = [];
+  try { if (w.sports) sports = JSON.parse(w.sports); } catch(e) {}
+  try { if (w.music) music = JSON.parse(w.music); } catch(e) {}
+  try { if (w.cultural) cultural = JSON.parse(w.cultural); } catch(e) {}
+  try { if (w.activities) activities = JSON.parse(w.activities); } catch(e) {}
+
+  if (!sports.length && !music.length && !cultural.length && !activities.length) return;
+
+  // 摘要卡片
+  let cards = '<div class="highlight-cards">';
+  if (sports.length) cards += `<div class="highlight-card"><div class="card-value">${sports.length}</div><div class="card-label">Sports / 体育</div></div>`;
+  if (music.length) cards += `<div class="highlight-card"><div class="card-value">${music.length}</div><div class="card-label">Music / 音乐</div></div>`;
+  const artsCulturalCount = cultural.length + activities.length;
+  if (artsCulturalCount) cards += `<div class="highlight-card"><div class="card-value">${artsCulturalCount}</div><div class="card-label">Arts & Culture / 艺术文化</div></div>`;
+  cards += '</div>';
+
+  // Sports 列表
+  let sportsHtml = '';
+  if (sports.length) {
+    const srcUrl = safeUrl(w.sports_url);
+    const srcLink = srcUrl ? `<a href="${esc(srcUrl)}" target="_blank" rel="noopener" style="font-size:11px;color:var(--text-muted)">[来源]</a>` : '';
+    sportsHtml = `<div class="sub-section">
+      <div class="sub-section-title" style="display:flex;justify-content:space-between">Sports / 体育 (${sports.length}) ${srcLink}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 16px;font-size:13px">
+        ${sports.map(s => {
+          const name = typeof s === 'string' ? s : s.name;
+          const terms = typeof s === 'object' && s.terms ? s.terms.replace(/,/g, ' ') : '';
+          const termsBadge = terms ? `<span style="font-size:10px;color:var(--text-muted);margin-left:4px">${esc(terms === 'all_year' ? 'All Year' : terms.toUpperCase())}</span>` : '';
+          return `<div style="padding:3px 0">${esc(name)} ${termsBadge}</div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
+
+  // Music 列表
+  let musicHtml = '';
+  if (music.length) {
+    musicHtml = `<div class="sub-section">
+      <div class="sub-section-title">Music / 音乐 (${music.length})</div>
+      <div style="font-size:13px">${music.map(m => esc(m)).join('  ·  ')}</div>
+    </div>`;
+  }
+
+  // Cultural + Other
+  let otherHtml = '';
+  if (cultural.length) {
+    otherHtml += `<div class="sub-section">
+      <div class="sub-section-title">Cultural / 文化</div>
+      <div style="font-size:13px">${cultural.map(c => esc(c)).join('  ·  ')}</div>
+    </div>`;
+  }
+  if (activities.length) {
+    otherHtml += `<div class="sub-section">
+      <div class="sub-section-title">Other / 其他活动</div>
+      <div style="font-size:13px">${activities.map(a => esc(a)).join('  ·  ')}</div>
+    </div>`;
+  }
+
+  document.getElementById('bodyE').innerHTML = cards + sportsHtml + musicHtml + otherHtml;
+}
+
+function renderSectionF(s) {
   const rawRoll = s.total_school_roll;
   const total = (rawRoll !== null && rawRoll !== undefined && String(rawRoll).trim() !== '') ? parseInt(rawRoll) || 0 : null;
 
@@ -953,7 +1156,7 @@ function renderSectionC(s) {
   const enrol = safe(s.enrolment_scheme);
   const enrolCn = enrol === 'Yes' ? '有学区限制' : enrol === 'No' ? '无学区限制' : enrol;
 
-  document.getElementById('bodyC').innerHTML = `
+  document.getElementById('bodyF').innerHTML = `
     <div class="total-roll">
       <div class="number">${total !== null ? total.toLocaleString() : '--'}</div>
       <div class="label">Total Students / 学校总人数</div>
@@ -968,16 +1171,11 @@ function renderSectionC(s) {
         <div class="card-value">${intl.toLocaleString()}</div>
         <div class="card-sub">占总人数 ${intlPct}%</div>
       </div>
-      <div class="highlight-card">
-        <div class="card-label">Enrolment Scheme / 招生计划</div>
-        <div class="card-value">${esc(enrol)}</div>
-        <div class="card-sub">${esc(enrolCn)}</div>
-      </div>
     </div>
   `;
 }
 
-function renderSectionD(s) {
+function renderSectionG(s) {
   const iso = parseFloat(s.isolation_index);
   const isoValid = !isNaN(iso) && hasValue(s.isolation_index);
   const isoDisplay = isoValid ? iso : '--';
@@ -991,7 +1189,7 @@ function renderSectionD(s) {
   const cohort = safe(s.cohort_entry);
   const cohortCn = cohort === 'Yes' ? '群体入学' : cohort === 'No' ? '非群体入学' : cohort;
 
-  document.getElementById('bodyD').innerHTML = `
+  document.getElementById('bodyG').innerHTML = `
     <div class="gauge-row">
       <div class="gauge-card">
         <div class="gauge-label">Isolation / 偏远指数</div>
@@ -1010,7 +1208,7 @@ function renderSectionD(s) {
   `;
 }
 
-function renderSectionE(s) {
+function renderSectionH(s) {
   const sa2Name = safe(s.neighbourhood_sa2);
   const sa2Code = safe(s.neighbourhood_sa2_code);
   let nb;
@@ -1019,7 +1217,7 @@ function renderSectionE(s) {
   else if (sa2Code !== '--') nb = sa2Code;
   else nb = '--';
 
-  document.getElementById('bodyE').innerHTML = `
+  document.getElementById('bodyH').innerHTML = `
     <div class="sub-section">
       <div class="sub-section-title">Region / 区域管辖</div>
       <div class="info-row"><span class="info-label">Education Region / 教育大区</span><span class="info-value">${esc(safe(s.education_region))}</span></div>
@@ -1049,7 +1247,7 @@ function renderSectionE(s) {
 /* ── Toggle D/E ───────────────────────────────────── */
 function showDetailError(msg) {
   // 在各 section body 中显示错误信息，不破坏 DOM 结构
-  ['A','B','C','D','E'].forEach(k => {
+  ['A','B','C','D','E','F','G','H'].forEach(k => {
     const body = document.getElementById('body' + k);
     if (body) body.innerHTML = '';
   });

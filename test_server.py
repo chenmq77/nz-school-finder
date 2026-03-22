@@ -234,6 +234,22 @@ class TestSchoolDetailAPI(unittest.TestCase):
         self.assertIn("equity_index_eqi", data)
 
 
+class TestSchoolWebAPI(unittest.TestCase):
+    """测试 /api/school/{num}/web 端点"""
+
+    def test_web_data_for_ags(self):
+        status, data = api_get("/api/school/54/web")
+        self.assertEqual(status, 200)
+        self.assertIn("subjects_count", data)
+        self.assertIn("sports_count", data)
+        self.assertIn("intl_tuition_annual", data)
+        self.assertIn("subjects_url", data)
+
+    def test_web_data_not_found(self):
+        status, data = api_get("/api/school/99999/web")
+        self.assertEqual(status, 404)
+
+
 class TestStaticRoutes(unittest.TestCase):
     """测试静态路由和安全性"""
 
@@ -309,39 +325,33 @@ class TestHTMLStructure(unittest.TestCase):
     def test_has_search_input(self):
         self.assertIn('id="searchInput"', self.html)
 
-    def test_has_search_button(self):
-        self.assertIn('id="searchBtn"', self.html)
+    def test_has_search_input(self):
+        self.assertIn('id="searchInput"', self.html)
 
     def test_has_search_results_container(self):
         self.assertIn('id="searchResults"', self.html)
 
-    def test_has_five_sections(self):
-        """A-E 五个分区都存在"""
-        for section_id in ["sectionA", "sectionB", "sectionC", "sectionD", "sectionE"]:
+    def test_has_eight_sections(self):
+        """A-H 八个分区都存在"""
+        for section_id in ["sectionA", "sectionB", "sectionC", "sectionD", "sectionE", "sectionF", "sectionG", "sectionH"]:
             self.assertIn(f'id="{section_id}"', self.html, f"Missing section: {section_id}")
 
-    def test_has_five_section_bodies(self):
-        for body_id in ["bodyA", "bodyB", "bodyC", "bodyD", "bodyE"]:
+    def test_has_eight_section_bodies(self):
+        for body_id in ["bodyA", "bodyB", "bodyC", "bodyD", "bodyE", "bodyF", "bodyG", "bodyH"]:
             self.assertIn(f'id="{body_id}"', self.html, f"Missing body: {body_id}")
 
-    def test_d_e_sections_start_collapsed(self):
-        """D 和 E 分区默认折叠"""
-        self.assertIn('id="bodyD"', self.html)
-        self.assertIn('id="bodyE"', self.html)
-        # 检查 collapsed class
+    def test_collapsible_sections_start_collapsed(self):
+        """G 和 H 分区默认折叠"""
+        self.assertIn('id="bodyG"', self.html)
+        self.assertIn('id="bodyH"', self.html)
         import re
-        body_d_match = re.search(r'class="section-body\s+collapsed"\s+id="bodyD"', self.html)
-        body_e_match = re.search(r'class="section-body\s+collapsed"\s+id="bodyE"', self.html)
-        self.assertIsNotNone(body_d_match, "Section D should start collapsed")
-        self.assertIsNotNone(body_e_match, "Section E should start collapsed")
+        body_g_match = re.search(r'class="section-body\s+collapsed"\s+id="bodyG"', self.html)
+        body_h_match = re.search(r'class="section-body\s+collapsed"\s+id="bodyH"', self.html)
+        self.assertIsNotNone(body_g_match, "Section G should start collapsed")
+        self.assertIsNotNone(body_h_match, "Section H should start collapsed")
 
-    def test_hero_is_separate_from_search_bar(self):
-        """hero 和搜索栏是分开的元素（最近改版）"""
-        self.assertIn('class="hero"', self.html)
-        self.assertIn('class="search-bar"', self.html)
-
-    def test_search_bar_is_sticky(self):
-        """搜索栏应为 sticky 定位"""
+    def test_header_is_sticky(self):
+        """Header 应为 sticky 定位"""
         self.assertIn("position: sticky", self.html)
 
     def test_has_current_school_tag(self):

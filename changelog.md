@@ -1,5 +1,30 @@
 # Changelog
 
+## 2026-03-22 — 信息架构重排 A-H + 新增 C/D/E 区展示爬取数据
+
+### Why
+按家长决策漏斗重排信息：身份→位置/入学→费用→课程→课外→学生构成→质量→行政。把爬取到的官网数据（科目、课外活动、费用、学区）整合进 UI。
+
+### What
+- **信息架构从 A-E 扩展为 A-H**：
+  - A: 学校身份（不变）
+  - B: 位置+入学+学区（合并，含学区地图）
+  - C: 费用（新 — 年学费+周住宿费卡片）
+  - D: 课程/科目（新 — 网格列表）
+  - E: 课外活动（新 — 摘要卡片+分类列表：体育/音乐/文化/其他）
+  - F: 学生构成（原C）
+  - G: 质量特色（原D，折叠）
+  - H: 行政归属（原E，折叠）
+- **server.py** 新增 `/api/school/<num>/web` 端点
+- 测试同步更新
+
+### How
+- `index.html`: HTML sections 重排、新增 loadWebData/renderSectionC/D/E/appendZoneToB 函数
+- `server.py`: 新增 fetch_school_web() + _handle_school_web()
+- `test_server.py`: 测试适配 A-H 八区结构
+
+---
+
 ## 2026-03-22 — 学校官网数据爬取 POC + 数据存储
 
 ### Why

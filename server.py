@@ -61,6 +61,18 @@ def fetch_school(school_number):
         conn.close()
 
 
+def fetch_school_web(school_number):
+    """获取学校官网爬取的额外数据"""
+    conn = get_connection()
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM school_web_data WHERE school_number = ?", (school_number,))
+        row = cur.fetchone()
+        return dict(row) if row else None
+    finally:
+        conn.close()
+
+
 # ── HTTP 处理器 ─────────────────────────────────────────
 
 class SchoolFinderHandler(http.server.SimpleHTTPRequestHandler):
@@ -73,6 +85,9 @@ class SchoolFinderHandler(http.server.SimpleHTTPRequestHandler):
 
         if path == "/api/search":
             self._handle_search(params)
+        elif path.startswith("/api/school/") and path.endswith("/web"):
+            school_number = path.split("/")[-2]
+            self._handle_school_web(school_number)
         elif path.startswith("/api/school/"):
             school_number = path.split("/")[-1]
             self._handle_school(school_number)
@@ -96,6 +111,13 @@ class SchoolFinderHandler(http.server.SimpleHTTPRequestHandler):
             self._json_response(school)
         else:
             self._json_response({"error": "School not found"}, 404)
+
+    def _handle_school_web(self, school_number):
+        data = fetch_school_web(school_number)
+        if data:
+            self._json_response(data)
+        else:
+            self._json_response({"error": "No web data available"}, 404)
 
     def _json_response(self, data, status=200):
         body = json.dumps(data, ensure_ascii=False).encode("utf-8")
