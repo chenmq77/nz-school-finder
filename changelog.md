@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-03-22 — 修正 Git 配置邮箱以匹配 GitHub 账号
+
+### Why
+本地 Git 邮箱 (chen.mengqi7@qq.com) 与 GitHub 账号邮箱 (chenmq77@foxmail.com) 不一致，导致 GitHub profile 不显示 contribution 绿格子。
+
+### What
+- 执行 `git config --global user.email "chenmq77@foxmail.com"` 统一邮箱
+
+### How
+- 修改全局 Git 配置，此后所有新 commit 将使用与 GitHub 账号匹配的邮箱
+
+---
+
 ## 2026-03-22 — EQI 和 Location 布局调整 + EQI 帮助弹窗
 
 ### Why
