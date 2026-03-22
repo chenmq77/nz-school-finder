@@ -62,13 +62,40 @@ def fetch_school(school_number):
 
 
 def fetch_school_web(school_number):
-    """获取学校官网爬取的额外数据"""
+    """获取学校官网爬取的额外数据，subjects 从标准化表读取"""
     conn = get_connection()
     try:
         cur = conn.cursor()
         cur.execute("SELECT * FROM school_web_data WHERE school_number = ?", (school_number,))
         row = cur.fetchone()
-        return dict(row) if row else None
+        if not row:
+            return None
+        data = dict(row)
+
+        # subjects 从 school_subjects + subject_pool 读取
+        # 如果学校关联的是 group，展开为该 group 下的所有子科目
+        cur.execute("""SELECT sp.id, sp.name, sp.node_type FROM school_subjects ss
+            JOIN subject_pool sp ON ss.subject_id = sp.id
+            WHERE ss.school_number = ?""", (school_number,))
+        subject_rows = cur.fetchall()
+        if subject_rows:
+            names = set()
+            for sid, name, ntype in subject_rows:
+                if ntype == 'group':
+                    # 展开 group 为子科目
+                    cur.execute("SELECT name FROM subject_pool WHERE parent_id = ? AND node_type = 'subject' ORDER BY name", (sid,))
+                    children = [r[0] for r in cur.fetchall()]
+                    if children:
+                        names.update(children)
+                    else:
+                        names.add(name)  # 没有子科目的 group 保留原名
+                else:
+                    names.add(name)
+            sorted_names = sorted(names)
+            data['subjects'] = json.dumps(sorted_names)
+            data['subjects_count'] = len(sorted_names)
+
+        return data
     finally:
         conn.close()
 
