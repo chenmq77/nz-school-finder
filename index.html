@@ -868,6 +868,7 @@ function renderSectionA(s) {
       <div class="tag"><span class="en">${esc(safe(s.authority))}</span><span class="cn">${esc(authCn)}</span></div>
       <div class="tag"><span class="en">${esc(safe(s.gender_of_students))}</span><span class="cn">${esc(genderCn)}</span></div>
     </div>
+    <div id="curriculumBadges"></div>
     <div class="info-row"><span class="info-label">Boarding / 寄宿设施</span><span class="info-value">${esc(safe(s.boarding_facilities))} (${esc(boardingCn)})</span></div>
     <div class="info-row"><span class="info-label">Website / 学校官网</span><span class="info-value">${websiteLink}</span></div>
   `;
@@ -979,6 +980,7 @@ async function loadWebData(schoolNum) {
     if (_webDataSchoolNum !== schoolNum) return;
     const w = await res.json();
     if (w.error) return;
+    renderCurriculumBadges(w);
     renderSubjects(w);    // → bodyC
     renderActivities(w);  // → bodyD
     renderFees(w);        // → bodyE
@@ -1009,6 +1011,21 @@ function appendZoneToB(w) {
   const zoneHtml = `<div class="info-row"><span class="info-label">Zone / 学区</span><span class="info-value" style="font-size:13px">${zoneLinks.join('  ')}</span></div>`;
   const zoneRow = document.getElementById('zoneRow');
   if (zoneRow) zoneRow.innerHTML = zoneHtml;
+}
+
+function renderCurriculumBadges(w) {
+  if (!w.curriculum_systems) return;
+  let systems;
+  try { systems = JSON.parse(w.curriculum_systems); } catch(e) { return; }
+  const offered = systems.filter(s => s.status === 'offered');
+  if (!offered.length) return;
+  const parts = offered.map(s => {
+    const url = safeUrl(s.evidence_url);
+    if (s.system === 'NCEA' || !url) return esc(s.system);
+    return `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(s.system)}</a>`;
+  });
+  const el = document.getElementById('curriculumBadges');
+  if (el) el.innerHTML = `<div class="info-row"><span class="info-label">Curriculum / 课程体系</span><span class="info-value">${parts.join(', ')}</span></div>`;
 }
 
 function renderFees(w) {
@@ -1060,23 +1077,21 @@ function renderSubjects(w) {
 }
 
 function renderActivities(w) {
-  let sports = [], music = [], cultural = [], activities = [];
+  let sports = [], arts = [], activities = [];
   try { if (w.sports) sports = JSON.parse(w.sports); } catch(e) {}
-  try { if (w.music) music = JSON.parse(w.music); } catch(e) {}
-  try { if (w.cultural) cultural = JSON.parse(w.cultural); } catch(e) {}
+  try { if (w.music) arts = JSON.parse(w.music); } catch(e) {}  // music 字段现在存 arts
   try { if (w.activities) activities = JSON.parse(w.activities); } catch(e) {}
 
-  if (!sports.length && !music.length && !cultural.length && !activities.length) return;
+  if (!sports.length && !arts.length && !activities.length) return;
 
-  // 摘要卡片
+  // 摘要卡片（动态：有什么显示什么）
   let cards = '<div class="highlight-cards">';
   if (sports.length) cards += `<div class="highlight-card"><div class="card-value">${sports.length}</div><div class="card-label">Sports / 体育</div></div>`;
-  if (music.length) cards += `<div class="highlight-card"><div class="card-value">${music.length}</div><div class="card-label">Music / 音乐</div></div>`;
-  const artsCulturalCount = cultural.length + activities.length;
-  if (artsCulturalCount) cards += `<div class="highlight-card"><div class="card-value">${artsCulturalCount}</div><div class="card-label">Arts & Culture / 艺术文化</div></div>`;
+  if (arts.length) cards += `<div class="highlight-card"><div class="card-value">${arts.length}</div><div class="card-label">Arts / 艺术</div></div>`;
+  if (activities.length) cards += `<div class="highlight-card"><div class="card-value">${activities.length}</div><div class="card-label">Clubs / 社团</div></div>`;
   cards += '</div>';
 
-  // Sports — 点分隔排版（同音乐）
+  // Sports
   let sportsHtml = '';
   if (sports.length) {
     const srcUrl = safeUrl(w.sports_url);
@@ -1088,31 +1103,27 @@ function renderActivities(w) {
     </div>`;
   }
 
-  // Music
-  let musicHtml = '';
-  if (music.length) {
-    musicHtml = `<div class="sub-section">
-      <div class="sub-section-title">Music / 音乐 (${music.length})</div>
-      <div style="font-size:13px">${music.map(m => esc(m)).join('  ·  ')}</div>
+  // Arts
+  let artsHtml = '';
+  if (arts.length) {
+    const srcUrl = safeUrl(w.music_url);
+    const srcLink = srcUrl ? `<a href="${esc(srcUrl)}" target="_blank" rel="noopener" style="font-size:11px;color:var(--text-muted)">[来源]</a>` : '';
+    artsHtml = `<div class="sub-section">
+      <div class="sub-section-title" style="display:flex;justify-content:space-between">Arts / 艺术 (${arts.length}) ${srcLink}</div>
+      <div style="font-size:13px">${arts.map(a => esc(a)).join('  ·  ')}</div>
     </div>`;
   }
 
-  // Cultural + Other
-  let otherHtml = '';
-  if (cultural.length) {
-    otherHtml += `<div class="sub-section">
-      <div class="sub-section-title">Cultural / 文化</div>
-      <div style="font-size:13px">${cultural.map(c => esc(c)).join('  ·  ')}</div>
-    </div>`;
-  }
+  // Activities/Clubs
+  let activitiesHtml = '';
   if (activities.length) {
-    otherHtml += `<div class="sub-section">
-      <div class="sub-section-title">Other / 其他活动</div>
+    activitiesHtml = `<div class="sub-section">
+      <div class="sub-section-title">Clubs / 社团 (${activities.length})</div>
       <div style="font-size:13px">${activities.map(a => esc(a)).join('  ·  ')}</div>
     </div>`;
   }
 
-  document.getElementById('bodyD').innerHTML = cards + sportsHtml + musicHtml + otherHtml;
+  document.getElementById('bodyD').innerHTML = cards + sportsHtml + artsHtml + activitiesHtml;
 }
 
 function renderSectionF(s) {
