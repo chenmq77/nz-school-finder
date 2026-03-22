@@ -394,7 +394,7 @@ body {
   margin-right: 8px;
   flex-shrink: 0;
 }
-.eqi-band-row .band-name { width: 110px; color: var(--text); font-weight: 500; }
+.eqi-band-row .band-name { width: 170px; flex-shrink: 0; color: var(--text); font-weight: 500; white-space: nowrap; }
 .eqi-band-row .band-range { color: var(--text-secondary); }
 
 .eqi-group-label {
@@ -426,10 +426,13 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 600;
   color: rgba(0,0,0,0.5);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90%;
 }
 .eqi-seg-bar .seg.fewer1 { background: #6ee7b7; }
 .eqi-seg-bar .seg.fewer2 { background: #a7f3d0; }
@@ -636,13 +639,13 @@ body {
     <p>所有学校按 EQI 数值分为 <strong>3 个组 (Group)</strong>，细分为 <strong>7 个段 (Band)</strong>：</p>
 
     <div class="eqi-seg-bar" id="eqiSegBar">
-      <div class="seg fewer1" style="width:25.78%"><span class="seg-label">Fewest</span></div>
-      <div class="seg fewer2" style="width:11.56%"><span class="seg-label">Few</span></div>
-      <div class="seg mod1" style="width:8.00%"><span class="seg-label">Below Avg</span></div>
-      <div class="seg mod2" style="width:8.89%"><span class="seg-label">Average</span></div>
-      <div class="seg mod3" style="width:10.22%"><span class="seg-label">Above Avg</span></div>
-      <div class="seg more1" style="width:12.00%"><span class="seg-label">Many</span></div>
-      <div class="seg more2" style="width:20.89%"><span class="seg-label">Most</span></div>
+      <div class="seg fewer1" style="flex:59"><span class="seg-label">Fewest</span></div>
+      <div class="seg fewer2" style="flex:27"><span class="seg-label">Few</span></div>
+      <div class="seg mod1" style="flex:19"><span class="seg-label">B.Avg</span></div>
+      <div class="seg mod2" style="flex:21"><span class="seg-label">Avg</span></div>
+      <div class="seg mod3" style="flex:24"><span class="seg-label">A.Avg</span></div>
+      <div class="seg more1" style="flex:28"><span class="seg-label">Many</span></div>
+      <div class="seg more2" style="flex:48"><span class="seg-label">Most</span></div>
     </div>
     <div class="eqi-marker-wrap" id="eqiMarkerWrap"></div>
 
