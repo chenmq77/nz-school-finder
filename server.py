@@ -16,7 +16,7 @@ import urllib.parse
 
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "schools.db")
 HOST = "localhost"
-PORT = 8000
+PORT = 8001
 
 # ── 数据库操作 ─────────────────────────────────────────
 
@@ -201,12 +201,22 @@ def filter_schools(params):
                     values.append(a)
             conditions.append("(" + " OR ".join(auth_parts) + ")")
 
-        # gender 筛选（支持多选）
+        # gender 筛选（支持多选，含混合类型展开）
         genders = multi_val("gender")
         if genders:
-            placeholders = ",".join("?" * len(genders))
+            # 展开混合类型：Girls 包含 Primary Co-Ed/Secondary Girls 等
+            expanded = set(genders)
+            for g in genders:
+                if g == 'Girls School':
+                    expanded.add('Primary Co-Ed/Secondary Girls')
+                elif g == 'Boys School':
+                    expanded.update(['Boys/Senior Co-Ed', 'Primary Co-Ed/Secondary Boys'])
+                elif g == 'Co-Educational':
+                    expanded.update(['Boys/Senior Co-Ed', 'Primary Co-Ed/Secondary Girls', 'Primary Co-Ed/Secondary Boys'])
+            all_g = list(expanded)
+            placeholders = ",".join("?" * len(all_g))
             conditions.append(f"gender_of_students IN ({placeholders})")
-            values.extend(genders)
+            values.extend(all_g)
 
         # school_type 筛选（支持多选）
         school_types = multi_val("school_type")

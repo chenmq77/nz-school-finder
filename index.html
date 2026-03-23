@@ -2066,37 +2066,33 @@ function renderYearBandMap() {
   container.innerHTML = '';
   const grid = document.createElement('div');
   grid.className = 'band-map';
-  // Row 0: Year ticks (Y1-Y13)
+  // Row 0: Year ticks (Y1-Y13) — 每个数字可点击，筛选单年级
   for (let y = 1; y <= 13; y++) {
     const tick = document.createElement('div');
     tick.className = 'band-tick';
+    tick.style.cursor = 'pointer';
     tick.textContent = y;
+    tick.title = `查看包含 Y${y} 的学校`;
+    tick.addEventListener('click', () => navigateTo(`#/schools?year_level=${y}-${y}&year_min=${y}&year_max=${y}`));
     grid.appendChild(tick);
   }
-  // Band definitions: [label, startY, endY, color, filterType, count_label]
+  // Band definitions: 所有色块用 year range 筛选
   const BANDS = [
-    // Row 1: Core (fills all 13 columns)
-    { label: 'Contributing', sub: 'Y1-6', y1: 1, y2: 6, bg: '#AE8329', type: 'Contributing' },
-    { label: 'Intermediate', sub: 'Y7-8', y1: 7, y2: 8, bg: '#CF9C30', type: 'Intermediate' },
-    { label: 'Secondary', sub: 'Y9-13', y1: 9, y2: 13, bg: '#8F6B20', type: 'Secondary (Year 9-15)' },
-    // Row 2: Full Primary + Junior/Senior High
-    { label: 'Full Primary', sub: 'Y1-8', y1: 1, y2: 8, bg: '#DFBE77', type: 'Full Primary' },
-    { label: 'Junior High', sub: 'Y9-10', y1: 9, y2: 10, bg: '#C4933A', type: null },
-    { label: 'Senior High', sub: 'Y11-13', y1: 11, y2: 13, bg: '#9A7525', type: null },
-    // Row 3: Composite
-    { label: 'Composite', sub: 'Y1-13', y1: 1, y2: 13, bg: '#F1E3C5', type: 'Composite' },
+    { label: 'Contributing', sub: 'Y1-6', y1: 1, y2: 6, bg: '#AE8329' },
+    { label: 'Intermediate', sub: 'Y7-8', y1: 7, y2: 8, bg: '#CF9C30' },
+    { label: 'Secondary', sub: 'Y9-13', y1: 9, y2: 13, bg: '#8F6B20' },
+    { label: 'Full Primary', sub: 'Y1-8', y1: 1, y2: 8, bg: '#DFBE77' },
+    { label: 'Junior High', sub: 'Y9-10', y1: 9, y2: 10, bg: '#C4933A' },
+    { label: 'Senior High', sub: 'Y11-13', y1: 11, y2: 13, bg: '#9A7525' },
+    { label: 'Composite', sub: 'Y1-13', y1: 1, y2: 13, bg: '#F1E3C5' },
   ];
   BANDS.forEach(b => {
     const cell = document.createElement('div');
     cell.className = 'band-cell';
     cell.style.cssText = `grid-column:${b.y1}/${b.y2+1};background:${b.bg};color:${textColorFor(b.bg)}`;
     cell.innerHTML = `${esc(b.label)}${b.sub ? '<span class="band-sub">'+esc(b.sub)+'</span>' : ''}`;
-    cell.title = `${b.label} ${b.sub}`;
-    if (b.type) {
-      cell.addEventListener('click', () => navigateTo('#/schools?school_type=' + encodeURIComponent(b.type)));
-    } else {
-      cell.style.cursor = 'default';
-    }
+    cell.title = `查看包含 ${b.sub} 的学校`;
+    cell.addEventListener('click', () => navigateTo(`#/schools?year_level=${b.y1}-${b.y2}&year_min=${b.y1}&year_max=${b.y2}`));
     grid.appendChild(cell);
   });
   container.appendChild(grid);
@@ -2215,7 +2211,7 @@ function toggleFaq(i) {
 const FILTER_DIMS = [
   { key: 'region', label: 'Region', dataKey: 'region', valFn: d => d.map(r => r.name) },
   { key: 'authority', label: 'Authority', dataKey: 'authority', valFn: d => d.map(r => r.name) },
-  { key: 'gender', label: 'Gender', dataKey: 'gender', valFn: d => d.map(r => r.name).filter(n => n !== 'Other') },
+  { key: 'gender', label: 'Gender', vals: ['Co-Educational','Girls School','Boys School'] },
   { key: 'year_level', label: 'Year Levels', isYearLevel: true, vals: [] },
   // curriculum filter 暂不启用（仅 5 所学校有爬取数据）
   { key: 'eqi_group', label: 'EQI', vals: ['fewer','moderate','more'], displayFn: v => ({fewer:'Fewer',moderate:'Moderate',more:'More'}[v]||v) },
