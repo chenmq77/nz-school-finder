@@ -27,10 +27,21 @@ RATE_LIMIT_SECONDS = 2
 # ── Crawl status enum ────────────────────────────────
 
 class CrawlStatus:
+    """
+    Canonical state lifecycle:
+      PENDING → (crawl) → CRAWLED → (human review) → APPROVED / PARTIAL / REJECTED / BLOCKED
+
+    Terminal states:
+      APPROVED  — all required modules meet thresholds, reviewer confirmed
+      PARTIAL   — some data available but below thresholds or missing modules
+      REJECTED  — reviewer decided data is unusable, needs re-crawl
+      BLOCKED   — cannot crawl (no website, anti-bot, login wall, permanent failure)
+    """
     PENDING = "PENDING"
     CRAWLED = "CRAWLED"       # fetched, awaiting human review
     APPROVED = "APPROVED"     # reviewed and committed to DB
     PARTIAL = "PARTIAL"       # some fields missing but usable
+    REJECTED = "REJECTED"     # reviewer rejected, needs re-crawl or manual fix
     BLOCKED = "BLOCKED"       # cannot crawl (no site, anti-bot, login wall)
 
 
@@ -173,17 +184,29 @@ class BaseCrawler(ABC):
         return content
 
     def _do_fetch(self, url: str) -> str:
-        """Actual fetch implementation. Override in subclasses for dynamic rendering."""
+        """Actual fetch implementation. Uses Scrapling Fetcher; falls back to requests."""
+        # Try Scrapling first (better parsing, respects robots.txt)
         try:
             from scrapling import Fetcher
             fetcher = Fetcher()
             page = fetcher.get(url)
-            # Try decoded body first (more reliable for WordPress)
             try:
-                text = page.body.decode("utf-8", errors="replace")
+                return page.body.decode("utf-8", errors="replace")
             except Exception:
-                text = page.text or ""
-            return text
+                return page.text or ""
+        except ImportError:
+            pass  # Scrapling not installed, fall back to requests
+        except Exception as e:
+            print(f"  [WARN] Scrapling fetch failed for {url}: {e}")
+
+        # Fallback to requests
+        try:
+            import requests
+            resp = requests.get(url, timeout=30, headers={
+                "User-Agent": "Mozilla/5.0 (NZ School Finder crawler; educational project)"
+            })
+            resp.raise_for_status()
+            return resp.text
         except Exception as e:
             print(f"  [WARN] Failed to fetch {url}: {e}")
             return ""
@@ -192,6 +215,14 @@ class BaseCrawler(ABC):
 
     # All extractable parts — used for --only filtering
     EXTRACT_PARTS = ["subjects", "sports", "arts", "clubs", "fees", "curriculum", "zone", "logo"]
+
+    # Modules required for APPROVED status; others are optional (PARTIAL ok without them)
+    # subjects + sports = core data; fees/curriculum/arts/clubs = important but partial ok
+    REQUIRED_MODULES = ["subjects", "sports"]
+
+    # Minimum thresholds for required modules to qualify as "present"
+    # Below these counts, the module is considered incomplete
+    REQUIRED_THRESHOLDS = {"subjects": 10, "sports": 5}
 
     def crawl(self, only: list[str] | None = None) -> SchoolData:
         """
@@ -459,11 +490,28 @@ class BaseCrawler(ABC):
 
         lines.append("---")
         lines.append("")
-        lines.append("## Decision")
+        # Auto-suggest status based on required module thresholds
+        subj_ok = len(d.subjects) >= self.REQUIRED_THRESHOLDS.get("subjects", 10)
+        sport_ok = len(d.sports) >= self.REQUIRED_THRESHOLDS.get("sports", 5)
+        subj_partial = 0 < len(d.subjects) < self.REQUIRED_THRESHOLDS.get("subjects", 10)
+        sport_partial = 0 < len(d.sports) < self.REQUIRED_THRESHOLDS.get("sports", 5)
+
+        if subj_ok and sport_ok:
+            suggestion = "APPROVE (subjects >= 10, sports >= 5)"
+        elif len(d.subjects) > 0 or len(d.sports) > 0:
+            missing = []
+            if not subj_ok:
+                missing.append(f"subjects: {len(d.subjects)}/{self.REQUIRED_THRESHOLDS['subjects']}")
+            if not sport_ok:
+                missing.append(f"sports: {len(d.sports)}/{self.REQUIRED_THRESHOLDS['sports']}")
+            suggestion = f"PARTIAL ({', '.join(missing)} below threshold)"
+        else:
+            suggestion = "REJECT (no core data extracted)"
+        lines.append(f"## Decision (suggested: {suggestion})")
         lines.append("")
-        lines.append("- [ ] **APPROVE** — commit to database")
-        lines.append("- [ ] **PARTIAL** — commit available fields, mark missing")
-        lines.append("- [ ] **REJECT** — do not commit, needs re-crawl")
+        lines.append("- [ ] **APPROVED** — all required modules meet thresholds + reviewer confirmed")
+        lines.append("- [ ] **PARTIAL** — some data available, missing modules noted (use --status partial)")
+        lines.append("- [ ] **REJECTED** — data unusable, needs re-crawl or manual fix")
         lines.append("")
 
         with open(report_file, "w", encoding="utf-8") as f:

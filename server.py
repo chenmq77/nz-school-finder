@@ -12,11 +12,12 @@ import http.server
 import json
 import os
 import sqlite3
+import sys
 import urllib.parse
 
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "schools.db")
 HOST = "localhost"
-PORT = 8000
+PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
 
 # ── 数据库操作 ─────────────────────────────────────────
 

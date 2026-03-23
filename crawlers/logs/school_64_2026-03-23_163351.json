@@ -1,0 +1,48 @@
+{
+  "school_number": 64,
+  "school_name": "Epsom Girls Grammar School",
+  "subjects": [],
+  "subjects_raw": [],
+  "subjects_url": "https://www.eggs.school.nz/eggs-life/academic-learning/years-9-10/",
+  "subjects_count": 0,
+  "sports": [],
+  "sports_url": "https://www.eggs.school.nz/eggs-life/co-curricular/sports/",
+  "sports_count": 0,
+  "arts": [],
+  "arts_url": "https://www.eggs.school.nz/eggs-life/co-curricular/arts-and-culture/",
+  "arts_count": 0,
+  "clubs": [],
+  "clubs_url": "https://www.eggs.school.nz/eggs-life/co-curricular/arts-and-culture/",
+  "clubs_count": 0,
+  "intl_tuition_annual": null,
+  "intl_homestay_weekly": null,
+  "intl_fees_url": "https://www.eggs.school.nz/international-students/",
+  "curriculum_systems": [
+    {
+      "system": "NCEA",
+      "status": "offered",
+      "evidence_url": "https://www.eggs.school.nz/eggs-life/academic-learning/academic-qualifications/"
+    }
+  ],
+  "zone_map_url": "https://www.eggs.school.nz/enrolments/zoning/zoning-map/",
+  "zone_streets_url": "",
+  "zone_page_url": "https://www.eggs.school.nz/enrolments/zoning/",
+  "logo_url": "https://www.eggs.school.nz/resources/assets/prod/6b1fc6a66d6a8af7f802bbd8f6395eb3.svg",
+  "site_type": "standard_html",
+  "pages_crawled": [
+    "http://www.eggs.school.nz",
+    "https://www.eggs.school.nz/eggs-life/academic-learning/years-9-10/",
+    "https://www.eggs.school.nz/eggs-life/co-curricular/sports/",
+    "https://www.eggs.school.nz/eggs-life/co-curricular/arts-and-culture/",
+    "https://www.eggs.school.nz/international-students/",
+    "https://www.eggs.school.nz/enrolments/zoning/"
+  ],
+  "warnings": [
+    "Failed to fetch homepage: http://www.eggs.school.nz",
+    "Could not fetch subjects page",
+    "Could not fetch sports page",
+    "Could not fetch arts page",
+    "International fees not found on website — check FAQ page or contact school for current fees"
+  ],
+  "crawled_at": "2026-03-23T16:33:39.570122"
+}

@@ -89,6 +89,11 @@ def main():
         default="approved",
         help="Commit status (default: approved)",
     )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Override threshold check (for small/specialized schools that are correctly scraped)",
+    )
     args = parser.parse_args()
 
     if args.list:

@@ -21,20 +21,8 @@ class WordPressCrawler(BaseCrawler):
 
     SITE_TYPE = "wordpress"
 
-    def _do_fetch(self, url: str) -> str:
-        """Fetch with WordPress-aware extraction."""
-        try:
-            from scrapling import Fetcher
-            fetcher = Fetcher()
-            page = fetcher.get(url)
-            # WordPress: prefer decoded body over parsed selectors
-            try:
-                return page.body.decode("utf-8", errors="replace")
-            except Exception:
-                return page.text or ""
-        except Exception as e:
-            print(f"  [WARN] Failed to fetch {url}: {e}")
-            return ""
+    # WordPress uses the same requests-based fetch as BaseCrawler.
+    # The raw HTML body works well for regex extraction on WP sites.
 
     def discover_pages(self):
         if not self.website:
