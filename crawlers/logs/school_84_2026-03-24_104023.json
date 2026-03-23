@@ -1,0 +1,199 @@
+{
+  "school_number": 84,
+  "school_name": "Kelston Girls' College",
+  "subjects": [
+    "English",
+    "Mathematics",
+    "Science",
+    "Social Studies",
+    "Physical Education",
+    "Health",
+    "Te Reo Maori",
+    "Gagana Samoa",
+    "Lea Faka-Tonga",
+    "ESOL",
+    "Music",
+    "Painting",
+    "Drama",
+    "Dance",
+    "Food Technology",
+    "Textiles",
+    "Digital Technology",
+    "Design and Visual Communication",
+    "Business Studies"
+  ],
+  "subjects_raw": [
+    {
+      "name": "English",
+      "raw_name": "English",
+      "confidence": 0.8,
+      "source_url": "https://www.kelstongirls.school.nz/learning-at-kgc/our-curriculum"
+    },
+    {
+      "name": "Mathematics",
+      "raw_name": "Mathematics",
+      "confidence": 0.8,
+      "source_url": "https://www.kelstongirls.school.nz/learning-at-kgc/our-curriculum"
+    },
+    {
+      "name": "Science",
+      "raw_name": "Science",
+      "confidence": 0.8,
+      "source_url": "https://www.kelstongirls.school.nz/learning-at-kgc/our-curriculum"
+    },
+    {
+      "name": "Social Studies",
+      "raw_name": "Social Studies",
+      "confidence": 0.8,
+      "source_url": "https://www.kelstongirls.school.nz/learning-at-kgc/our-curriculum"
+    },
+    {
+      "name": "Physical Education",
+      "raw_name": "Physical Education",
+      "confidence": 0.8,
+      "source_url": "https://www.kelstongirls.school.nz/learning-at-kgc/our-curriculum"
+    },
+    {
+      "name": "Health",
+      "raw_name": "Health",
+      "confidence": 0.8,
+      "source_url": "https://www.kelstongirls.school.nz/learning-at-kgc/our-curriculum"
+    },
+    {
+      "name": "Te Reo Maori",
+      "raw_name": "Te Reo Maori",
+      "confidence": 0.8,
+      "source_url": "https://www.kelstongirls.school.nz/learning-at-kgc/our-curriculum"
+    },
+    {
+      "name": "Gagana Samoa",
+      "raw_name": "Samoan",
+      "confidence": 0.8,
+      "source_url": "https://www.kelstongirls.school.nz/learning-at-kgc/our-curriculum"
+    },
+    {
+      "name": "Lea Faka-Tonga",
+      "raw_name": "Tongan",
+      "confidence": 0.8,
+      "source_url": "https://www.kelstongirls.school.nz/learning-at-kgc/our-curriculum"
+    },
+    {
+      "name": "ESOL",
+      "raw_name": "ESOL",
+      "confidence": 0.8,
+      "source_url": "https://www.kelstongirls.school.nz/learning-at-kgc/our-curriculum"
+    },
+    {
+      "name": "Music",
+      "raw_name": "Music",
+      "confidence": 0.8,
+      "source_url": "https://www.kelstongirls.school.nz/learning-at-kgc/our-curriculum"
+    },
+    {
+      "name": "Painting",
+      "raw_name": "Visual Art",
+      "confidence": 0.8,
+      "source_url": "https://www.kelstongirls.school.nz/learning-at-kgc/our-curriculum"
+    },
+    {
+      "name": "Drama",
+      "raw_name": "Drama",
+      "confidence": 0.8,
+      "source_url": "https://www.kelstongirls.school.nz/learning-at-kgc/our-curriculum"
+    },
+    {
+      "name": "Dance",
+      "raw_name": "Dance",
+      "confidence": 0.8,
+      "source_url": "https://www.kelstongirls.school.nz/learning-at-kgc/our-curriculum"
+    },
+    {
+      "name": "Food Technology",
+      "raw_name": "Food Technology",
+      "confidence": 0.8,
+      "source_url": "https://www.kelstongirls.school.nz/learning-at-kgc/our-curriculum"
+    },
+    {
+      "name": "Textiles",
+      "raw_name": "Soft Materials",
+      "confidence": 0.8,
+      "source_url": "https://www.kelstongirls.school.nz/learning-at-kgc/our-curriculum"
+    },
+    {
+      "name": "Digital Technology",
+      "raw_name": "Digital Technology",
+      "confidence": 0.8,
+      "source_url": "https://www.kelstongirls.school.nz/learning-at-kgc/our-curriculum"
+    },
+    {
+      "name": "Design and Visual Communication",
+      "raw_name": "Design and Visual Communication",
+      "confidence": 0.8,
+      "source_url": "https://www.kelstongirls.school.nz/learning-at-kgc/our-curriculum"
+    },
+    {
+      "name": "Business Studies",
+      "raw_name": "Commerce",
+      "confidence": 0.8,
+      "source_url": "https://www.kelstongirls.school.nz/learning-at-kgc/our-curriculum"
+    }
+  ],
+  "subjects_url": "https://www.kelstongirls.school.nz/learning-at-kgc/our-curriculum",
+  "subjects_count": 19,
+  "sports": [
+    "Netball",
+    "Basketball",
+    "Rugby",
+    "Weightlifting",
+    "Badminton",
+    "Touch"
+  ],
+  "sports_url": "https://www.kelstongirls.school.nz/opportunities-at-kgc/sports",
+  "sports_count": 6,
+  "arts": [
+    "Choir",
+    "Spoken Word Poetry",
+    "Polyfest"
+  ],
+  "arts_url": "https://www.kelstongirls.school.nz/opportunities-at-kgc/arts-and-cultural",
+  "arts_count": 3,
+  "clubs": [
+    "Samoan Cultural Group",
+    "Tongan Cultural Group",
+    "Cook Island Cultural Group",
+    "Niuean Cultural Group",
+    "Tokelauan Cultural Group",
+    "Indian Cultural Group",
+    "Filipino Cultural Group"
+  ],
+  "clubs_url": "https://www.kelstongirls.school.nz/opportunities-at-kgc/arts-and-cultural",
+  "clubs_count": 7,
+  "intl_tuition_annual": 16800.0,
+  "intl_homestay_weekly": 420.0,
+  "intl_fees_url": "https://www.kelstongirls.school.nz/enrolment/international-students",
+  "intl_fees_year": 2026,
+  "curriculum_systems": [
+    {
+      "system": "NCEA",
+      "status": "offered",
+      "evidence_url": "https://www.kelstongirls.school.nz/learning-at-kgc/our-curriculum"
+    }
+  ],
+  "zone_map_url": "",
+  "zone_streets_url": "",
+  "zone_page_url": "https://www.kelstongirls.school.nz/enrolment/how-to-enrol",
+  "logo_url": "https://prodcdn.sporty.co.nz/cms/12088/logo.jpg",
+  "site_type": "standard_html",
+  "pages_crawled": [
+    "http://www.kelstongirls.school.nz",
+    "https://www.kelstongirls.school.nz/learning-at-kgc/our-curriculum",
+    "https://www.kelstongirls.school.nz/opportunities-at-kgc/sports",
+    "https://www.kelstongirls.school.nz/opportunities-at-kgc/arts-and-cultural",
+    "https://www.kelstongirls.school.nz/enrolment/international-students",
+    "https://www.kelstongirls.school.nz/enrolment/how-to-enrol"
+  ],
+  "warnings": [
+    "Subject 'Design and Visual Communication' not in subject_pool — needs user approval"
+  ],
+  "crawled_at": "2026-03-24T10:40:05.649874"
+}
