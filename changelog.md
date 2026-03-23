@@ -1,5 +1,43 @@
 # Changelog
 
+## 2026-03-23 — 支持选择性爬取（--only 参数）
+
+### Why
+用户需要只重新爬取某一部分数据（如只更新 subjects 或 fees），不需要每次全量爬取。
+
+### What
+- `crawl(only=["subjects", "fees"])` — BaseCrawler 支持选择性提取
+- CLI: `python -m crawlers.crawler --school 41 --only subjects,fees`
+- `--parts` 命令列出所有可提取的部分
+
+### How
+- `crawl()` 方法新增 `only` 参数，过滤 extract 步骤
+- `discover_pages()` 始终运行（提取依赖页面内容）
+- logo/zone 只在全量爬取时运行
+
+---
+
+## 2026-03-23 — 搭建爬虫框架（feat/crawler 分支）
+
+### Why
+将手动 AI 辅助爬取升级为结构化的爬虫框架：模板继承 + 每校脚本 + 自动生成 review 报告 + CLI 入口。
+
+### What
+- `crawlers/templates/base.py`: BaseCrawler 抽象基类（7 步管道 + 数据验证 + 日志 + review 报告生成 + DB 提交）
+- `crawlers/templates/standard_html.py`: 标准 HTML 网站模板（Scrapling Fetcher）
+- `crawlers/templates/wordpress.py`: WordPress 网站模板（body.decode + regex）
+- `crawlers/templates/wix.py`: Wix 网站模板（Playwright 动态渲染）
+- `crawlers/schools/school_41_macleans.py`: 示例脚本 — Macleans College
+- `crawlers/crawler.py`: CLI 入口（--school / --list / --commit）
+
+### How
+- 继承体系：BaseCrawler → StandardHtml/WordPress/Wix → 每校脚本
+- 每校脚本 override extract_* 方法，包含校级 URL 和选择器
+- 爬取后自动生成 review markdown 报告，人工确认后才能 commit 到数据库
+- commit 前检查 review 报告是否存在，防止跳过人工审核
+
+---
+
 ## 2026-03-23 — 搜索下拉支持键盘导航（↑/↓/Enter/Escape）
 
 ### Why
