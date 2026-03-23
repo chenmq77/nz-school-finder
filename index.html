@@ -578,7 +578,7 @@ body {
 .treemap {
   display: flex;
   flex-wrap: wrap;
-  gap: 3px;
+  gap: 1px;
   min-height: 60px;
 }
 .treemap-cell {
@@ -586,7 +586,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: 0;
   cursor: pointer;
   padding: 6px 8px;
   transition: opacity var(--transition), transform var(--transition);
@@ -596,7 +596,7 @@ body {
 }
 .treemap-row {
   display: flex;
-  gap: 6px;
+  gap: 1px;
   min-height: 60px;
   width: 100%;
 }
@@ -1868,11 +1868,10 @@ function renderDashboard(d) {
   regionContainer.innerHTML = '';
   const r1 = document.createElement('div');
   r1.className = 'treemap-row';
-  r1.style.minHeight = '80px';
+  r1.style.minHeight = '72px';
   r1.id = 'tmRegionRow1';
   const r2 = document.createElement('div');
   r2.className = 'treemap-row';
-  r2.style.marginTop = '6px';
   r2.style.minHeight = '56px';
   r2.id = 'tmRegionRow2';
   regionContainer.appendChild(r1);
@@ -1887,7 +1886,7 @@ function renderDashboard(d) {
   authContainer.innerHTML = '';
   if (authSorted.length > 1) {
     const ar1 = document.createElement('div'); ar1.className = 'treemap-row'; ar1.id = 'tmAuthRow1';
-    const ar2 = document.createElement('div'); ar2.className = 'treemap-row'; ar2.style.marginTop = '6px'; ar2.id = 'tmAuthRow2';
+    const ar2 = document.createElement('div'); ar2.className = 'treemap-row'; ar2.id = 'tmAuthRow2';
     authContainer.appendChild(ar1); authContainer.appendChild(ar2);
     renderTreemap('tmAuthRow1', authSorted.slice(0, 1), [authColors[0]], authClick);
     renderTreemap('tmAuthRow2', authSorted.slice(1), authColors.slice(1), authClick);
@@ -1907,7 +1906,7 @@ function renderDashboard(d) {
   genderContainer.innerHTML = '';
   if (genderData.length > 2) {
     const gr1 = document.createElement('div'); gr1.className = 'treemap-row'; gr1.id = 'tmGenderRow1';
-    const gr2 = document.createElement('div'); gr2.className = 'treemap-row'; gr2.style.marginTop = '6px'; gr2.id = 'tmGenderRow2';
+    const gr2 = document.createElement('div'); gr2.className = 'treemap-row'; gr2.id = 'tmGenderRow2';
     genderContainer.appendChild(gr1); genderContainer.appendChild(gr2);
     renderTreemap('tmGenderRow1', genderData.slice(0, 1), [genderColors[0]], genderClick);
     renderTreemap('tmGenderRow2', genderData.slice(1), genderColors.slice(1), genderClick);
