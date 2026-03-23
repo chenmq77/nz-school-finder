@@ -2664,7 +2664,7 @@ function handleRoute(hash) {
     const params = new URLSearchParams(qs);
     const filters = {};
     for (const [k, v] of params.entries()) {
-      if (['region','authority','gender','school_type','eqi_band','eqi_group','year_level','year_min','year_max'].includes(k)) {
+      if (['region','authority','gender','school_type','eqi_band','eqi_group','year_level','year_min','year_max','curriculum'].includes(k)) {
         filters[k] = v;
       }
     }

@@ -225,6 +225,15 @@ def filter_schools(params):
             conditions.append(f"school_type IN ({placeholders})")
             values.extend(school_types)
 
+        # curriculum 筛选：通过 school_web_data 的 curriculum_systems 匹配
+        curricula = multi_val("curriculum")
+        if curricula:
+            cur_parts = []
+            for c in curricula:
+                cur_parts.append("school_number IN (SELECT school_number FROM school_web_data WHERE curriculum_systems LIKE ?)")
+                values.append(f'%"{c}"%')
+            conditions.append("(" + " OR ".join(cur_parts) + ")")
+
         # year_level 筛选：找所有年级范围包含 [year_min, year_max] 的学校
         year_min = params.get("year_min", [""])[0].strip()
         year_max = params.get("year_max", [""])[0].strip()
