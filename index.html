@@ -559,6 +559,12 @@ body {
   padding: 20px 24px;
   margin-bottom: 12px;
 }
+.dash-row-2col {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.dash-row-2col .dash-card { margin-bottom: 0; }
 .dash-card-title {
   font-size: 13px;
   font-weight: 600;
@@ -877,6 +883,7 @@ body {
   .ethnic-label { width: 100px; font-size: 12px; }
   .gauge-row { flex-direction: column; }
   .dash-hero h1 { font-size: 22px; }
+  .dash-row-2col { flex-direction: column; }
   .treemap-cell { min-width: 40px; padding: 4px 6px; }
   .school-card { flex-direction: column; align-items: flex-start; gap: 8px; }
   .school-card .sc-roll { text-align: left; }
@@ -918,16 +925,16 @@ body {
       <div class="treemap" id="tmRegion"></div>
     </div>
 
-    <!-- Authority (Type) Treemap -->
-    <div class="dash-card">
-      <div class="dash-card-title">Authority / 学校性质</div>
-      <div class="treemap" id="tmAuthority"></div>
-    </div>
-
-    <!-- Gender Treemap -->
-    <div class="dash-card">
-      <div class="dash-card-title">Gender / 性别类型</div>
-      <div class="treemap" id="tmGender"></div>
+    <!-- Authority + Gender side by side -->
+    <div class="dash-row-2col">
+      <div class="dash-card" style="flex:1;min-width:0">
+        <div class="dash-card-title">Authority / 学校性质</div>
+        <div class="treemap" id="tmAuthority"></div>
+      </div>
+      <div class="dash-card" style="flex:1;min-width:0">
+        <div class="dash-card-title">Gender / 性别类型</div>
+        <div class="treemap" id="tmGender"></div>
+      </div>
     </div>
 
     <!-- Year Level Axis -->
@@ -1872,18 +1879,41 @@ function renderDashboard(d) {
   regionContainer.appendChild(r2);
   renderTreemap('tmRegionRow1', row1, REGION_COLORS.slice(0, 4), regionClick);
   renderTreemap('tmRegionRow2', row2, REGION_COLORS.slice(4), regionClick);
-  renderTreemap('tmAuthority', d.authority, Object.values(AUTH_COLORS), (item) => navigateTo('#/schools?authority=' + encodeURIComponent(item.name)));
+  // Authority: 2-row layout (biggest on row1, rest on row2)
+  const authSorted = [...d.authority].sort((a,b) => b.count - a.count);
+  const authColors = Object.values(AUTH_COLORS);
+  const authClick = (item) => navigateTo('#/schools?authority=' + encodeURIComponent(item.name));
+  const authContainer = document.getElementById('tmAuthority');
+  authContainer.innerHTML = '';
+  if (authSorted.length > 1) {
+    const ar1 = document.createElement('div'); ar1.className = 'treemap-row'; ar1.id = 'tmAuthRow1';
+    const ar2 = document.createElement('div'); ar2.className = 'treemap-row'; ar2.style.marginTop = '6px'; ar2.id = 'tmAuthRow2';
+    authContainer.appendChild(ar1); authContainer.appendChild(ar2);
+    renderTreemap('tmAuthRow1', authSorted.slice(0, 1), [authColors[0]], authClick);
+    renderTreemap('tmAuthRow2', authSorted.slice(1), authColors.slice(1), authClick);
+  } else {
+    renderTreemap('tmAuthority', authSorted, authColors, authClick);
+  }
 
-  // Gender: 合并小数据
+  // Gender: 合并小数据 + 2-row layout
   const genderMain = d.gender.filter(g => ['Co-Educational','Boys School','Girls School'].includes(g.name));
   const genderOther = d.gender.filter(g => !['Co-Educational','Boys School','Girls School'].includes(g.name));
   const genderOtherSum = genderOther.reduce((s,g) => s + g.count, 0);
   const genderData = [...genderMain];
   if (genderOtherSum > 0) genderData.push({ name: 'Other', count: genderOtherSum });
-  renderTreemap('tmGender', genderData, ['#74c0fc','#748ffc','#f783ac','#adb5bd'], (item) => {
-    if (item.name === 'Other') return;
-    navigateTo('#/schools?gender=' + encodeURIComponent(item.name));
-  });
+  const genderColors = ['#74c0fc','#748ffc','#f783ac','#adb5bd'];
+  const genderClick = (item) => { if (item.name !== 'Other') navigateTo('#/schools?gender=' + encodeURIComponent(item.name)); };
+  const genderContainer = document.getElementById('tmGender');
+  genderContainer.innerHTML = '';
+  if (genderData.length > 2) {
+    const gr1 = document.createElement('div'); gr1.className = 'treemap-row'; gr1.id = 'tmGenderRow1';
+    const gr2 = document.createElement('div'); gr2.className = 'treemap-row'; gr2.style.marginTop = '6px'; gr2.id = 'tmGenderRow2';
+    genderContainer.appendChild(gr1); genderContainer.appendChild(gr2);
+    renderTreemap('tmGenderRow1', genderData.slice(0, 1), [genderColors[0]], genderClick);
+    renderTreemap('tmGenderRow2', genderData.slice(1), genderColors.slice(1), genderClick);
+  } else {
+    renderTreemap('tmGender', genderData, genderColors, genderClick);
+  }
 
   renderYearAxis();
   renderCurriculumBar(d.curriculum, d.total);
