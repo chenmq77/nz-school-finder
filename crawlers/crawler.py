@@ -193,6 +193,7 @@ def main():
         data.intl_tuition_annual = log_data.get("intl_tuition_annual")
         data.intl_homestay_weekly = log_data.get("intl_homestay_weekly")
         data.intl_fees_url = log_data.get("intl_fees_url", "")
+        data.intl_fees_year = log_data.get("intl_fees_year")
         data.curriculum_systems = log_data.get("curriculum_systems", [])
         data.zone_map_url = log_data.get("zone_map_url", "")
         data.zone_streets_url = log_data.get("zone_streets_url", "")

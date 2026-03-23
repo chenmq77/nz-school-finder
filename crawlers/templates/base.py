@@ -74,6 +74,7 @@ class SchoolData:
         self.intl_tuition_annual: float | None = None
         self.intl_homestay_weekly: float | None = None
         self.intl_fees_url: str = ""
+        self.intl_fees_year: int | None = None  # e.g. 2026
 
         # Curriculum systems
         self.curriculum_systems: list[dict] = []  # [{system, status, evidence_url}]
@@ -112,6 +113,7 @@ class SchoolData:
             "intl_tuition_annual": self.intl_tuition_annual,
             "intl_homestay_weekly": self.intl_homestay_weekly,
             "intl_fees_url": self.intl_fees_url,
+            "intl_fees_year": self.intl_fees_year,
             "curriculum_systems": self.curriculum_systems,
             "zone_map_url": self.zone_map_url,
             "zone_streets_url": self.zone_streets_url,
@@ -374,6 +376,14 @@ class BaseCrawler(ABC):
         if self.data.intl_tuition_annual and not self.data.intl_fees_url:
             self.data.warnings.append("Fees found but no source URL")
 
+        # Check fees have year — if not, warn and default to current year
+        if self.data.intl_tuition_annual and not self.data.intl_fees_year:
+            current_year = datetime.now().year
+            self.data.intl_fees_year = current_year
+            self.data.warnings.append(
+                f"Fee year not found on page — defaulting to {current_year}, verify manually"
+            )
+
         # Check curriculum has evidence URLs
         for cs in self.data.curriculum_systems:
             if not cs.get("evidence_url"):
@@ -416,7 +426,7 @@ class BaseCrawler(ABC):
             f"- [ ] Sports: {len(d.sports)} items — count by sport, not by team",
             f"- [ ] Arts: {len(d.arts)} items — performance groups + Kapa Haka only",
             f"- [ ] Clubs: {len(d.clubs)} items — non-Sports/Arts extracurricular",
-            f"- [ ] Fees: tuition=${d.intl_tuition_annual}, homestay=${d.intl_homestay_weekly}/wk",
+            f"- [ ] Fees: tuition=${d.intl_tuition_annual} ({d.intl_fees_year or '?'}), homestay=${d.intl_homestay_weekly}/wk",
             f"- [ ] Curriculum: {', '.join(cs.get('system','?') for cs in d.curriculum_systems) or 'none found'}",
             f"- [ ] Logo: {'yes' if d.logo_url else 'no'}",
             f"",
@@ -466,7 +476,8 @@ class BaseCrawler(ABC):
         lines.append("## International Fees")
         lines.append("")
         if d.intl_tuition_annual:
-            lines.append(f"- Annual tuition: ${d.intl_tuition_annual:,.0f}")
+            year_str = f" ({d.intl_fees_year})" if d.intl_fees_year else " (year unknown)"
+            lines.append(f"- Annual tuition: ${d.intl_tuition_annual:,.0f}{year_str}")
             lines.append(f"- Weekly homestay: ${d.intl_homestay_weekly:,.0f}" if d.intl_homestay_weekly else "- Weekly homestay: unknown")
             lines.append(f"- Source: {d.intl_fees_url}")
         else:
@@ -534,11 +545,11 @@ def commit_to_db(data: SchoolData, status: str = CrawlStatus.APPROVED):
              sports, sports_count, sports_url,
              music, music_count, music_url,
              activities, activities_count, activities_url,
-             intl_tuition_annual, intl_homestay_weekly, intl_fees_url,
+             intl_tuition_annual, intl_homestay_weekly, intl_fees_url, intl_fees_year,
              zone_map_url, zone_streets_url, zone_page_url,
              curriculum_systems, logo_url, crawled_at,
              crawl_status, crawl_warnings)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
                 data.school_number,
                 json.dumps([s["name"] for s in data.subjects], ensure_ascii=False),
@@ -556,6 +567,7 @@ def commit_to_db(data: SchoolData, status: str = CrawlStatus.APPROVED):
                 data.intl_tuition_annual,
                 data.intl_homestay_weekly,
                 data.intl_fees_url,
+                data.intl_fees_year,
                 data.zone_map_url,
                 data.zone_streets_url,
                 data.zone_page_url,

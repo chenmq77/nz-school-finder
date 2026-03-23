@@ -204,6 +204,11 @@ class EggsCrawler(StandardHtmlCrawler):
         content = self._pages.get(self.INTL_URL, "")
 
         if content:
+            # Extract fee year: look for "2026 Fees", "Fees 2026", "2026" near fees context
+            year_match = re.search(r'(?:fees|tuition).*?(20\d{2})|(?:(20\d{2}).*?(?:fees|tuition))', content, re.IGNORECASE)
+            if year_match:
+                self.data.intl_fees_year = int(year_match.group(1) or year_match.group(2))
+
             # Look for tuition: "$23,000" or "23,000"
             tuition_match = re.search(r'\$\s*([\d,]+)', content)
             if tuition_match:
