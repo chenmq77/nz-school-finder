@@ -22,13 +22,14 @@ class EggsCrawler(StandardHtmlCrawler):
     SUBJECTS_URL = "https://www.eggs.school.nz/eggs-life/academic-learning/years-9-10/"
     SPORTS_URL = "https://www.eggs.school.nz/eggs-life/co-curricular/sports/"
     ARTS_URL = "https://www.eggs.school.nz/eggs-life/co-curricular/arts-and-culture/"
+    MUSIC_URL = "https://www.eggs.school.nz/eggs-life/co-curricular/music/"
     INTL_URL = "https://www.eggs.school.nz/international-students/applications/fees/"
     ZONE_URL = "https://www.eggs.school.nz/enrolments/zoning/"
 
     def discover_pages(self):
         """Fetch homepage and known source pages."""
         super().discover_pages()
-        for url in [self.SUBJECTS_URL, self.SPORTS_URL, self.ARTS_URL, self.INTL_URL, self.ZONE_URL]:
+        for url in [self.SUBJECTS_URL, self.SPORTS_URL, self.ARTS_URL, self.MUSIC_URL, self.INTL_URL, self.ZONE_URL]:
             self.fetch_page(url)
 
     Y11_13_URL = "https://www.eggs.school.nz/eggs-life/academic-learning/years-11-13/"
@@ -138,26 +139,37 @@ class EggsCrawler(StandardHtmlCrawler):
                 self.data.sports.append(sport)
 
     def extract_arts(self):
-        """Extract performing arts groups from arts & culture page."""
+        """Extract performing arts from arts & culture page + music page."""
         self.data.arts_url = self.ARTS_URL
-        content = self._pages.get(self.ARTS_URL, "")
-        if not content:
-            self.data.warnings.append("Could not fetch arts page")
-            return
+        arts_content = self._pages.get(self.ARTS_URL, "")
+        music_content = self._pages.get(self.MUSIC_URL, "")
 
-        # Performing arts groups (music/drama/dance + Kapa Haka)
-        known_arts = [
+        if not arts_content:
+            self.data.warnings.append("Could not fetch arts page")
+
+        # Drama / performance groups (from arts & culture page)
+        known_drama = [
             "Drama Committee", "Theatre Company", "Theatresports",
             "Kapa Haka", "Showquest", "Sheilah Winn Shakespeare",
         ]
-        for item in known_arts:
-            if item.lower() in content.lower():
+        for item in known_drama:
+            if arts_content and item.lower() in arts_content.lower():
                 self.data.arts.append(item)
 
-        self.data.warnings.append(
-            "Music ensembles (bands/orchestras/choirs) not listed on arts page — "
-            "may need separate music page or prospectus"
-        )
+        # Music ensembles (from music page)
+        if not music_content:
+            self.data.warnings.append("Could not fetch music page")
+            return
+
+        known_music = [
+            "Paradisum", "Luminoso", "Fiorente", "Leogato",
+            "Symphonia", "Chamber Orchestra", "String Ensemble",
+            "Intermediate Concert Band", "Concert Band",
+            "Stage Band", "Rock Bands", "Chamber Music",
+        ]
+        for item in known_music:
+            if item.lower() in music_content.lower():
+                self.data.arts.append(item)
 
     def extract_clubs(self):
         """Extract clubs from arts & culture page."""
