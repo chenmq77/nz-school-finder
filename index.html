@@ -2293,11 +2293,19 @@ function toggleFilterDropdown(dim, pillEl) {
       item.addEventListener('click', (e) => {
         e.stopPropagation();
         if (selected.has(val)) selected.delete(val); else selected.add(val);
-        // Update filter and refresh
+        // Update filter state (no route change yet — keeps dropdown open)
         if (selected.size) _currentFilters[dim.key] = [...selected];
         else delete _currentFilters[dim.key];
-        navigateTo(buildListHash(_currentFilters));
-        // Re-render items without closing
+        // Refresh list data + re-render pill text, but keep dropdown
+        loadListData(1);
+        renderFilterBar();
+        // Re-attach dropdown to the new pill
+        const newPill = document.getElementById('filterBar').children[FILTER_DIMS.indexOf(dim)];
+        if (newPill) {
+          const rect = newPill.getBoundingClientRect();
+          dd.style.top = (rect.bottom + 4) + 'px';
+          dd.style.left = rect.left + 'px';
+        }
         rebuildItems();
       });
       dd.appendChild(item);
@@ -2310,7 +2318,9 @@ function toggleFilterDropdown(dim, pillEl) {
         e.stopPropagation();
         delete _currentFilters[dim.key];
         dd.remove(); _openDropdown = null;
-        navigateTo(buildListHash(_currentFilters));
+        loadListData(1);
+        renderFilterBar();
+        history.replaceState(null, '', buildListHash(_currentFilters));
       });
       dd.appendChild(clearItem);
     }
@@ -2326,9 +2336,19 @@ function toggleFilterDropdown(dim, pillEl) {
   _openDropdown = dd;
 
   const closeHandler = (e) => {
-    if (dd.contains(e.target) || pillEl.contains(e.target)) return;
+    if (dd.contains(e.target)) return;
+    // 找到当前 pill 的新引用（可能已被 renderFilterBar 重建）
+    const bar = document.getElementById('filterBar');
+    const idx = FILTER_DIMS.indexOf(dim);
+    const currentPill = bar && bar.children[idx];
+    if (currentPill && currentPill.contains(e.target)) return;
     dd.remove(); _openDropdown = null;
     document.removeEventListener('click', closeHandler, true);
+    // 关闭下拉时同步 URL hash（不触发重载，因为数据已加载）
+    const newHash = buildListHash(_currentFilters);
+    if (window.location.hash !== newHash) {
+      history.replaceState(null, '', newHash);
+    }
   };
   setTimeout(() => document.addEventListener('click', closeHandler, true), 0);
 }

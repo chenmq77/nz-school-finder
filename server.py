@@ -247,7 +247,6 @@ def filter_schools(params):
                     values.extend([lo, hi])
             if eqi_parts:
                 conditions.append("(" + " OR ".join(eqi_parts) + ")")
-                values.extend([lo, hi])
 
         where = " AND ".join(conditions) if conditions else "1=1"
 
