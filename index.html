@@ -616,60 +616,39 @@ body {
   font-weight: 500;
 }
 
-/* Year Level Axis */
-.year-axis {
+/* Year Level Band Map */
+.band-map {
+  display: grid;
+  grid-template-columns: repeat(13, 1fr);
+  grid-auto-rows: 36px;
+  gap: 1px;
+}
+.band-tick {
   display: flex;
   align-items: center;
-  gap: 0;
-  padding: 16px 0 8px;
-  position: relative;
-}
-.year-dot {
-  flex: 1;
-  text-align: center;
-  font-size: 11px;
-  color: var(--text-secondary);
-  font-weight: 500;
-  position: relative;
-  padding-bottom: 18px;
-}
-.year-dot::after {
-  content: '';
-  position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--border);
-}
-.year-labels {
-  display: flex;
+  justify-content: center;
   font-size: 10px;
-  color: var(--text-muted);
-  margin-top: 4px;
-}
-.year-labels span { flex: 1; text-align: center; }
-
-.year-btns {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 14px;
-}
-.year-btn {
-  padding: 6px 14px;
-  border-radius: 20px;
-  border: 1px solid var(--border);
-  background: var(--card-bg);
-  font-size: 12px;
   color: var(--text-secondary);
-  cursor: pointer;
-  transition: all var(--transition);
-  font-weight: 500;
+  padding: 8px 4px;
+  font-weight: 600;
+  background: #f0ebe0;
 }
-.year-btn:hover { border-color: #CF9C30; color: #8F6B20; background: #F1E3C5; }
+.band-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  transition: filter var(--transition);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.band-cell:hover { filter: brightness(0.92); box-shadow: inset 0 0 0 2px rgba(0,0,0,0.15); }
+.band-sub { font-size: 10px; font-weight: 400; opacity: 0.7; margin-left: 4px; }
 
 /* Curriculum bar */
 .curriculum-bar {
@@ -890,6 +869,9 @@ body {
   .treemap-cell .tm-count { font-size: 10px; }
   .school-card { flex-direction: column; align-items: flex-start; gap: 8px; }
   .school-card .sc-roll { text-align: left; }
+  .band-map { grid-template-columns: 1fr !important; }
+  .band-tick { display: none; }
+  .band-cell { grid-column: 1 / -1 !important; padding: 10px 12px; }
 }
 </style>
 </head>
@@ -940,12 +922,10 @@ body {
       </div>
     </div>
 
-    <!-- Year Level Axis -->
+    <!-- Year Level Band Map -->
     <div class="dash-card">
       <div class="dash-card-title">Year Level / 年级范围</div>
-      <div class="year-axis" id="yearAxis"></div>
-      <div class="year-labels"><span>Primary</span><span>Intermediate</span><span>Secondary</span></div>
-      <div class="year-btns" id="yearBtns"></div>
+      <div id="yearBandMap"></div>
     </div>
 
     <!-- Curriculum Bar -->
@@ -1936,7 +1916,7 @@ function renderDashboard(d) {
     renderTreemap('tmGender', genderData, genderColors, genderClick);
   }
 
-  renderYearAxis();
+  renderYearBandMap();
   renderCurriculumBar(d.curriculum, d.total);
   renderEqiDashBar(d.eqi_bands);
   renderFAQ();
@@ -2006,32 +1986,45 @@ function renderTreemap(containerId, data, colors, onClick) {
   });
 }
 
-function renderYearAxis() {
-  const axis = document.getElementById('yearAxis');
-  axis.innerHTML = '';
+function renderYearBandMap() {
+  const container = document.getElementById('yearBandMap');
+  container.innerHTML = '';
+  const grid = document.createElement('div');
+  grid.className = 'band-map';
+  // Row 0: Year ticks (Y1-Y13)
   for (let y = 1; y <= 13; y++) {
-    const dot = document.createElement('div');
-    dot.className = 'year-dot';
-    dot.textContent = 'Y' + y;
-    axis.appendChild(dot);
+    const tick = document.createElement('div');
+    tick.className = 'band-tick';
+    tick.textContent = y;
+    grid.appendChild(tick);
   }
-
-  const btns = document.getElementById('yearBtns');
-  const presets = [
-    { label: 'Primary Y1-6', type: 'Contributing' },
-    { label: 'Full Primary Y1-8', type: 'Full Primary' },
-    { label: 'Intermediate Y7-8', type: 'Intermediate' },
-    { label: 'Secondary Y9-13', type: 'Secondary (Year 9-15)' },
-    { label: 'Composite Y1-13', type: 'Composite' },
+  // Band definitions: [label, startY, endY, color, filterType, count_label]
+  const BANDS = [
+    // Row 1: Core (fills all 13 columns)
+    { label: 'Contributing', sub: 'Y1-6', y1: 1, y2: 6, bg: '#AE8329', type: 'Contributing' },
+    { label: 'Intermediate', sub: 'Y7-8', y1: 7, y2: 8, bg: '#CF9C30', type: 'Intermediate' },
+    { label: 'Secondary', sub: 'Y9-13', y1: 9, y2: 13, bg: '#8F6B20', type: 'Secondary (Year 9-15)' },
+    // Row 2: Full Primary + Junior/Senior High
+    { label: 'Full Primary', sub: 'Y1-8', y1: 1, y2: 8, bg: '#DFBE77', type: 'Full Primary' },
+    { label: 'Junior High', sub: 'Y9-10', y1: 9, y2: 10, bg: '#C4933A', type: null },
+    { label: 'Senior High', sub: 'Y11-13', y1: 11, y2: 13, bg: '#9A7525', type: null },
+    // Row 3: Composite
+    { label: 'Composite', sub: 'Y1-13', y1: 1, y2: 13, bg: '#F1E3C5', type: 'Composite' },
   ];
-  btns.innerHTML = '';
-  presets.forEach(p => {
-    const btn = document.createElement('button');
-    btn.className = 'year-btn';
-    btn.textContent = p.label;
-    btn.addEventListener('click', () => navigateTo('#/schools?school_type=' + encodeURIComponent(p.type)));
-    btns.appendChild(btn);
+  BANDS.forEach(b => {
+    const cell = document.createElement('div');
+    cell.className = 'band-cell';
+    cell.style.cssText = `grid-column:${b.y1}/${b.y2+1};background:${b.bg};color:${textColorFor(b.bg)}`;
+    cell.innerHTML = `${esc(b.label)}${b.sub ? '<span class="band-sub">'+esc(b.sub)+'</span>' : ''}`;
+    cell.title = `${b.label} ${b.sub}`;
+    if (b.type) {
+      cell.addEventListener('click', () => navigateTo('#/schools?school_type=' + encodeURIComponent(b.type)));
+    } else {
+      cell.style.cursor = 'default';
+    }
+    grid.appendChild(cell);
   });
+  container.appendChild(grid);
 }
 
 function renderCurriculumBar(curriculum, total) {
