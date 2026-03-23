@@ -2044,7 +2044,7 @@ function renderTreemap(containerId, data, colors, onClick) {
     const bg = colors[i % colors.length];
     // 动态高度/面积：用 flex-grow 模拟面积
     const flexVal = item._flex || item.count;
-    cell.style.cssText = `flex:${Math.max(flexVal, 1)};background:${bg};color:${textColorFor(bg)};min-height:${pct > 8 ? 56 : 44}px;min-width:48px`;
+    cell.style.cssText = `flex:${Math.max(flexVal, total * 0.2)};background:${bg};color:${textColorFor(bg)};min-height:${pct > 8 ? 56 : 44}px;min-width:0`;
     const nameSpan = document.createElement('span');
     nameSpan.className = 'tm-name';
     let displayName = SHORT_NAMES[item.name] || item.name.replace(' Region', '');
