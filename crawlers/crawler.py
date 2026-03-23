@@ -56,6 +56,48 @@ def find_school_crawler(school_number: int):
     return None
 
 
+def show_crawl_status():
+    """Show crawl status of all schools that have web data."""
+    import json as _json
+    import sqlite3
+    from .templates.base import DB_PATH
+
+    conn = sqlite3.connect(str(DB_PATH))
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT w.school_number, s.school_name,
+               w.subjects_count, w.sports_count, w.music_count, w.activities_count,
+               w.intl_tuition_annual, w.crawl_status, w.crawl_warnings, w.crawled_at
+        FROM school_web_data w
+        JOIN schools s ON s.school_number = w.school_number
+        ORDER BY w.school_number
+    """)
+    rows = cur.fetchall()
+    conn.close()
+
+    if not rows:
+        print("No schools have been crawled yet.")
+        return
+
+    print(f"\n{'='*80}")
+    print(f"  Crawl Status — {len(rows)} schools")
+    print(f"{'='*80}\n")
+    print(f"  {'#':<6} {'School':<30} {'Status':<10} {'Subj':>5} {'Sport':>5} {'Arts':>5} {'Club':>5} {'Fee':>8} {'Warnings'}")
+    print(f"  {'-'*6} {'-'*30} {'-'*10} {'-'*5} {'-'*5} {'-'*5} {'-'*5} {'-'*8} {'-'*10}")
+    for r in rows:
+        status = r["crawl_status"] or "?"
+        warnings = _json.loads(r["crawl_warnings"]) if r["crawl_warnings"] else []
+        fee = f"${r['intl_tuition_annual']:,.0f}" if r["intl_tuition_annual"] else "-"
+        warn_count = len(warnings)
+        warn_str = f"{warn_count} warn" if warn_count > 0 else "clean"
+        print(f"  {r['school_number']:<6} {r['school_name']:<30} {status:<10} {r['subjects_count'] or 0:>5} {r['sports_count'] or 0:>5} {r['music_count'] or 0:>5} {r['activities_count'] or 0:>5} {fee:>8} {warn_str}")
+
+    print(f"\n  Summary: {sum(1 for r in rows if r['crawl_status']=='APPROVED')} approved, "
+          f"{sum(1 for r in rows if r['crawl_status']=='PARTIAL')} partial, "
+          f"{sum(1 for r in rows if r['crawl_status']=='BLOCKED')} blocked\n")
+
+
 def list_crawlers():
     """List all available per-school crawlers."""
     scripts = sorted(SCHOOLS_DIR.glob("school_*.py"))
@@ -94,7 +136,12 @@ def main():
         action="store_true",
         help="Override threshold check (for small/specialized schools that are correctly scraped)",
     )
+    parser.add_argument("--status-all", action="store_true", help="Show crawl status of all schools in DB")
     args = parser.parse_args()
+
+    if args.status_all:
+        show_crawl_status()
+        return
 
     if args.list:
         print("Available school crawlers:")

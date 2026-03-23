@@ -536,8 +536,9 @@ def commit_to_db(data: SchoolData, status: str = CrawlStatus.APPROVED):
              activities, activities_count, activities_url,
              intl_tuition_annual, intl_homestay_weekly, intl_fees_url,
              zone_map_url, zone_streets_url, zone_page_url,
-             curriculum_systems, logo_url, crawled_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+             curriculum_systems, logo_url, crawled_at,
+             crawl_status, crawl_warnings)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
                 data.school_number,
                 json.dumps([s["name"] for s in data.subjects], ensure_ascii=False),
@@ -561,6 +562,8 @@ def commit_to_db(data: SchoolData, status: str = CrawlStatus.APPROVED):
                 json.dumps(data.curriculum_systems, ensure_ascii=False),
                 data.logo_url,
                 data.crawled_at,
+                status,
+                json.dumps(data.warnings, ensure_ascii=False),
             ),
         )
 
