@@ -2167,6 +2167,7 @@ function renderEqiBlock(bands) {
     cell.style.cssText = `grid-column:${g.col};background:${g.color};color:${textColorFor(g.color)}`;
     cell.innerHTML = `<span class="tm-name">${esc(g.label)}</span><span class="tm-count">${total}</span>`;
     cell.title = `${g.label}: ${total} schools`;
+    cell.addEventListener('click', () => navigateTo('#/schools?eqi_group=' + encodeURIComponent(g.label.toLowerCase())));
     grid.appendChild(cell);
   });
   container.appendChild(grid);
