@@ -1112,6 +1112,7 @@ function renderFees(w) {
   const tuition = w.intl_tuition_annual ? `$${Number(w.intl_tuition_annual).toLocaleString()}` : '--';
   const homestay = w.intl_homestay_weekly ? `$${Number(w.intl_homestay_weekly).toLocaleString()}` : '--';
   const homestayAnnual = w.intl_homestay_weekly ? `($${Math.round(w.intl_homestay_weekly * 46).toLocaleString()} /46wks)` : '';
+  const feesYear = w.intl_fees_year ? ` (${w.intl_fees_year})` : '';
   const feesUrl = safeUrl(w.intl_fees_url);
   const feesLink = feesUrl ? `<a href="${esc(feesUrl)}" target="_blank" rel="noopener" style="font-size:12px;color:var(--primary)">[查看完整费用政策 / Full fees]</a>` : '';
 
@@ -1120,7 +1121,7 @@ function renderFees(w) {
       <div class="highlight-card">
         <div class="card-label">Tuition / 年学费</div>
         <div class="card-value">${tuition}</div>
-        <div class="card-sub">NZD per year</div>
+        <div class="card-sub">NZD per year${feesYear}</div>
       </div>
       <div class="highlight-card">
         <div class="card-label">Homestay / 住宿费</div>
