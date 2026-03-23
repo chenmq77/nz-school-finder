@@ -177,32 +177,43 @@ def filter_schools(params):
         conditions = []
         values = []
 
-        # region 筛选
-        region = params.get("region", [""])[0].strip()
-        if region:
-            conditions.append("regional_council = ?")
-            values.append(region)
+        # 辅助：支持逗号分隔多值
+        def multi_val(param_name):
+            raw = params.get(param_name, [""])[0].strip()
+            return [v.strip() for v in raw.split(",") if v.strip()] if raw else []
 
-        # authority 筛选（支持合并 Private）
-        authority = params.get("authority", [""])[0].strip()
-        if authority:
-            if authority == "Private":
-                conditions.append("authority LIKE '%Private%'")
-            else:
-                conditions.append("authority = ?")
-                values.append(authority)
+        # region 筛选（支持多选）
+        regions = multi_val("region")
+        if regions:
+            placeholders = ",".join("?" * len(regions))
+            conditions.append(f"regional_council IN ({placeholders})")
+            values.extend(regions)
 
-        # gender 筛选
-        gender = params.get("gender", [""])[0].strip()
-        if gender:
-            conditions.append("gender_of_students = ?")
-            values.append(gender)
+        # authority 筛选（支持多选 + 合并 Private）
+        authorities = multi_val("authority")
+        if authorities:
+            auth_parts = []
+            for a in authorities:
+                if a == "Private":
+                    auth_parts.append("authority LIKE '%Private%'")
+                else:
+                    auth_parts.append("authority = ?")
+                    values.append(a)
+            conditions.append("(" + " OR ".join(auth_parts) + ")")
 
-        # school_type 筛选
-        school_type = params.get("school_type", [""])[0].strip()
-        if school_type:
-            conditions.append("school_type = ?")
-            values.append(school_type)
+        # gender 筛选（支持多选）
+        genders = multi_val("gender")
+        if genders:
+            placeholders = ",".join("?" * len(genders))
+            conditions.append(f"gender_of_students IN ({placeholders})")
+            values.extend(genders)
+
+        # school_type 筛选（支持多选）
+        school_types = multi_val("school_type")
+        if school_types:
+            placeholders = ",".join("?" * len(school_types))
+            conditions.append(f"school_type IN ({placeholders})")
+            values.extend(school_types)
 
         # year_level 筛选（模糊匹配 school_type 中的 Year 范围）
         year_min = params.get("year_min", [""])[0].strip()
@@ -222,15 +233,20 @@ def filter_schools(params):
                 conditions.append("CAST(equity_index_eqi AS REAL) BETWEEN ? AND ?")
                 values.extend([lo, hi])
 
-        # EQI group 筛选
-        eqi_group = params.get("eqi_group", [""])[0].strip()
-        if eqi_group:
+        # EQI group 筛选（支持多选）
+        eqi_groups = multi_val("eqi_group")
+        if eqi_groups:
             group_ranges = {
                 "fewer": (344, 429), "moderate": (430, 493), "more": (494, 569),
             }
-            if eqi_group in group_ranges:
-                lo, hi = group_ranges[eqi_group]
-                conditions.append("CAST(equity_index_eqi AS REAL) BETWEEN ? AND ?")
+            eqi_parts = []
+            for g in eqi_groups:
+                if g in group_ranges:
+                    lo, hi = group_ranges[g]
+                    eqi_parts.append("CAST(equity_index_eqi AS REAL) BETWEEN ? AND ?")
+                    values.extend([lo, hi])
+            if eqi_parts:
+                conditions.append("(" + " OR ".join(eqi_parts) + ")")
                 values.extend([lo, hi])
 
         where = " AND ".join(conditions) if conditions else "1=1"

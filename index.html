@@ -2223,7 +2223,11 @@ const FILTER_DIMS = [
 let _openDropdown = null;
 
 function showListView(filters) {
-  _currentFilters = filters || {};
+  // 将单值字符串转为数组格式
+  _currentFilters = {};
+  for (const [k, v] of Object.entries(filters || {})) {
+    if (v) _currentFilters[k] = v.split(',');
+  }
   renderFilterBar();
   loadListData(1);
 }
@@ -2231,16 +2235,17 @@ function showListView(filters) {
 function renderFilterBar() {
   const bar = document.getElementById('filterBar');
   bar.innerHTML = '';
-  const hasAny = Object.values(_currentFilters).some(v => v);
+  const hasAny = Object.values(_currentFilters).some(v => v && v.length);
 
   FILTER_DIMS.forEach(dim => {
     const pill = document.createElement('div');
     pill.className = 'filter-pill';
-    const curVal = _currentFilters[dim.key];
-    if (curVal) {
+    const selected = _currentFilters[dim.key] || [];
+    if (selected.length) {
       pill.classList.add('active');
-      const display = dim.displayFn ? dim.displayFn(curVal) : curVal;
-      pill.innerHTML = `${esc(dim.label)}: ${esc(display)} <span class="pill-arrow">▼</span>`;
+      const first = dim.displayFn ? dim.displayFn(selected[0]) : selected[0];
+      const extra = selected.length > 1 ? ` +${selected.length - 1}` : '';
+      pill.innerHTML = `${esc(dim.label)}: ${esc(first)}${extra} <span class="pill-arrow">▼</span>`;
     } else {
       pill.innerHTML = `${esc(dim.label)} <span class="pill-arrow">▼</span>`;
     }
@@ -2270,68 +2275,80 @@ function getFilterOptions(dim) {
 
 function toggleFilterDropdown(dim, pillEl) {
   // Close existing
-  if (_openDropdown) { _openDropdown.remove(); _openDropdown = null; }
-  // Create dropdown
+  if (_openDropdown) { _openDropdown.remove(); _openDropdown = null; return; }
+
   const dd = document.createElement('div');
   dd.className = 'filter-dropdown';
   const options = getFilterOptions(dim);
-  const curVal = _currentFilters[dim.key] || '';
+  const selected = new Set(_currentFilters[dim.key] || []);
 
-  options.forEach(val => {
-    const item = document.createElement('div');
-    item.className = 'filter-dropdown-item';
-    if (val === curVal) item.classList.add('selected');
-    const display = dim.displayFn ? dim.displayFn(val) : val;
-    item.innerHTML = `<span class="fd-check">✓</span>${esc(display)}`;
-    item.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (val === curVal) {
+  function rebuildItems() {
+    dd.innerHTML = '';
+    options.forEach(val => {
+      const item = document.createElement('div');
+      item.className = 'filter-dropdown-item';
+      if (selected.has(val)) item.classList.add('selected');
+      const display = dim.displayFn ? dim.displayFn(val) : val;
+      item.innerHTML = `<span class="fd-check">✓</span>${esc(display)}`;
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (selected.has(val)) selected.delete(val); else selected.add(val);
+        // Update filter and refresh
+        if (selected.size) _currentFilters[dim.key] = [...selected];
+        else delete _currentFilters[dim.key];
+        navigateTo(buildListHash(_currentFilters));
+        // Re-render items without closing
+        rebuildItems();
+      });
+      dd.appendChild(item);
+    });
+    if (selected.size) {
+      const clearItem = document.createElement('div');
+      clearItem.className = 'filter-dropdown-clear';
+      clearItem.textContent = 'Clear';
+      clearItem.addEventListener('click', (e) => {
+        e.stopPropagation();
         delete _currentFilters[dim.key];
-      } else {
-        _currentFilters[dim.key] = val;
-      }
-      dd.remove();
-      _openDropdown = null;
-      navigateTo(buildListHash(_currentFilters));
-    });
-    dd.appendChild(item);
-  });
-
-  // Clear option
-  if (curVal) {
-    const clearItem = document.createElement('div');
-    clearItem.className = 'filter-dropdown-clear';
-    clearItem.textContent = 'Clear';
-    clearItem.addEventListener('click', (e) => {
-      e.stopPropagation();
-      delete _currentFilters[dim.key];
-      dd.remove();
-      _openDropdown = null;
-      navigateTo(buildListHash(_currentFilters));
-    });
-    dd.appendChild(clearItem);
+        dd.remove(); _openDropdown = null;
+        navigateTo(buildListHash(_currentFilters));
+      });
+      dd.appendChild(clearItem);
+    }
   }
+  rebuildItems();
 
-  pillEl.style.position = 'relative';
-  pillEl.appendChild(dd);
+  // Position dropdown below pill using fixed positioning
+  const rect = pillEl.getBoundingClientRect();
+  dd.style.position = 'fixed';
+  dd.style.top = (rect.bottom + 4) + 'px';
+  dd.style.left = rect.left + 'px';
+  document.body.appendChild(dd);
   _openDropdown = dd;
 
-  // Close on outside click
-  const closeHandler = () => { dd.remove(); _openDropdown = null; document.removeEventListener('click', closeHandler); };
-  setTimeout(() => document.addEventListener('click', closeHandler), 0);
+  const closeHandler = (e) => {
+    if (dd.contains(e.target) || pillEl.contains(e.target)) return;
+    dd.remove(); _openDropdown = null;
+    document.removeEventListener('click', closeHandler, true);
+  };
+  setTimeout(() => document.addEventListener('click', closeHandler, true), 0);
 }
 
 function buildListHash(filters) {
   const params = new URLSearchParams();
   for (const [k, v] of Object.entries(filters)) {
-    if (v) params.set(k, v);
+    if (Array.isArray(v) && v.length) params.set(k, v.join(','));
+    else if (v) params.set(k, v);
   }
   const qs = params.toString();
-  return qs ? '#/schools?' + qs : '#/';
+  return qs ? '#/schools?' + qs : '#/schools';
 }
 
 async function loadListData(page) {
-  const params = new URLSearchParams(_currentFilters);
+  const params = new URLSearchParams();
+  for (const [k, v] of Object.entries(_currentFilters)) {
+    if (Array.isArray(v) && v.length) params.set(k, v.join(','));
+    else if (v) params.set(k, v);
+  }
   params.set('page', page);
   params.set('limit', 20);
   const sort = document.getElementById('listSort').value;
