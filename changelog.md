@@ -1,5 +1,25 @@
 # Changelog
 
+## 2026-03-23 — Dashboard 首页 + 学校列表视图 + Hash 路由 + 筛选系统
+
+### Why
+首页只有一个空白的 empty-state，用户不知道有什么数据可以探索。需要一个可视化的 Dashboard 展示数据全貌，并支持点击筛选浏览学校列表。
+
+### What
+- **Dashboard 首页**：Region/Authority/Gender Treemap、Year Level Band Map、Curriculum+EQI 并列、FAQ
+- **LinkedIn 风格筛选栏**：Header 内 sticky filter bar，支持多选、Year Levels 年级范围筛选
+- **学校列表视图**：筛选卡片 + 排序 + 分页
+- **Hash 路由**：`#/` Dashboard、`#/schools?...` 列表、`#/school/54` 详情
+- **API 扩展**：`/api/stats`、`/api/schools`（多维度多选筛选 + 年级范围 + curriculum）
+- **配色系统**：每区域一色相深浅渐变 + 自动文字对比度
+
+### How
+- Treemap：方角 1px gap、absolute 定位百分比对齐（Region）、CSS Grid（EQI）
+- Year Level：CSS Grid 13 列 Band Map，点击用 year_min/year_max 筛选
+- Filter Bar：LinkedIn 风格 pill + dropdown 多选，dashboard 和 list view 共享
+
+---
+
 ## 2026-03-23 — 支持选择性爬取（--only 参数）
 
 ### Why
@@ -8,36 +28,24 @@
 ### What
 - `crawl(only=["subjects", "fees"])` — BaseCrawler 支持选择性提取
 - CLI: `python -m crawlers.crawler --school 41 --only subjects,fees`
-- `--parts` 命令列出所有可提取的部分
 
 ### How
 - `crawl()` 方法新增 `only` 参数，过滤 extract 步骤
-- `discover_pages()` 始终运行（提取依赖页面内容）
-- logo/zone 只在全量爬取时运行
 
 ---
 
 ## 2026-03-23 — 搭建爬虫框架（feat/crawler 分支）
 
 ### Why
-将手动 AI 辅助爬取升级为结构化的爬虫框架：模板继承 + 每校脚本 + 自动生成 review 报告 + CLI 入口。
+将手动 AI 辅助爬取升级为结构化的爬虫框架。
 
 ### What
-- `crawlers/templates/base.py`: BaseCrawler 抽象基类（7 步管道 + 数据验证 + 日志 + review 报告生成 + DB 提交）
-- `crawlers/templates/standard_html.py`: 标准 HTML 网站模板（Scrapling Fetcher）
-- `crawlers/templates/wordpress.py`: WordPress 网站模板（body.decode + regex）
-- `crawlers/templates/wix.py`: Wix 网站模板（Playwright 动态渲染）
-- `crawlers/schools/school_41_macleans.py`: 示例脚本 — Macleans College
-- `crawlers/crawler.py`: CLI 入口（--school / --list / --commit）
+- BaseCrawler 抽象基类 + StandardHtml/WordPress/Wix 模板 + 每校脚本 + CLI 入口
 
 ### How
-- 继承体系：BaseCrawler → StandardHtml/WordPress/Wix → 每校脚本
-- 每校脚本 override extract_* 方法，包含校级 URL 和选择器
-- 爬取后自动生成 review markdown 报告，人工确认后才能 commit 到数据库
-- commit 前检查 review 报告是否存在，防止跳过人工审核
+- 继承体系 + review 报告 + commit 前人工审核
 
 ---
-
 ## 2026-03-23 — 搜索下拉支持键盘导航（↑/↓/Enter/Escape）
 
 ### Why
