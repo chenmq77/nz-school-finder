@@ -2216,7 +2216,7 @@ const FILTER_DIMS = [
   { key: 'region', label: 'Region', dataKey: 'region', valFn: d => d.map(r => r.name) },
   { key: 'authority', label: 'Authority', dataKey: 'authority', valFn: d => d.map(r => r.name) },
   { key: 'gender', label: 'Gender', dataKey: 'gender', valFn: d => d.map(r => r.name).filter(n => n !== 'Other') },
-  { key: 'school_type', label: 'School Type', vals: ['Contributing','Full Primary','Intermediate','Secondary (Year 9-15)','Secondary (Year 7-15)','Composite'] },
+  { key: 'year_level', label: 'Year Levels', isYearLevel: true, vals: [] },
   // curriculum filter 暂不启用（仅 5 所学校有爬取数据）
   { key: 'eqi_group', label: 'EQI', vals: ['fewer','moderate','more'], displayFn: v => ({fewer:'Fewer',moderate:'Moderate',more:'More'}[v]||v) },
 ];
@@ -2243,9 +2243,15 @@ function renderFilterBar() {
     const selected = _currentFilters[dim.key] || [];
     if (selected.length) {
       pill.classList.add('active');
-      const first = dim.displayFn ? dim.displayFn(selected[0]) : selected[0];
+      let display;
+      if (dim.isYearLevel) {
+        const m = selected[0].match(/(\d+)-(\d+)/);
+        display = m ? `Y${m[1]}-Y${m[2]}` : selected[0];
+      } else {
+        display = dim.displayFn ? dim.displayFn(selected[0]) : selected[0];
+      }
       const extra = selected.length > 1 ? ` +${selected.length - 1}` : '';
-      pill.innerHTML = `${esc(dim.label)}: ${esc(first)}${extra} <span class="pill-arrow">▼</span>`;
+      pill.innerHTML = `${esc(dim.label)}: ${esc(display)}${extra} <span class="pill-arrow">▼</span>`;
     } else {
       pill.innerHTML = `${esc(dim.label)} <span class="pill-arrow">▼</span>`;
     }
@@ -2276,6 +2282,8 @@ function getFilterOptions(dim) {
 function toggleFilterDropdown(dim, pillEl) {
   // Close existing
   if (_openDropdown) { _openDropdown.remove(); _openDropdown = null; return; }
+
+  if (dim.isYearLevel) return toggleYearLevelDropdown(dim, pillEl);
 
   const dd = document.createElement('div');
   dd.className = 'filter-dropdown';
@@ -2351,6 +2359,130 @@ function toggleFilterDropdown(dim, pillEl) {
     }
   };
   setTimeout(() => document.addEventListener('click', closeHandler, true), 0);
+}
+
+function toggleYearLevelDropdown(dim, pillEl) {
+  const dd = document.createElement('div');
+  dd.className = 'filter-dropdown';
+  dd.style.padding = '12px 14px';
+  dd.style.minWidth = '260px';
+
+  // 当前选中的范围
+  const curVal = _currentFilters[dim.key];
+  let selMin = 0, selMax = 0;
+  if (curVal && curVal.length) {
+    // 格式: ["11-13"]
+    const m = curVal[0].match(/(\d+)-(\d+)/);
+    if (m) { selMin = +m[1]; selMax = +m[2]; }
+  }
+
+  // 快捷项
+  const presets = [
+    { label: 'Primary Y1-6', min: 1, max: 6 },
+    { label: 'Intermediate Y7-8', min: 7, max: 8 },
+    { label: 'Secondary Y9-13', min: 9, max: 13 },
+    { label: 'Senior High Y11-13', min: 11, max: 13 },
+  ];
+
+  const presetDiv = document.createElement('div');
+  presetDiv.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px';
+  presets.forEach(p => {
+    const btn = document.createElement('button');
+    btn.style.cssText = 'padding:4px 10px;border-radius:12px;border:1px solid var(--border);background:var(--card-bg);font-size:11px;cursor:pointer';
+    if (selMin === p.min && selMax === p.max) {
+      btn.style.background = 'var(--primary)';
+      btn.style.color = '#fff';
+      btn.style.borderColor = 'var(--primary)';
+    }
+    btn.textContent = p.label;
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      applyYearRange(dim, p.min, p.max);
+      dd.remove(); _openDropdown = null;
+    });
+    presetDiv.appendChild(btn);
+  });
+  dd.appendChild(presetDiv);
+
+  // 年级按钮 (Y1-Y13)
+  const label = document.createElement('div');
+  label.style.cssText = 'font-size:11px;color:var(--text-muted);margin-bottom:6px';
+  label.textContent = '自定义范围（点击起点，再点终点）:';
+  dd.appendChild(label);
+
+  const gridDiv = document.createElement('div');
+  gridDiv.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);gap:3px';
+  let firstClick = 0;
+  for (let y = 1; y <= 13; y++) {
+    const btn = document.createElement('button');
+    btn.style.cssText = 'padding:6px 0;border-radius:4px;border:1px solid var(--border);background:var(--card-bg);font-size:12px;cursor:pointer;text-align:center';
+    if (selMin && selMax && y >= selMin && y <= selMax) {
+      btn.style.background = '#CF9C30';
+      btn.style.color = '#fff';
+      btn.style.borderColor = '#CF9C30';
+    }
+    btn.textContent = 'Y' + y;
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!firstClick) {
+        firstClick = y;
+        btn.style.background = '#CF9C30';
+        btn.style.color = '#fff';
+      } else {
+        const min = Math.min(firstClick, y);
+        const max = Math.max(firstClick, y);
+        applyYearRange(dim, min, max);
+        dd.remove(); _openDropdown = null;
+      }
+    });
+    gridDiv.appendChild(btn);
+  }
+  dd.appendChild(gridDiv);
+
+  // Clear
+  if (selMin) {
+    const clearBtn = document.createElement('div');
+    clearBtn.className = 'filter-dropdown-clear';
+    clearBtn.textContent = 'Clear';
+    clearBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      delete _currentFilters[dim.key];
+      delete _currentFilters['year_min'];
+      delete _currentFilters['year_max'];
+      dd.remove(); _openDropdown = null;
+      loadListData(1);
+      renderFilterBar();
+      history.replaceState(null, '', buildListHash(_currentFilters));
+    });
+    dd.appendChild(clearBtn);
+  }
+
+  // Position
+  const rect = pillEl.getBoundingClientRect();
+  dd.style.position = 'fixed';
+  dd.style.top = (rect.bottom + 4) + 'px';
+  dd.style.left = rect.left + 'px';
+  document.body.appendChild(dd);
+  _openDropdown = dd;
+
+  const closeHandler = (e) => {
+    if (dd.contains(e.target)) return;
+    dd.remove(); _openDropdown = null;
+    document.removeEventListener('click', closeHandler, true);
+  };
+  setTimeout(() => document.addEventListener('click', closeHandler, true), 0);
+}
+
+function applyYearRange(dim, min, max) {
+  _currentFilters[dim.key] = [`${min}-${max}`];
+  // 同时设置 year_min/year_max 给后端
+  _currentFilters['year_min'] = [`${min}`];
+  _currentFilters['year_max'] = [`${max}`];
+  // 如果有 school_type 筛选会冲突，清除它
+  delete _currentFilters['school_type'];
+  loadListData(1);
+  renderFilterBar();
+  history.replaceState(null, '', buildListHash(_currentFilters));
 }
 
 function buildListHash(filters) {
@@ -2535,7 +2667,7 @@ function handleRoute(hash) {
     const params = new URLSearchParams(qs);
     const filters = {};
     for (const [k, v] of params.entries()) {
-      if (['region','authority','gender','school_type','eqi_band','eqi_group'].includes(k)) {
+      if (['region','authority','gender','school_type','eqi_band','eqi_group','year_level','year_min','year_max'].includes(k)) {
         filters[k] = v;
       }
     }

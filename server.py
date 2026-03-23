@@ -215,10 +215,36 @@ def filter_schools(params):
             conditions.append(f"school_type IN ({placeholders})")
             values.extend(school_types)
 
-        # year_level 筛选（模糊匹配 school_type 中的 Year 范围）
+        # year_level 筛选：找所有年级范围包含 [year_min, year_max] 的学校
         year_min = params.get("year_min", [""])[0].strip()
         year_max = params.get("year_max", [""])[0].strip()
-        # 这里用 school_type 的 Year 范围做筛选
+        if year_min and year_max:
+            try:
+                ymin, ymax = int(year_min), int(year_max)
+                # 学校类型 → 年级范围映射
+                type_ranges = {
+                    'Contributing': (1, 6),
+                    'Full Primary': (1, 8),
+                    'Intermediate': (7, 8),
+                    'Composite': (1, 13),
+                    'Composite (Year 1-10)': (1, 10),
+                    'Restricted Composite (Year 7-10)': (7, 10),
+                    'Secondary (Year 9-15)': (9, 13),
+                    'Secondary (Year 7-15)': (7, 13),
+                    'Secondary (Year 7-10)': (7, 10),
+                    'Secondary (Year 11-15)': (11, 13),
+                    'Correspondence School': (1, 13),
+                }
+                # 找所有包含用户选择范围的学校类型
+                matching_types = [t for t, (lo, hi) in type_ranges.items() if lo <= ymin and hi >= ymax]
+                if matching_types:
+                    placeholders = ",".join("?" * len(matching_types))
+                    conditions.append(f"school_type IN ({placeholders})")
+                    values.extend(matching_types)
+                else:
+                    conditions.append("1=0")  # 没有匹配的类型
+            except ValueError:
+                pass
 
         # EQI band 筛选
         eqi_band = params.get("eqi_band", [""])[0].strip()
