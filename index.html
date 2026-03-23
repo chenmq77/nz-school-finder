@@ -741,44 +741,115 @@ body {
 .list-view.show { display: block; }
 
 .list-toolbar {
+  padding: 16px 0 8px;
+}
+.filter-bar {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 10px;
-  padding: 16px 0;
-}
-.list-pills {
-  display: flex;
   gap: 6px;
-  flex-wrap: wrap;
-  flex: 1;
+  margin-bottom: 8px;
 }
-.list-pill {
+.filter-pill {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 12px;
-  border-radius: 16px;
-  background: var(--primary-light);
-  color: var(--primary);
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
   font-size: 12px;
   font-weight: 500;
-}
-.list-pill .pill-x {
+  color: var(--text-secondary);
   cursor: pointer;
-  font-weight: 700;
-  font-size: 14px;
-  line-height: 1;
-  margin-left: 2px;
+  position: relative;
+  transition: all var(--transition);
+  white-space: nowrap;
 }
-.list-pill .pill-x:hover { color: var(--primary-dark); }
+.filter-pill:hover { border-color: var(--primary); color: var(--primary); }
+.filter-pill.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+.filter-pill.active:hover { background: var(--primary-dark); }
+.filter-pill .pill-arrow { font-size: 10px; margin-left: 2px; }
+.filter-pill-clear {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.filter-pill-clear:hover { color: var(--primary); }
 
+/* Filter dropdown */
+.filter-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow-lg);
+  z-index: 200;
+  min-width: 200px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 6px 0;
+}
+.filter-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+.filter-dropdown-item:hover { background: var(--bg); }
+.filter-dropdown-item .fd-check {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 11px;
+  color: transparent;
+}
+.filter-dropdown-item.selected .fd-check {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+.filter-dropdown-clear {
+  padding: 6px 14px;
+  font-size: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-top: 1px solid var(--border-light);
+  margin-top: 4px;
+}
+.filter-dropdown-clear:hover { color: var(--primary); }
+
+.list-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
 .list-meta {
   font-size: 13px;
   color: var(--text-secondary);
   white-space: nowrap;
 }
-
 .list-sort {
   padding: 5px 10px;
   border: 1px solid var(--border);
@@ -957,15 +1028,17 @@ body {
   <!-- School List View -->
   <div class="list-view" id="listView">
     <div class="list-toolbar">
-      <div class="list-pills" id="listPills"></div>
-      <span class="list-meta" id="listMeta"></span>
-      <select class="list-sort" id="listSort" onchange="onSortChange()">
-        <option value="name">Sort: Name A-Z</option>
-        <option value="roll_desc">Sort: Roll (high-low)</option>
-        <option value="roll_asc">Sort: Roll (low-high)</option>
-        <option value="eqi_asc">Sort: EQI (low-high)</option>
-        <option value="eqi_desc">Sort: EQI (high-low)</option>
-      </select>
+      <div class="filter-bar" id="filterBar"></div>
+      <div class="list-meta-row">
+        <span class="list-meta" id="listMeta"></span>
+        <select class="list-sort" id="listSort" onchange="onSortChange()">
+          <option value="name">Sort: Name A-Z</option>
+          <option value="roll_desc">Sort: Roll (high-low)</option>
+          <option value="roll_asc">Sort: Roll (low-high)</option>
+          <option value="eqi_asc">Sort: EQI (low-high)</option>
+          <option value="eqi_desc">Sort: EQI (high-low)</option>
+        </select>
+      </div>
     </div>
     <div id="listCards"></div>
     <div class="pagination" id="listPagination"></div>
@@ -2138,28 +2211,114 @@ function toggleFaq(i) {
    List View
    ══════════════════════════════════════════════════════ */
 
+// Filter dimension definitions
+const FILTER_DIMS = [
+  { key: 'region', label: 'Region', dataKey: 'region', valFn: d => d.map(r => r.name) },
+  { key: 'authority', label: 'Authority', dataKey: 'authority', valFn: d => d.map(r => r.name) },
+  { key: 'gender', label: 'Gender', dataKey: 'gender', valFn: d => d.map(r => r.name).filter(n => n !== 'Other') },
+  { key: 'school_type', label: 'School Type', vals: ['Contributing','Full Primary','Intermediate','Secondary (Year 9-15)','Secondary (Year 7-15)','Composite'] },
+  // curriculum filter 暂不启用（仅 5 所学校有爬取数据）
+  { key: 'eqi_group', label: 'EQI', vals: ['fewer','moderate','more'], displayFn: v => ({fewer:'Fewer',moderate:'Moderate',more:'More'}[v]||v) },
+];
+let _openDropdown = null;
+
 function showListView(filters) {
   _currentFilters = filters || {};
-  renderListPills();
+  renderFilterBar();
   loadListData(1);
 }
 
-function renderListPills() {
-  const pills = document.getElementById('listPills');
-  pills.innerHTML = '';
-  const labelMap = { region: 'Region', authority: 'Authority', gender: 'Gender', school_type: 'Type', eqi_band: 'EQI Band', eqi_group: 'EQI Group' };
-  for (const [key, val] of Object.entries(_currentFilters)) {
-    if (!val) continue;
-    const pill = document.createElement('span');
-    pill.className = 'list-pill';
-    pill.innerHTML = `${esc(labelMap[key] || key)}: ${esc(val)} <span class="pill-x" data-key="${esc(key)}">&times;</span>`;
-    pill.querySelector('.pill-x').addEventListener('click', () => {
-      delete _currentFilters[key];
-      const hash = buildListHash(_currentFilters);
-      navigateTo(hash);
+function renderFilterBar() {
+  const bar = document.getElementById('filterBar');
+  bar.innerHTML = '';
+  const hasAny = Object.values(_currentFilters).some(v => v);
+
+  FILTER_DIMS.forEach(dim => {
+    const pill = document.createElement('div');
+    pill.className = 'filter-pill';
+    const curVal = _currentFilters[dim.key];
+    if (curVal) {
+      pill.classList.add('active');
+      const display = dim.displayFn ? dim.displayFn(curVal) : curVal;
+      pill.innerHTML = `${esc(dim.label)}: ${esc(display)} <span class="pill-arrow">▼</span>`;
+    } else {
+      pill.innerHTML = `${esc(dim.label)} <span class="pill-arrow">▼</span>`;
+    }
+    pill.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleFilterDropdown(dim, pill);
     });
-    pills.appendChild(pill);
+    bar.appendChild(pill);
+  });
+
+  if (hasAny) {
+    const clear = document.createElement('span');
+    clear.className = 'filter-pill-clear';
+    clear.textContent = 'Clear all';
+    clear.addEventListener('click', () => navigateTo('#/schools'));
+    bar.appendChild(clear);
   }
+}
+
+function getFilterOptions(dim) {
+  if (dim.vals) return dim.vals;
+  if (_statsData && dim.dataKey && dim.valFn) {
+    return dim.valFn(_statsData[dim.dataKey] || []);
+  }
+  return [];
+}
+
+function toggleFilterDropdown(dim, pillEl) {
+  // Close existing
+  if (_openDropdown) { _openDropdown.remove(); _openDropdown = null; }
+  // Create dropdown
+  const dd = document.createElement('div');
+  dd.className = 'filter-dropdown';
+  const options = getFilterOptions(dim);
+  const curVal = _currentFilters[dim.key] || '';
+
+  options.forEach(val => {
+    const item = document.createElement('div');
+    item.className = 'filter-dropdown-item';
+    if (val === curVal) item.classList.add('selected');
+    const display = dim.displayFn ? dim.displayFn(val) : val;
+    item.innerHTML = `<span class="fd-check">✓</span>${esc(display)}`;
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (val === curVal) {
+        delete _currentFilters[dim.key];
+      } else {
+        _currentFilters[dim.key] = val;
+      }
+      dd.remove();
+      _openDropdown = null;
+      navigateTo(buildListHash(_currentFilters));
+    });
+    dd.appendChild(item);
+  });
+
+  // Clear option
+  if (curVal) {
+    const clearItem = document.createElement('div');
+    clearItem.className = 'filter-dropdown-clear';
+    clearItem.textContent = 'Clear';
+    clearItem.addEventListener('click', (e) => {
+      e.stopPropagation();
+      delete _currentFilters[dim.key];
+      dd.remove();
+      _openDropdown = null;
+      navigateTo(buildListHash(_currentFilters));
+    });
+    dd.appendChild(clearItem);
+  }
+
+  pillEl.style.position = 'relative';
+  pillEl.appendChild(dd);
+  _openDropdown = dd;
+
+  // Close on outside click
+  const closeHandler = () => { dd.remove(); _openDropdown = null; document.removeEventListener('click', closeHandler); };
+  setTimeout(() => document.addEventListener('click', closeHandler), 0);
 }
 
 function buildListHash(filters) {
