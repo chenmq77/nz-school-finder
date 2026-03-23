@@ -2214,7 +2214,7 @@ const FILTER_DIMS = [
   { key: 'authority', label: 'Authority', dataKey: 'authority', valFn: d => d.map(r => r.name) },
   { key: 'gender', label: 'Gender', vals: ['Co-Educational','Girls School','Boys School'] },
   { key: 'year_level', label: 'Year Levels', isYearLevel: true, vals: [] },
-  // curriculum filter 暂不启用（仅 5 所学校有爬取数据）
+  { key: 'curriculum', label: 'Curriculum', vals: ['NCEA','A-Level','IB'] },
   { key: 'eqi_group', label: 'EQI', vals: ['fewer','moderate','more'], displayFn: v => ({fewer:'Fewer',moderate:'Moderate',more:'More'}[v]||v) },
 ];
 let _openDropdown = null;
