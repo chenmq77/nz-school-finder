@@ -1,5 +1,50 @@
 # Changelog
 
+## 2026-03-23 — Dashboard 首页 + 学校列表视图 + Hash 路由
+
+### Why
+首页只有一个空白的 empty-state，用户不知道有什么数据可以探索。需要一个可视化的 Dashboard 展示数据全貌，并支持点击筛选浏览学校列表。
+
+### What
+- **Dashboard 首页**（替换 empty-state）：
+  - Hero 区域：显示学校总数和引导文案
+  - Region Treemap：按区域分布显示学校数量（CSS flexbox 实现，可点击筛选）
+  - Authority Treemap：State / State Integrated / Private / Charter School 分布
+  - Gender Treemap：Co-Ed / Boys / Girls 分布
+  - Year Level 轴：Y1-Y13 点轴 + Primary/Intermediate/Secondary 标注 + 常见学制按钮
+  - Curriculum 比例条：NCEA / A-Level / IB 横向比例条
+  - EQI 分段条：7 Band 颜色分段，可点击筛选
+  - FAQ 区域：4 个可展开的常见问题（EQI、学校类型、学制、课程体系）
+- **学校列表视图**：
+  - 顶部：已选条件 pills（可删除）+ 结果数 + Sort 下拉
+  - 紧凑卡片：校名 + 类型/性别/性质 badges + 人数 + Full Profile 标记
+  - 分页组件（20条/页）
+- **Hash 路由**：
+  - `#/` → Dashboard
+  - `#/schools?region=xxx&authority=xxx` → 列表视图
+  - `#/school/54` → 学校详情
+  - 浏览器前进/后退正常工作
+- **API 扩展** (server.py)：
+  - `GET /api/stats` → 各维度学校数量统计
+  - `GET /api/schools?region=xxx&authority=xxx&page=1&limit=20&sort=name` → 筛选+分页
+
+### How
+- `server.py`：新增 `fetch_stats()` 和 `filter_schools()` 函数 + 对应 HTTP handler
+  - stats 聚合 region/authority/gender/school_type/eqi_bands/curriculum 分布
+  - schools 支持多维度 AND 筛选、5 种排序、分页
+- `index.html`：
+  - CSS：新增 Dashboard（treemap/year-axis/curriculum-bar/eqi-dash/faq）+ List View（toolbar/pills/cards/pagination）样式
+  - HTML：新增 dashboard 和 list-view 容器，empty-state 隐藏保留兼容
+  - JS：
+    - `loadDashboard()` / `renderDashboard()` — 获取 stats 数据并渲染各图表
+    - `renderTreemap()` — 通用 treemap 渲染（CSS flex-grow 模拟面积）
+    - `showListView()` / `loadListData()` / `renderListCards()` — 列表视图完整生命周期
+    - `handleRoute()` + `hashchange` 事件 — Hash 路由分发
+    - `navigateTo()` — 统一导航入口
+  - 搜索/详情功能完全保留，搜索结果点击改为 hash 导航
+
+---
+
 ## 2026-03-23 — 搜索下拉支持键盘导航（↑/↓/Enter/Escape）
 
 ### Why

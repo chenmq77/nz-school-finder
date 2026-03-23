@@ -61,6 +61,220 @@ def fetch_school(school_number):
         conn.close()
 
 
+def fetch_stats():
+    """返回各维度的学校数量统计（region, type, gender, school_type, eqi, curriculum）"""
+    conn = get_connection()
+    try:
+        cur = conn.cursor()
+
+        # 总数
+        cur.execute("SELECT COUNT(*) FROM schools")
+        total = cur.fetchone()[0]
+
+        # 按 regional_council 分布
+        cur.execute(
+            "SELECT regional_council, COUNT(*) as cnt FROM schools "
+            "WHERE regional_council IS NOT NULL AND regional_council != '' "
+            "GROUP BY regional_council ORDER BY cnt DESC"
+        )
+        region = [{"name": r[0], "count": r[1]} for r in cur.fetchall()]
+
+        # 按 authority 分布（合并 Private 子类）
+        cur.execute(
+            "SELECT authority, COUNT(*) as cnt FROM schools "
+            "GROUP BY authority ORDER BY cnt DESC"
+        )
+        authority_raw = {r[0]: r[1] for r in cur.fetchall()}
+        # 合并 Private 类别
+        private_count = sum(v for k, v in authority_raw.items() if k and 'Private' in k)
+        authority = []
+        seen_private = False
+        for k, v in sorted(authority_raw.items(), key=lambda x: -x[1]):
+            if k and 'Private' in k:
+                if not seen_private:
+                    authority.append({"name": "Private", "count": private_count})
+                    seen_private = True
+            else:
+                authority.append({"name": k or "Unknown", "count": v})
+        authority.sort(key=lambda x: -x["count"])
+
+        # 按 gender 分布
+        cur.execute(
+            "SELECT gender_of_students, COUNT(*) as cnt FROM schools "
+            "GROUP BY gender_of_students ORDER BY cnt DESC"
+        )
+        gender = [{"name": r[0] or "Unknown", "count": r[1]} for r in cur.fetchall()]
+
+        # 按 school_type 分布
+        cur.execute(
+            "SELECT school_type, COUNT(*) as cnt FROM schools "
+            "GROUP BY school_type ORDER BY cnt DESC"
+        )
+        school_type = [{"name": r[0], "count": r[1]} for r in cur.fetchall()]
+
+        # EQI 分段统计
+        eqi_bands = [
+            {"name": "Fewest", "cn": "最少障碍", "min": 344, "max": 402, "group": "fewer", "color": "#6ee7b7"},
+            {"name": "Few", "cn": "较少障碍", "min": 403, "max": 429, "group": "fewer", "color": "#a7f3d0"},
+            {"name": "Below Average", "cn": "低于平均", "min": 430, "max": 448, "group": "moderate", "color": "#fde68a"},
+            {"name": "Average", "cn": "平均水平", "min": 449, "max": 469, "group": "moderate", "color": "#fcd34d"},
+            {"name": "Above Average", "cn": "高于平均", "min": 470, "max": 493, "group": "moderate", "color": "#fbbf24"},
+            {"name": "Many", "cn": "较多障碍", "min": 494, "max": 521, "group": "more", "color": "#fca5a5"},
+            {"name": "Most", "cn": "最多障碍", "min": 522, "max": 569, "group": "more", "color": "#f87171"},
+        ]
+        for band in eqi_bands:
+            cur.execute(
+                "SELECT COUNT(*) FROM schools WHERE CAST(equity_index_eqi AS REAL) BETWEEN ? AND ?",
+                (band["min"], band["max"]),
+            )
+            band["count"] = cur.fetchone()[0]
+        # 无 EQI 数据的学校数量
+        cur.execute(
+            "SELECT COUNT(*) FROM schools WHERE equity_index_eqi IS NULL "
+            "OR equity_index_eqi = '' OR equity_index_eqi = 'not applicable'"
+        )
+        eqi_na = cur.fetchone()[0]
+
+        # Curriculum 统计（从 school_web_data）
+        cur.execute("SELECT curriculum_systems FROM school_web_data WHERE curriculum_systems IS NOT NULL")
+        curriculum_counts = {}
+        for row in cur.fetchall():
+            try:
+                systems = json.loads(row[0])
+                for sys_info in systems:
+                    if sys_info.get("status") == "offered":
+                        name = sys_info.get("system", "Unknown")
+                        curriculum_counts[name] = curriculum_counts.get(name, 0) + 1
+            except (json.JSONDecodeError, TypeError):
+                pass
+        curriculum = [{"name": k, "count": v} for k, v in
+                      sorted(curriculum_counts.items(), key=lambda x: -x[1])]
+
+        # 有 web data 的学校编号
+        cur.execute("SELECT school_number FROM school_web_data")
+        web_schools = [r[0] for r in cur.fetchall()]
+
+        return {
+            "total": total,
+            "region": region,
+            "authority": authority,
+            "gender": gender,
+            "school_type": school_type,
+            "eqi_bands": eqi_bands,
+            "eqi_na": eqi_na,
+            "curriculum": curriculum,
+            "web_schools": web_schools,
+        }
+    finally:
+        conn.close()
+
+
+def filter_schools(params):
+    """根据筛选条件返回学校列表，支持分页"""
+    conn = get_connection()
+    try:
+        cur = conn.cursor()
+        conditions = []
+        values = []
+
+        # region 筛选
+        region = params.get("region", [""])[0].strip()
+        if region:
+            conditions.append("regional_council = ?")
+            values.append(region)
+
+        # authority 筛选（支持合并 Private）
+        authority = params.get("authority", [""])[0].strip()
+        if authority:
+            if authority == "Private":
+                conditions.append("authority LIKE '%Private%'")
+            else:
+                conditions.append("authority = ?")
+                values.append(authority)
+
+        # gender 筛选
+        gender = params.get("gender", [""])[0].strip()
+        if gender:
+            conditions.append("gender_of_students = ?")
+            values.append(gender)
+
+        # school_type 筛选
+        school_type = params.get("school_type", [""])[0].strip()
+        if school_type:
+            conditions.append("school_type = ?")
+            values.append(school_type)
+
+        # year_level 筛选（模糊匹配 school_type 中的 Year 范围）
+        year_min = params.get("year_min", [""])[0].strip()
+        year_max = params.get("year_max", [""])[0].strip()
+        # 这里用 school_type 的 Year 范围做筛选
+
+        # EQI band 筛选
+        eqi_band = params.get("eqi_band", [""])[0].strip()
+        if eqi_band:
+            band_ranges = {
+                "Fewest": (344, 402), "Few": (403, 429),
+                "Below Average": (430, 448), "Average": (449, 469),
+                "Above Average": (470, 493), "Many": (494, 521), "Most": (522, 569),
+            }
+            if eqi_band in band_ranges:
+                lo, hi = band_ranges[eqi_band]
+                conditions.append("CAST(equity_index_eqi AS REAL) BETWEEN ? AND ?")
+                values.extend([lo, hi])
+
+        # EQI group 筛选
+        eqi_group = params.get("eqi_group", [""])[0].strip()
+        if eqi_group:
+            group_ranges = {
+                "fewer": (344, 429), "moderate": (430, 493), "more": (494, 569),
+            }
+            if eqi_group in group_ranges:
+                lo, hi = group_ranges[eqi_group]
+                conditions.append("CAST(equity_index_eqi AS REAL) BETWEEN ? AND ?")
+                values.extend([lo, hi])
+
+        where = " AND ".join(conditions) if conditions else "1=1"
+
+        # 总数
+        cur.execute(f"SELECT COUNT(*) FROM schools WHERE {where}", values)
+        total = cur.fetchone()[0]
+
+        # 排序
+        sort = params.get("sort", ["name"])[0].strip()
+        sort_map = {
+            "name": "school_name ASC",
+            "roll_desc": "CAST(total_school_roll AS INTEGER) DESC",
+            "roll_asc": "CAST(total_school_roll AS INTEGER) ASC",
+            "eqi_asc": "CAST(equity_index_eqi AS REAL) ASC",
+            "eqi_desc": "CAST(equity_index_eqi AS REAL) DESC",
+        }
+        order_by = sort_map.get(sort, "school_name ASC")
+
+        # 分页
+        page = max(1, int(params.get("page", ["1"])[0]))
+        limit = min(100, max(1, int(params.get("limit", ["20"])[0])))
+        offset = (page - 1) * limit
+
+        cur.execute(
+            f"SELECT school_number, school_name, school_type, authority, "
+            f"gender_of_students, town_city, total_school_roll, regional_council, "
+            f"equity_index_eqi "
+            f"FROM schools WHERE {where} ORDER BY {order_by} LIMIT ? OFFSET ?",
+            values + [limit, offset],
+        )
+        results = [dict(row) for row in cur.fetchall()]
+
+        return {
+            "results": results,
+            "total": total,
+            "page": page,
+            "limit": limit,
+            "pages": (total + limit - 1) // limit,
+        }
+    finally:
+        conn.close()
+
+
 def fetch_school_web(school_number):
     """获取学校官网爬取的额外数据，subjects 从标准化表读取"""
     conn = get_connection()
@@ -110,7 +324,11 @@ class SchoolFinderHandler(http.server.SimpleHTTPRequestHandler):
         path = parsed.path
         params = urllib.parse.parse_qs(parsed.query)
 
-        if path == "/api/search":
+        if path == "/api/stats":
+            self._handle_stats()
+        elif path == "/api/schools":
+            self._handle_schools(params)
+        elif path == "/api/search":
             self._handle_search(params)
         elif path.startswith("/api/school/") and path.endswith("/web"):
             school_number = path.split("/")[-2]
@@ -125,6 +343,14 @@ class SchoolFinderHandler(http.server.SimpleHTTPRequestHandler):
         else:
             # 不暴露任意文件，未知路由返回 404
             self.send_error(404, "Not Found")
+
+    def _handle_stats(self):
+        data = fetch_stats()
+        self._json_response(data)
+
+    def _handle_schools(self, params):
+        data = filter_schools(params)
+        self._json_response(data)
 
     def _handle_search(self, params):
         keyword = params.get("q", [""])[0].strip()

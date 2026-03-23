@@ -533,6 +533,334 @@ body {
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ── Dashboard ────────────────────────────────────── */
+.dashboard { display: none; padding: 0 0 32px; }
+.dashboard.show { display: block; }
+
+.dash-hero {
+  text-align: center;
+  padding: 48px 20px 36px;
+}
+.dash-hero h1 {
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.dash-hero h1 strong { color: var(--primary); font-weight: 600; }
+.dash-hero p {
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
+.dash-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 12px;
+}
+.dash-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 14px;
+}
+
+/* Treemap */
+.treemap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  min-height: 60px;
+}
+.treemap-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 6px 8px;
+  transition: opacity var(--transition), transform var(--transition);
+  overflow: hidden;
+  text-align: center;
+  min-width: 48px;
+}
+.treemap-cell:hover { opacity: 0.85; transform: scale(1.02); }
+.treemap-cell .tm-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(0,0,0,0.7);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.treemap-cell .tm-count {
+  font-size: 10px;
+  color: rgba(0,0,0,0.45);
+  font-weight: 500;
+}
+
+/* Year Level Axis */
+.year-axis {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 16px 0 8px;
+  position: relative;
+}
+.year-dot {
+  flex: 1;
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  position: relative;
+  padding-bottom: 18px;
+}
+.year-dot::after {
+  content: '';
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+}
+.year-labels {
+  display: flex;
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+.year-labels span { flex: 1; text-align: center; }
+
+.year-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.year-btn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+  font-weight: 500;
+}
+.year-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+
+/* Curriculum bar */
+.curriculum-bar {
+  display: flex;
+  height: 32px;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+}
+.curriculum-bar .cb-seg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(0,0,0,0.6);
+  transition: opacity var(--transition);
+  white-space: nowrap;
+  padding: 0 8px;
+}
+.curriculum-bar .cb-seg:hover { opacity: 0.8; }
+
+/* EQI Dashboard bar */
+.eqi-dash-bar {
+  display: flex;
+  height: 36px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.eqi-dash-seg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+.eqi-dash-seg:hover { opacity: 0.8; }
+.eqi-dash-seg .eqi-seg-text {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(0,0,0,0.5);
+  white-space: nowrap;
+}
+
+/* FAQ */
+.faq-item {
+  border-bottom: 1px solid var(--border);
+  padding: 0;
+}
+.faq-item:last-child { border-bottom: none; }
+.faq-q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  user-select: none;
+}
+.faq-q:hover { color: var(--primary); }
+.faq-arrow {
+  font-size: 12px;
+  color: var(--text-muted);
+  transition: transform var(--transition);
+  flex-shrink: 0;
+}
+.faq-arrow.open { transform: rotate(180deg); }
+.faq-a {
+  display: none;
+  padding: 0 0 14px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+.faq-a.show { display: block; }
+
+/* ── School List View ────────────────────────────── */
+.list-view { display: none; padding: 0 0 32px; }
+.list-view.show { display: block; }
+
+.list-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 16px 0;
+}
+.list-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+.list-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 16px;
+  background: var(--primary-light);
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 500;
+}
+.list-pill .pill-x {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1;
+  margin-left: 2px;
+}
+.list-pill .pill-x:hover { color: var(--primary-dark); }
+
+.list-meta {
+  font-size: 13px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.list-sort {
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12px;
+  background: var(--card-bg);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.school-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: box-shadow var(--transition);
+  border: 1px solid transparent;
+}
+.school-card:hover { box-shadow: var(--shadow-md); border-color: var(--border); }
+.school-card .sc-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+}
+.school-card .sc-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+}
+.school-card .sc-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #f1f3f4;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.school-card .sc-badge.full-profile {
+  background: #fef3c7;
+  color: #92400e;
+}
+.school-card .sc-roll {
+  font-size: 13px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  min-width: 70px;
+  text-align: right;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  padding: 20px 0;
+}
+.page-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--card-bg);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.page-btn:hover { border-color: var(--primary); color: var(--primary); }
+.page-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.page-btn:disabled { opacity: 0.4; cursor: default; }
+
 /* ── Responsive ───────────────────────────────────── */
 @media (max-width: 640px) {
   .header .brand { font-size: 16px; }
@@ -544,6 +872,10 @@ body {
   .detail-grid { grid-template-columns: 1fr; }
   .ethnic-label { width: 100px; font-size: 12px; }
   .gauge-row { flex-direction: column; }
+  .dash-hero h1 { font-size: 22px; }
+  .treemap-cell { min-width: 40px; padding: 4px 6px; }
+  .school-card { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .school-card .sc-roll { text-align: left; }
 }
 </style>
 </head>
@@ -552,7 +884,7 @@ body {
 <!-- Header (sticky, Google News style) -->
 <div class="header">
   <div class="header-row">
-    <div class="brand" onclick="clearSearch()" style="cursor:pointer" title="Back to home"><span>NZ</span> School Finder</div>
+    <div class="brand" onclick="clearSearch()" style="cursor:pointer" title="返回首页 / Back to home"><span>NZ</span> School Finder</div>
     <div class="search-wrap">
       <div class="search-box">
         <div class="search-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></div>
@@ -566,11 +898,82 @@ body {
 <span id="currentSchoolTag" style="display:none"></span>
 
 <div class="container">
-  <!-- Empty State -->
-  <div class="empty-state" id="emptyState">
-    <div class="icon">&#127979;</div>
-    <div class="msg">输入学校名称开始搜索<br><span style="font-size:13px;color:var(--text-muted)">支持模糊搜索，如 grammar、college、primary</span></div>
-  </div>
+  <!-- Empty State (hidden, kept for compatibility) -->
+  <div class="empty-state" id="emptyState" style="display:none"></div>
+
+  <!-- Dashboard -->
+  <div class="dashboard" id="dashboard">
+    <div class="dash-hero">
+      <h1>新西兰 <strong id="dashTotal">2,577</strong> 所学校，一搜即达</h1>
+      <p>输入学校名，或点击下方图表开始筛选</p>
+    </div>
+
+    <!-- Region Treemap -->
+    <div class="dash-card">
+      <div class="dash-card-title">Region / 区域分布</div>
+      <div class="treemap" id="tmRegion"></div>
+    </div>
+
+    <!-- Authority (Type) Treemap -->
+    <div class="dash-card">
+      <div class="dash-card-title">Authority / 学校性质</div>
+      <div class="treemap" id="tmAuthority"></div>
+    </div>
+
+    <!-- Gender Treemap -->
+    <div class="dash-card">
+      <div class="dash-card-title">Gender / 性别类型</div>
+      <div class="treemap" id="tmGender"></div>
+    </div>
+
+    <!-- Year Level Axis -->
+    <div class="dash-card">
+      <div class="dash-card-title">Year Level / 年级范围</div>
+      <div class="year-axis" id="yearAxis"></div>
+      <div class="year-labels"><span>Primary</span><span>Intermediate</span><span>Secondary</span></div>
+      <div class="year-btns" id="yearBtns"></div>
+    </div>
+
+    <!-- Curriculum Bar -->
+    <div class="dash-card">
+      <div class="dash-card-title">Curriculum / 课程体系</div>
+      <div class="curriculum-bar" id="currBar"></div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:6px">* 仅显示有爬取数据的学校</div>
+    </div>
+
+    <!-- EQI Bar -->
+    <div class="dash-card">
+      <div class="dash-card-title">EQI / 公平指数分布</div>
+      <div class="eqi-dash-bar" id="eqiDashBar"></div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);margin-top:4px">
+        <span>Fewer barriers / 较少障碍</span>
+        <span>More barriers / 较多障碍</span>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="dash-card">
+      <div class="dash-card-title">FAQ / 常见问题</div>
+      <div id="faqList"></div>
+    </div>
+  </div><!-- /dashboard -->
+
+  <!-- School List View -->
+  <div class="list-view" id="listView">
+    <div class="list-toolbar">
+      <div class="list-pills" id="listPills"></div>
+      <span class="list-meta" id="listMeta"></span>
+      <select class="list-sort" id="listSort" onchange="onSortChange()">
+        <option value="name">Sort: Name A-Z</option>
+        <option value="roll_desc">Sort: Roll (high-low)</option>
+        <option value="roll_asc">Sort: Roll (low-high)</option>
+        <option value="eqi_asc">Sort: EQI (low-high)</option>
+        <option value="eqi_desc">Sort: EQI (high-low)</option>
+      </select>
+    </div>
+    <div id="listCards"></div>
+    <div class="pagination" id="listPagination"></div>
+  </div><!-- /list-view -->
 
   <!-- School Detail -->
   <div class="school-detail" id="schoolDetail">
@@ -698,6 +1101,9 @@ let searchTimer = null;
 let searchController = null;  // AbortController for search requests
 let detailController = null;  // AbortController for detail requests
 const API = '';
+let _statsData = null;        // cached /api/stats response
+let _currentFilters = {};     // current list view filters
+let _webSchoolSet = new Set(); // school numbers that have web data
 
 /* ── DOM refs ─────────────────────────────────────── */
 const $input = document.getElementById('searchInput');
@@ -705,6 +1111,8 @@ const $results = document.getElementById('searchResults');
 const $detail = document.getElementById('schoolDetail');
 const $empty = document.getElementById('emptyState');
 const $schoolTag = document.getElementById('currentSchoolTag');
+const $dashboard = document.getElementById('dashboard');
+const $listView = document.getElementById('listView');
 
 /* ── Search ───────────────────────────────────────── */
 const $clearBtn = document.getElementById('clearBtn');
@@ -715,11 +1123,10 @@ function clearSearch() {
   $results.classList.remove('show');
   $results.innerHTML = '';
   $detail.classList.remove('show');
-  $empty.style.display = '';
   $schoolTag.classList.remove('show');
   $clearBtn.style.display = 'none';
   _activeIndex = -1;
-  $input.focus();
+  navigateTo('#/');
 }
 
 function _getResultItems() {
@@ -839,7 +1246,12 @@ function renderResults(results, count) {
     // 安全绑定 — school_number 只允许数字
     const num = String(s.school_number).replace(/[^0-9]/g, '');
     const schoolName = s.school_name || '';
-    item.addEventListener('click', () => loadSchool(num, schoolName));
+    item.addEventListener('click', () => {
+      $results.classList.remove('show');
+      $input.value = schoolName;
+      $clearBtn.style.display = schoolName ? 'block' : 'none';
+      navigateTo('#/school/' + num);
+    });
     // 鼠标悬停时同步高亮状态（与键盘导航共用 activeIndex）
     item.addEventListener('mouseenter', () => _setActiveIndex(i));
     item.addEventListener('mouseleave', () => {
@@ -858,8 +1270,7 @@ async function loadSchool(num, schoolName) {
 
   $results.classList.remove('show');
   if (schoolName) $input.value = schoolName;  // autofill 学校名到搜索框
-  $empty.style.display = 'none';
-  $detail.classList.add('show');
+  showView('detail');
 
   // 立即清空旧内容，显示 loading 状态
   ['A','B','C','D','E','F','G'].forEach(k => {
@@ -1405,8 +1816,402 @@ function translateType(t) {
   return t;
 }
 
+/* ══════════════════════════════════════════════════════
+   Dashboard
+   ══════════════════════════════════════════════════════ */
+
+const REGION_COLORS = [
+  '#a5d8ff','#99e9f2','#96f2d7','#b2f2bb','#d8f5a2','#ffec99',
+  '#ffd8a8','#ffc9c9','#eebefa','#d0bfff','#bac8ff','#a5d8ff',
+  '#c5f6fa','#c3fae8','#d3f9d8','#fff3bf','#ffe8cc','#ffd5d5'
+];
+const AUTH_COLORS = { 'State':'#74c0fc', 'State : Integrated':'#63e6be', 'Private':'#ffa94d', 'Charter School':'#da77f2' };
+const GENDER_COLORS = { 'Co-Educational':'#74c0fc', 'Boys School':'#748ffc', 'Girls School':'#f783ac', 'Primary Co-Ed/Secondary Girls':'#e599f7', 'Primary Co-Ed/Secondary Boys':'#9775fa', 'Boys/Senior Co-Ed':'#845ef7' };
+
+async function loadDashboard() {
+  if (_statsData) { renderDashboard(_statsData); return; }
+  try {
+    const res = await fetch(`${API}/api/stats`);
+    _statsData = await res.json();
+    _webSchoolSet = new Set((_statsData.web_schools || []).map(String));
+    renderDashboard(_statsData);
+  } catch (e) {
+    $dashboard.innerHTML = '<div class="no-results" style="padding:60px 20px">Dashboard 加载失败，请检查服务器</div>';
+  }
+}
+
+function renderDashboard(d) {
+  document.getElementById('dashTotal').textContent = d.total.toLocaleString();
+  renderTreemap('tmRegion', d.region, REGION_COLORS, (item) => navigateTo('#/schools?region=' + encodeURIComponent(item.name)));
+  renderTreemap('tmAuthority', d.authority, Object.values(AUTH_COLORS), (item) => navigateTo('#/schools?authority=' + encodeURIComponent(item.name)));
+
+  // Gender: 合并小数据
+  const genderMain = d.gender.filter(g => ['Co-Educational','Boys School','Girls School'].includes(g.name));
+  const genderOther = d.gender.filter(g => !['Co-Educational','Boys School','Girls School'].includes(g.name));
+  const genderOtherSum = genderOther.reduce((s,g) => s + g.count, 0);
+  const genderData = [...genderMain];
+  if (genderOtherSum > 0) genderData.push({ name: 'Other', count: genderOtherSum });
+  renderTreemap('tmGender', genderData, ['#74c0fc','#748ffc','#f783ac','#adb5bd'], (item) => {
+    if (item.name === 'Other') return;
+    navigateTo('#/schools?gender=' + encodeURIComponent(item.name));
+  });
+
+  renderYearAxis();
+  renderCurriculumBar(d.curriculum, d.total);
+  renderEqiDashBar(d.eqi_bands);
+  renderFAQ();
+}
+
+function renderTreemap(containerId, data, colors, onClick) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const total = data.reduce((s, d) => s + d.count, 0);
+  container.innerHTML = '';
+  data.forEach((item, i) => {
+    const pct = (item.count / total * 100);
+    const cell = document.createElement('div');
+    cell.className = 'treemap-cell';
+    const bg = colors[i % colors.length];
+    // 动态高度/面积：用 flex-grow 模拟面积
+    cell.style.cssText = `flex:${Math.max(item.count, 1)};background:${bg};min-height:${pct > 8 ? 56 : 44}px`;
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'tm-name';
+    // 显示简短名称
+    let displayName = item.name.replace(' Region', '').replace(' : Integrated', ': Intg').replace(' : Fully Registered', '').replace(' : Provisionally Registered', '');
+    nameSpan.textContent = displayName;
+    nameSpan.title = item.name;
+    const countSpan = document.createElement('span');
+    countSpan.className = 'tm-count';
+    countSpan.textContent = item.count;
+    cell.appendChild(nameSpan);
+    cell.appendChild(countSpan);
+    cell.addEventListener('click', () => onClick(item));
+    container.appendChild(cell);
+  });
+}
+
+function renderYearAxis() {
+  const axis = document.getElementById('yearAxis');
+  axis.innerHTML = '';
+  for (let y = 1; y <= 13; y++) {
+    const dot = document.createElement('div');
+    dot.className = 'year-dot';
+    dot.textContent = 'Y' + y;
+    axis.appendChild(dot);
+  }
+
+  const btns = document.getElementById('yearBtns');
+  const presets = [
+    { label: 'Primary Y1-6', type: 'Contributing' },
+    { label: 'Full Primary Y1-8', type: 'Full Primary' },
+    { label: 'Intermediate Y7-8', type: 'Intermediate' },
+    { label: 'Secondary Y9-13', type: 'Secondary (Year 9-15)' },
+    { label: 'Composite Y1-13', type: 'Composite' },
+  ];
+  btns.innerHTML = '';
+  presets.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'year-btn';
+    btn.textContent = p.label;
+    btn.addEventListener('click', () => navigateTo('#/schools?school_type=' + encodeURIComponent(p.type)));
+    btns.appendChild(btn);
+  });
+}
+
+function renderCurriculumBar(curriculum, total) {
+  const bar = document.getElementById('currBar');
+  if (!curriculum || !curriculum.length) {
+    bar.innerHTML = '<div style="font-size:13px;color:var(--text-muted);padding:8px">暂无课程体系数据</div>';
+    return;
+  }
+  const colors = { 'NCEA': '#74c0fc', 'A-Level': '#63e6be', 'IB': '#ffa94d' };
+  const totalC = curriculum.reduce((s, c) => s + c.count, 0);
+  bar.innerHTML = '';
+  curriculum.forEach(c => {
+    const seg = document.createElement('div');
+    seg.className = 'cb-seg';
+    seg.style.cssText = `flex:${c.count};background:${colors[c.name] || '#adb5bd'}`;
+    seg.textContent = `${c.name} (${c.count})`;
+    seg.title = `${c.name}: ${c.count} schools`;
+    bar.appendChild(seg);
+  });
+}
+
+function renderEqiDashBar(bands) {
+  const bar = document.getElementById('eqiDashBar');
+  bar.innerHTML = '';
+  const eqiColors = ['#6ee7b7','#a7f3d0','#fde68a','#fcd34d','#fbbf24','#fca5a5','#f87171'];
+  bands.forEach((b, i) => {
+    const seg = document.createElement('div');
+    seg.className = 'eqi-dash-seg';
+    seg.style.cssText = `flex:${b.count};background:${eqiColors[i]}`;
+    seg.title = `${b.name} (${b.cn}): ${b.count} schools (EQI ${b.min}-${b.max})`;
+    const txt = document.createElement('span');
+    txt.className = 'eqi-seg-text';
+    txt.textContent = b.count;
+    seg.appendChild(txt);
+    seg.addEventListener('click', () => navigateTo('#/schools?eqi_band=' + encodeURIComponent(b.name)));
+    bar.appendChild(seg);
+  });
+}
+
+function renderFAQ() {
+  const faqs = [
+    { q: 'EQI 公平指数是什么？和 Decile 有什么不同？', a: 'EQI (Equity Index) 于 2023 年替代了 Decile 制度。EQI 综合考虑学生家庭的社会经济因素（如家庭收入、住房、教育背景等），数值范围 344-569。数值越低表示学生面临的社会经济障碍越少，越高表示越多。EQI 不是学校质量评分，而是社区经济条件的反映。' },
+    { q: 'State, State Integrated 和 Private 学校有什么区别？', a: 'State（公立）学校由政府全额资助，免学费；State Integrated（公立整合）学校曾是私立学校，后纳入公立体系，仍保留特殊办学理念（如宗教），需缴纳少量 attendance dues；Private（私立）学校需缴纳全额学费，不受政府课程标准约束。' },
+    { q: '新西兰的学制是怎样的？', a: 'Y1-Y6 为 Contributing (小学)，Y1-Y8 为 Full Primary (全小学)，Y7-Y8 为 Intermediate (初中)，Y9-Y13 为 Secondary (中学)，Y1-Y13 为 Composite (综合学校)。大多数学生 5 岁入学 (Y1)，13 岁进入 Y9。' },
+    { q: 'NCEA, A-Level, IB 分别是什么课程体系？', a: 'NCEA (National Certificate of Educational Achievement) 是新西兰国家课程评估体系，几乎所有中学都提供。A-Level (Cambridge) 和 IB (International Baccalaureate) 是国际课程体系，少数学校额外提供。选择哪种取决于升学目标。' },
+  ];
+  const list = document.getElementById('faqList');
+  list.innerHTML = '';
+  faqs.forEach((f, i) => {
+    const item = document.createElement('div');
+    item.className = 'faq-item';
+    item.innerHTML = `
+      <div class="faq-q" onclick="toggleFaq(${i})">
+        <span>${esc(f.q)}</span>
+        <span class="faq-arrow" id="faqArrow${i}">&#9660;</span>
+      </div>
+      <div class="faq-a" id="faqA${i}">${esc(f.a)}</div>
+    `;
+    list.appendChild(item);
+  });
+}
+
+function toggleFaq(i) {
+  const a = document.getElementById('faqA' + i);
+  const arrow = document.getElementById('faqArrow' + i);
+  a.classList.toggle('show');
+  arrow.classList.toggle('open');
+}
+
+
+/* ══════════════════════════════════════════════════════
+   List View
+   ══════════════════════════════════════════════════════ */
+
+function showListView(filters) {
+  _currentFilters = filters || {};
+  renderListPills();
+  loadListData(1);
+}
+
+function renderListPills() {
+  const pills = document.getElementById('listPills');
+  pills.innerHTML = '';
+  const labelMap = { region: 'Region', authority: 'Authority', gender: 'Gender', school_type: 'Type', eqi_band: 'EQI Band', eqi_group: 'EQI Group' };
+  for (const [key, val] of Object.entries(_currentFilters)) {
+    if (!val) continue;
+    const pill = document.createElement('span');
+    pill.className = 'list-pill';
+    pill.innerHTML = `${esc(labelMap[key] || key)}: ${esc(val)} <span class="pill-x" data-key="${esc(key)}">&times;</span>`;
+    pill.querySelector('.pill-x').addEventListener('click', () => {
+      delete _currentFilters[key];
+      const hash = buildListHash(_currentFilters);
+      navigateTo(hash);
+    });
+    pills.appendChild(pill);
+  }
+}
+
+function buildListHash(filters) {
+  const params = new URLSearchParams();
+  for (const [k, v] of Object.entries(filters)) {
+    if (v) params.set(k, v);
+  }
+  const qs = params.toString();
+  return qs ? '#/schools?' + qs : '#/';
+}
+
+async function loadListData(page) {
+  const params = new URLSearchParams(_currentFilters);
+  params.set('page', page);
+  params.set('limit', 20);
+  const sort = document.getElementById('listSort').value;
+  params.set('sort', sort);
+
+  const cards = document.getElementById('listCards');
+  cards.innerHTML = '<div class="spinner"></div>';
+
+  try {
+    const res = await fetch(`${API}/api/schools?${params.toString()}`);
+    const data = await res.json();
+    renderListCards(data.results, data.total, data.page, data.pages);
+  } catch (e) {
+    cards.innerHTML = '<div class="no-results">加载失败，请检查服务器</div>';
+  }
+}
+
+function renderListCards(results, total, page, pages) {
+  document.getElementById('listMeta').textContent = `${total.toLocaleString()} 所学校`;
+  const cards = document.getElementById('listCards');
+  cards.innerHTML = '';
+
+  if (!results.length) {
+    cards.innerHTML = '<div class="no-results" style="padding:40px">没有找到匹配的学校</div>';
+    document.getElementById('listPagination').innerHTML = '';
+    return;
+  }
+
+  results.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'school-card';
+    const nameDiv = document.createElement('div');
+    nameDiv.className = 'sc-name';
+    nameDiv.textContent = s.school_name || '';
+
+    const badges = document.createElement('div');
+    badges.className = 'sc-badges';
+
+    const typeBadge = document.createElement('span');
+    typeBadge.className = 'sc-badge';
+    typeBadge.textContent = (s.school_type || '').replace(/\s*\(Year.*\)/, '');
+    badges.appendChild(typeBadge);
+
+    if (s.gender_of_students && s.gender_of_students !== 'Co-Educational') {
+      const gBadge = document.createElement('span');
+      gBadge.className = 'sc-badge';
+      gBadge.textContent = s.gender_of_students;
+      badges.appendChild(gBadge);
+    }
+
+    if (s.authority && s.authority !== 'State') {
+      const aBadge = document.createElement('span');
+      aBadge.className = 'sc-badge';
+      aBadge.textContent = s.authority.replace(' : Fully Registered', '').replace(' : Provisionally Registered', '');
+      badges.appendChild(aBadge);
+    }
+
+    if (_webSchoolSet.has(String(s.school_number))) {
+      const fpBadge = document.createElement('span');
+      fpBadge.className = 'sc-badge full-profile';
+      fpBadge.textContent = '\u2605 Full profile';
+      badges.appendChild(fpBadge);
+    }
+
+    const roll = document.createElement('div');
+    roll.className = 'sc-roll';
+    const r = parseInt(s.total_school_roll);
+    roll.textContent = r ? r.toLocaleString() + ' 人' : '--';
+
+    card.appendChild(nameDiv);
+    card.appendChild(badges);
+    card.appendChild(roll);
+
+    const num = String(s.school_number).replace(/[^0-9]/g, '');
+    card.addEventListener('click', () => navigateTo('#/school/' + num));
+    cards.appendChild(card);
+  });
+
+  // Pagination
+  renderPagination(page, pages);
+}
+
+function renderPagination(page, pages) {
+  const pag = document.getElementById('listPagination');
+  pag.innerHTML = '';
+  if (pages <= 1) return;
+
+  const addBtn = (label, p, active, disabled) => {
+    const btn = document.createElement('button');
+    btn.className = 'page-btn' + (active ? ' active' : '');
+    btn.textContent = label;
+    btn.disabled = disabled;
+    if (!disabled && !active) {
+      btn.addEventListener('click', () => {
+        loadListData(p);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+    pag.appendChild(btn);
+  };
+
+  addBtn('\u2039', page - 1, false, page <= 1);
+
+  // Show limited page numbers
+  let start = Math.max(1, page - 2);
+  let end = Math.min(pages, page + 2);
+  if (start > 1) { addBtn('1', 1, false, false); if (start > 2) { const dots = document.createElement('span'); dots.textContent = '...'; dots.style.cssText = 'padding:0 4px;color:var(--text-muted)'; pag.appendChild(dots); } }
+  for (let i = start; i <= end; i++) { addBtn(String(i), i, i === page, false); }
+  if (end < pages) { if (end < pages - 1) { const dots = document.createElement('span'); dots.textContent = '...'; dots.style.cssText = 'padding:0 4px;color:var(--text-muted)'; pag.appendChild(dots); } addBtn(String(pages), pages, false, false); }
+
+  addBtn('\u203a', page + 1, false, page >= pages);
+}
+
+function onSortChange() {
+  loadListData(1);
+}
+
+
+/* ══════════════════════════════════════════════════════
+   Hash Router
+   ══════════════════════════════════════════════════════ */
+
+function showView(viewName) {
+  // Hide all views
+  $dashboard.classList.remove('show');
+  $listView.classList.remove('show');
+  $detail.classList.remove('show');
+  $empty.style.display = 'none';
+  $schoolTag.classList.remove('show');
+
+  if (viewName === 'dashboard') {
+    $dashboard.classList.add('show');
+  } else if (viewName === 'list') {
+    $listView.classList.add('show');
+  } else if (viewName === 'detail') {
+    $detail.classList.add('show');
+  }
+}
+
+function navigateTo(hash) {
+  if (window.location.hash === hash) {
+    // Force re-route even if hash is same
+    handleRoute(hash);
+  } else {
+    window.location.hash = hash;
+  }
+}
+
+function handleRoute(hash) {
+  hash = hash || window.location.hash || '#/';
+
+  // #/school/123
+  const schoolMatch = hash.match(/^#\/school\/(\d+)$/);
+  if (schoolMatch) {
+    showView('detail');
+    loadSchool(schoolMatch[1]);
+    return;
+  }
+
+  // #/schools?region=xxx&...
+  if (hash.startsWith('#/schools')) {
+    showView('list');
+    const qs = hash.includes('?') ? hash.split('?')[1] : '';
+    const params = new URLSearchParams(qs);
+    const filters = {};
+    for (const [k, v] of params.entries()) {
+      if (['region','authority','gender','school_type','eqi_band','eqi_group'].includes(k)) {
+        filters[k] = v;
+      }
+    }
+    showListView(filters);
+    // Also ensure stats are loaded for webSchoolSet
+    if (!_statsData) loadDashboard();
+    return;
+  }
+
+  // #/ or default → Dashboard
+  showView('dashboard');
+  loadDashboard();
+}
+
+window.addEventListener('hashchange', () => handleRoute());
+
+
 /* ── Init ─────────────────────────────────────────── */
 $input.focus();
+handleRoute();
 </script>
 </body>
 </html>
