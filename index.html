@@ -558,6 +558,7 @@ body {
   border-radius: var(--radius);
   padding: 20px 24px;
   margin-bottom: 12px;
+  overflow: hidden;
 }
 .dash-row-2col {
   display: flex;
@@ -592,7 +593,7 @@ body {
   transition: filter var(--transition);
   overflow: hidden;
   text-align: center;
-  min-width: 64px;
+  min-width: 0;
 }
 .treemap-row {
   display: flex;
@@ -1970,7 +1971,7 @@ function renderTreemap(containerId, data, colors, onClick) {
     const bg = colors[i % colors.length];
     // 动态高度/面积：用 flex-grow 模拟面积
     const flexVal = item._flex || item.count;
-    cell.style.cssText = `flex:${Math.max(flexVal, 1)};background:${bg};color:${textColorFor(bg)};min-height:${pct > 8 ? 56 : 44}px`;
+    cell.style.cssText = `flex:${Math.max(flexVal, 1)};background:${bg};color:${textColorFor(bg)};min-height:${pct > 8 ? 56 : 44}px;min-width:48px`;
     const nameSpan = document.createElement('span');
     nameSpan.className = 'tm-name';
     let displayName = SHORT_NAMES[item.name] || item.name.replace(' Region', '');
@@ -2069,43 +2070,37 @@ function renderEqiBlock(bands) {
   const container = document.getElementById('eqiBlock');
   if (!container) return;
   container.innerHTML = '';
-  // Band 颜色与 Group 对应：B1-2 绿，B3-5 黄，B6-7 红
+  // Grid 7列，2行，确保 Group 边界与 Band 边界精确对齐
   const eqiColors = ['#2E7D5B','#3D9468','#A0AD42','#C8C45A','#DBBB52','#CC6347','#BF4E3F'];
-  // Row 1: 7 bands (等宽，紧凑)
-  const r1 = document.createElement('div');
-  r1.className = 'treemap-row';
-  r1.style.height = '36px';
+  const grid = document.createElement('div');
+  grid.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:36px 36px;gap:1px;width:100%';
+  // Row 1: 7 bands
   bands.forEach((b, i) => {
     const cell = document.createElement('div');
     cell.className = 'treemap-cell';
     const bg = eqiColors[i] || '#adb5bd';
-    cell.style.cssText = `flex:1;background:${bg};color:${textColorFor(bg)};height:36px;min-width:0;padding:4px 2px`;
+    cell.style.cssText = `background:${bg};color:${textColorFor(bg)};padding:4px 2px`;
     cell.innerHTML = `<span class="tm-name" style="font-size:11px">${b.count}</span>`;
     cell.title = `${b.name} (${b.cn}): ${b.count} schools (EQI ${b.min}-${b.max})`;
     cell.addEventListener('click', () => navigateTo('#/schools?eqi_band=' + encodeURIComponent(b.name)));
-    container.appendChild(cell);
-    r1.appendChild(cell);
+    grid.appendChild(cell);
   });
-  container.appendChild(r1);
-  // Row 2: 3 groups (Fewer B1-2, Moderate B3-5, More B6-7)
+  // Row 2: 3 groups 用 grid-column 跨列
   const groups = [
-    { label: 'Fewer', bands: bands.slice(0, 2), color: '#2E7D5B' },
-    { label: 'Moderate', bands: bands.slice(2, 5), color: '#C8C45A' },
-    { label: 'More', bands: bands.slice(5, 7), color: '#BF4E3F' },
+    { label: 'Fewer', bands: bands.slice(0, 2), color: '#2E7D5B', col: '1/3' },
+    { label: 'Moderate', bands: bands.slice(2, 5), color: '#C8C45A', col: '3/6' },
+    { label: 'More', bands: bands.slice(5, 7), color: '#BF4E3F', col: '6/8' },
   ];
-  const r2 = document.createElement('div');
-  r2.className = 'treemap-row';
-  r2.style.marginTop = '1px';
   groups.forEach(g => {
     const total = g.bands.reduce((s, b) => s + b.count, 0);
     const cell = document.createElement('div');
     cell.className = 'treemap-cell';
-    cell.style.cssText = `flex:${g.bands.length};background:${g.color};color:${textColorFor(g.color)};height:36px`;
+    cell.style.cssText = `grid-column:${g.col};background:${g.color};color:${textColorFor(g.color)}`;
     cell.innerHTML = `<span class="tm-name">${esc(g.label)}</span><span class="tm-count">${total}</span>`;
     cell.title = `${g.label}: ${total} schools`;
-    r2.appendChild(cell);
+    grid.appendChild(cell);
   });
-  container.appendChild(r2);
+  container.appendChild(grid);
 }
 
 function renderFAQ() {
