@@ -598,6 +598,43 @@ def commit_to_db(data: SchoolData, status: str = CrawlStatus.APPROVED):
                     (data.school_number, row[0], subj.get("raw_name", ""), subj.get("source_url", "")),
                 )
 
+        # school_fees — insert or detect conflict
+        if data.intl_tuition_annual and data.intl_fees_year:
+            cur.execute(
+                "SELECT tuition_annual, homestay_weekly FROM school_fees WHERE school_number = ? AND year = ?",
+                (data.school_number, data.intl_fees_year),
+            )
+            existing = cur.fetchone()
+            if existing:
+                old_tuition, old_homestay = existing
+                tuition_match = old_tuition == data.intl_tuition_annual
+                homestay_match = old_homestay == data.intl_homestay_weekly
+                if tuition_match and homestay_match:
+                    # Same amounts — just update crawled_at
+                    cur.execute(
+                        "UPDATE school_fees SET crawled_at = ?, fees_url = ? WHERE school_number = ? AND year = ?",
+                        (data.crawled_at, data.intl_fees_url, data.school_number, data.intl_fees_year),
+                    )
+                else:
+                    # Conflict — do NOT overwrite, warn for human review
+                    conflict_msg = (
+                        f"⚠️ FEE CONFLICT for school #{data.school_number} year {data.intl_fees_year}: "
+                        f"DB has tuition=${old_tuition}, homestay=${old_homestay} | "
+                        f"New crawl has tuition=${data.intl_tuition_annual}, homestay=${data.intl_homestay_weekly}. "
+                        f"NOT overwriting — requires human review."
+                    )
+                    data.warnings.append(conflict_msg)
+                    print(f"  {conflict_msg}")
+            else:
+                # New record — insert
+                cur.execute(
+                    """INSERT INTO school_fees (school_number, year, tuition_annual,
+                       homestay_weekly, fees_url, crawled_at)
+                    VALUES (?, ?, ?, ?, ?, ?)""",
+                    (data.school_number, data.intl_fees_year, data.intl_tuition_annual,
+                     data.intl_homestay_weekly, data.intl_fees_url, data.crawled_at),
+                )
+
         conn.commit()
         print(f"  ✅ Committed to database: {data.school_name} (#{data.school_number})")
     except Exception as e:

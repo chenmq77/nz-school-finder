@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-03-23 — 国际生学费多年份存储与智能展示
+
+### Why
+原来 `school_web_data` 每校只存一行费用数据，无法保留多年份的历史费用。需要支持同一学校存储不同年份的费用，前端智能展示最相关年份。
+
+### What
+- **新建 `school_fees` 表**：`(school_number, year)` 复合主键，支持多年份费用
+- **爬虫冲突检测**：同校同年金额不一致时不覆盖，警告人工审核
+- **API 智能查询**：当年 → 最近未来年 → 最近过去年 三级回退
+- **数据迁移**：`init_db.py` 增量建表 + 从 `school_web_data` 迁移已有 5 条记录
+
+### How
+- `init_db.py`：`ensure_school_fees_table()` 幂等建表 + 迁移
+- `crawlers/templates/base.py`：`commit_to_db()` 写入新表，SELECT 比对后决定 INSERT/UPDATE/WARN
+- `server.py`：`fetch_school_web()` 三段式年份查询覆盖返回值
+- 前端无需改动（`renderFees()` 已支持 `intl_fees_year` 显示）
+
+---
+
 ## 2026-03-23 — Dashboard 首页 + 学校列表视图 + Hash 路由 + 筛选系统
 
 ### Why

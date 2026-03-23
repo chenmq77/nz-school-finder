@@ -212,9 +212,64 @@ def import_data(csv_path, db_path):
     conn.close()
 
 
+def ensure_school_fees_table(db_path):
+    """Create school_fees table if it doesn't exist, and migrate existing data from school_web_data."""
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    # Create table (idempotent)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS school_fees (
+            school_number  INTEGER NOT NULL,
+            year           INTEGER NOT NULL,
+            tuition_annual REAL,
+            homestay_weekly REAL,
+            fees_url       TEXT,
+            crawled_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (school_number, year)
+        )
+    """)
+
+    # Migrate existing fee data from school_web_data (skip if already migrated)
+    cursor.execute("""
+        SELECT school_number, intl_tuition_annual, intl_homestay_weekly,
+               intl_fees_url, intl_fees_year, crawled_at
+        FROM school_web_data
+        WHERE intl_tuition_annual IS NOT NULL
+    """)
+    rows = cursor.fetchall()
+    migrated = 0
+    for row in rows:
+        school_num, tuition, homestay, url, year, crawled = row
+        if not year:
+            continue  # skip records without a year (e.g. school 54)
+        # Only insert if not already present
+        cursor.execute(
+            "SELECT 1 FROM school_fees WHERE school_number = ? AND year = ?",
+            (school_num, year),
+        )
+        if not cursor.fetchone():
+            cursor.execute(
+                """INSERT INTO school_fees (school_number, year, tuition_annual,
+                   homestay_weekly, fees_url, crawled_at)
+                VALUES (?, ?, ?, ?, ?, ?)""",
+                (school_num, year, tuition, homestay, url, crawled),
+            )
+            migrated += 1
+
+    conn.commit()
+    conn.close()
+
+    print("=" * 50)
+    print("  school_fees 表初始化完成")
+    print(f"  从 school_web_data 迁移了 {migrated} 条费用记录")
+    print("=" * 50)
+
+
 if __name__ == "__main__":
     base_dir = os.path.dirname(os.path.abspath(__file__))
     csv_path = os.path.join(base_dir, "directory.csv")
     db_path  = os.path.join(base_dir, "schools.db")
 
     import_data(csv_path, db_path)
+    ensure_school_fees_table(db_path)

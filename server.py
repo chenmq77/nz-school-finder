@@ -8,6 +8,7 @@ NZ School Finder — 轻量 API 服务器
 访问地址: http://localhost:8000
 """
 
+import datetime
 import http.server
 import json
 import os
@@ -337,7 +338,7 @@ def filter_schools(params):
 
 
 def fetch_school_web(school_number):
-    """获取学校官网爬取的额外数据，subjects 从标准化表读取"""
+    """获取学校官网爬取的额外数据，subjects 从标准化表读取，费用从 school_fees 智能查询"""
     conn = get_connection()
     try:
         cur = conn.cursor()
@@ -369,6 +370,41 @@ def fetch_school_web(school_number):
             sorted_names = sorted(names)
             data['subjects'] = json.dumps(sorted_names)
             data['subjects_count'] = len(sorted_names)
+
+        # 费用：从 school_fees 表智能查询（当年 > 最近未来年 > 最近过去年）
+        current_year = datetime.datetime.now().year
+        fee_row = None
+
+        # 1) 当年
+        cur.execute(
+            "SELECT * FROM school_fees WHERE school_number = ? AND year = ?",
+            (school_number, current_year),
+        )
+        fee_row = cur.fetchone()
+
+        # 2) 最近的未来年份
+        if not fee_row:
+            cur.execute(
+                "SELECT * FROM school_fees WHERE school_number = ? AND year > ? ORDER BY year ASC LIMIT 1",
+                (school_number, current_year),
+            )
+            fee_row = cur.fetchone()
+
+        # 3) 最近的过去年份
+        if not fee_row:
+            cur.execute(
+                "SELECT * FROM school_fees WHERE school_number = ? AND year < ? ORDER BY year DESC LIMIT 1",
+                (school_number, current_year),
+            )
+            fee_row = cur.fetchone()
+
+        # 用 school_fees 的数据覆盖 school_web_data 中的费用字段
+        if fee_row:
+            fee = dict(fee_row)
+            data['intl_tuition_annual'] = fee['tuition_annual']
+            data['intl_homestay_weekly'] = fee['homestay_weekly']
+            data['intl_fees_url'] = fee['fees_url']
+            data['intl_fees_year'] = fee['year']
 
         return data
     finally:
