@@ -16,7 +16,7 @@ import urllib.parse
 
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "schools.db")
 HOST = "localhost"
-PORT = 8001
+PORT = 8000
 
 # ── 数据库操作 ─────────────────────────────────────────
 
