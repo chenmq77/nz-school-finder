@@ -48,10 +48,12 @@ body {
   border-bottom: 1px solid var(--border);
 }
 
-.header-row {
+.header-inner {
   max-width: 900px;
   margin: 0 auto;
-  padding: 10px 20px;
+  padding: 10px 20px 2px;
+}
+.header-row {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -69,9 +71,7 @@ body {
 .header .brand span { color: var(--primary); font-weight: 500; }
 
 .header-filter-row {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 4px 20px 10px;
+  padding: 8px 0 6px;
 }
 
 .search-wrap {
@@ -963,19 +963,21 @@ body {
 
 <!-- Header (sticky, Google News style) -->
 <div class="header">
-  <div class="header-row">
-    <div class="brand" onclick="clearSearch()" style="cursor:pointer" title="返回首页 / Back to home"><span>NZ</span> School Finder</div>
-    <div class="search-wrap">
-      <div class="search-box">
-        <div class="search-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></div>
-        <input type="text" id="searchInput" placeholder="Search for schools..." autocomplete="off">
-        <button id="clearBtn" onclick="clearSearch()" title="Clear search" style="display:none;position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:18px;padding:4px 8px;line-height:1">&times;</button>
+  <div class="header-inner">
+    <div class="header-row">
+      <div class="brand" onclick="clearSearch()" style="cursor:pointer" title="返回首页 / Back to home"><span>NZ</span> School Finder</div>
+      <div class="search-wrap">
+        <div class="search-box">
+          <div class="search-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></div>
+          <input type="text" id="searchInput" placeholder="Search for schools..." autocomplete="off">
+          <button id="clearBtn" onclick="clearSearch()" title="Clear search" style="display:none;position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:18px;padding:4px 8px;line-height:1">&times;</button>
+        </div>
+        <div class="search-results" id="searchResults"></div>
       </div>
-      <div class="search-results" id="searchResults"></div>
     </div>
-  </div>
-  <div class="header-filter-row">
-    <div class="filter-bar" id="filterBar"></div>
+    <div class="header-filter-row">
+      <div class="filter-bar" id="filterBar"></div>
+    </div>
   </div>
 </div>
 <span id="currentSchoolTag" style="display:none"></span>
@@ -2427,16 +2429,16 @@ function toggleYearLevelDropdown(dim, pillEl) {
     const btn = document.createElement('button');
     btn.style.cssText = 'padding:6px 0;border-radius:4px;border:1px solid var(--border);background:var(--card-bg);font-size:12px;cursor:pointer;text-align:center';
     if (selMin && selMax && y >= selMin && y <= selMax) {
-      btn.style.background = '#CF9C30';
+      btn.style.background = 'var(--primary)';
       btn.style.color = '#fff';
-      btn.style.borderColor = '#CF9C30';
+      btn.style.borderColor = 'var(--primary)';
     }
     btn.textContent = 'Y' + y;
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (!firstClick) {
         firstClick = y;
-        btn.style.background = '#CF9C30';
+        btn.style.background = 'var(--primary)';
         btn.style.color = '#fff';
       } else {
         const min = Math.min(firstClick, y);
