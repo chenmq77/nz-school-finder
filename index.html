@@ -589,7 +589,7 @@ body {
   border-radius: 0;
   cursor: pointer;
   padding: 6px 8px;
-  transition: opacity var(--transition), transform var(--transition);
+  transition: filter var(--transition);
   overflow: hidden;
   text-align: center;
   min-width: 64px;
@@ -600,7 +600,7 @@ body {
   min-height: 60px;
   width: 100%;
 }
-.treemap-cell:hover { opacity: 0.85; transform: scale(1.02); }
+.treemap-cell:hover { filter: brightness(0.92); box-shadow: inset 0 0 0 2px rgba(0,0,0,0.15); }
 .treemap-cell .tm-name {
   font-size: 12px;
   font-weight: 600;
@@ -884,7 +884,9 @@ body {
   .gauge-row { flex-direction: column; }
   .dash-hero h1 { font-size: 22px; }
   .dash-row-2col { flex-direction: column; }
-  .treemap-cell { min-width: 40px; padding: 4px 6px; }
+  .treemap-cell { min-width: 32px; padding: 3px 4px; }
+  .treemap-cell .tm-name { font-size: 10px; }
+  .treemap-cell .tm-count { font-size: 10px; }
   .school-card { flex-direction: column; align-items: flex-start; gap: 8px; }
   .school-card .sc-roll { text-align: left; }
 }
@@ -1853,31 +1855,50 @@ async function loadDashboard() {
 
 function renderDashboard(d) {
   document.getElementById('dashTotal').textContent = d.total.toLocaleString();
-  // Region: 两行布局 — 前 4 大区域 + 后 4 小区域 + Other
+  // Region: CSS Grid 两行布局，确保 Others 左边界与 Canterbury 对齐
   const sortedRegions = [...d.region].sort((a, b) => b.count - a.count);
   const row1 = sortedRegions.slice(0, 4);
   const row2 = sortedRegions.slice(4, 8);
   const otherRegionsSum = sortedRegions.slice(8).reduce((s, r) => s + r.count, 0);
-  if (otherRegionsSum > 0) row2.push({ name: 'Other Regions', count: otherRegionsSum });
+  if (otherRegionsSum > 0) {
+    // 对齐策略：Others 左边界 = Canterbury 左边界
+    // Canterbury left = (Auckland + Waikato) / row1Total
+    // 需要 row2 前 4 项布局宽度之和 = Auckland + Waikato
+    const r1t = row1.reduce((s, r) => s + r.count, 0);
+    const canterburyLeft = row1[0].count + row1[1].count; // Auckland + Waikato
+    const r2rest = row2.reduce((s, r) => s + r.count, 0);
+    // 等比放大 row2 前 4 项，使总和 = canterburyLeft
+    const scale = canterburyLeft / r2rest;
+    row2.forEach(item => { item._layoutCount = Math.round(item.count * scale); });
+    // Others 填满剩余
+    row2.push({ name: 'Other Regions', count: otherRegionsSum, _layoutCount: r1t - canterburyLeft });
+  }
   const regionClick = (item) => {
     if (item.name === 'Other Regions') return;
     navigateTo('#/schools?region=' + encodeURIComponent(item.name));
   };
-  // 在 tmRegion 容器中渲染两行
+  // Region: 绝对定位百分比对齐，两行共享同一坐标系
   const regionContainer = document.getElementById('tmRegion');
   regionContainer.innerHTML = '';
-  const r1 = document.createElement('div');
-  r1.className = 'treemap-row';
-  r1.style.minHeight = '72px';
-  r1.id = 'tmRegionRow1';
-  const r2 = document.createElement('div');
-  r2.className = 'treemap-row';
-  r2.style.minHeight = '56px';
-  r2.id = 'tmRegionRow2';
-  regionContainer.appendChild(r1);
-  regionContainer.appendChild(r2);
-  renderTreemap('tmRegionRow1', row1, REGION_COLORS.slice(0, 4), regionClick);
-  renderTreemap('tmRegionRow2', row2, REGION_COLORS.slice(4), regionClick);
+  const row1Total = row1.reduce((s, r) => s + r.count, 0);
+  const R1H = 72, R2H = 56, GAP = 1;
+  regionContainer.style.cssText = `position:relative;height:${R1H + GAP + R2H}px`;
+  function _placeRow(items, colors, topPx, heightPx) {
+    let accum = 0;
+    items.forEach((item, i) => {
+      const w = item._layoutCount || item.count;
+      const leftPct = (accum / row1Total * 100).toFixed(4);
+      const widthPct = (w / row1Total * 100).toFixed(4);
+      const cell = _makeRegionCell(item, colors[i], regionClick);
+      const gapL = i > 0 ? GAP/2 : 0;
+      const gapR = i < items.length - 1 ? GAP/2 : 0;
+      cell.style.cssText += `;position:absolute;top:${topPx}px;height:${heightPx}px;left:calc(${leftPct}% + ${gapL}px);width:calc(${widthPct}% - ${gapL + gapR}px)`;
+      regionContainer.appendChild(cell);
+      accum += w;
+    });
+  }
+  _placeRow(row1, REGION_COLORS.slice(0, 4), 0, R1H);
+  _placeRow(row2, REGION_COLORS.slice(4), R1H + GAP, R2H);
   // Authority: 2-row layout (biggest on row1, rest on row2)
   const authSorted = [...d.authority].sort((a,b) => b.count - a.count);
   const authColors = Object.values(AUTH_COLORS);
@@ -1920,6 +1941,35 @@ function renderDashboard(d) {
   renderFAQ();
 }
 
+const SHORT_NAMES = {
+  'Auckland Region': 'Auckland', 'Waikato Region': 'Waikato',
+  'Canterbury Region': 'Canterbury', 'Canterbury, Chatham Islands': 'Canterbury',
+  'Wellington Region': 'Wellington', 'Manawatū-Whanganui Region': 'Manawatū',
+  'Taranaki, Whanganui, Manawatū': 'Manawatū', 'Bay of Plenty Region': 'Bay of Plenty',
+  'Bay of Plenty, Waiariki': 'Bay of Plenty', 'Northland Region': 'Northland',
+  'Tai Tokerau': 'Northland', 'Otago Region': 'Otago', 'Otago, Southland': 'Otago-Southland',
+  "Hawke's Bay Region": "Hawke's Bay", "Hawke's Bay, Tairāwhiti": "Hawke's Bay",
+  'Nelson, Marlborough, West Coast': 'Nelson-Marlb.',
+  'State : Integrated': 'Integrated', 'Charter School': 'Charter', 'Other Regions': 'Others',
+};
+
+function _makeRegionCell(item, bg, onClick) {
+  const cell = document.createElement('div');
+  cell.className = 'treemap-cell';
+  cell.style.cssText = `background:${bg}`;
+  cell.title = `${item.name}: ${item.count}`;
+  const nameSpan = document.createElement('span');
+  nameSpan.className = 'tm-name';
+  nameSpan.textContent = SHORT_NAMES[item.name] || item.name.replace(' Region', '');
+  const countSpan = document.createElement('span');
+  countSpan.className = 'tm-count';
+  countSpan.textContent = item.count;
+  cell.appendChild(nameSpan);
+  cell.appendChild(countSpan);
+  cell.addEventListener('click', () => onClick(item));
+  return cell;
+}
+
 function renderTreemap(containerId, data, colors, onClick) {
   const container = document.getElementById(containerId);
   if (!container) return;
@@ -1931,38 +1981,17 @@ function renderTreemap(containerId, data, colors, onClick) {
     cell.className = 'treemap-cell';
     const bg = colors[i % colors.length];
     // 动态高度/面积：用 flex-grow 模拟面积
-    cell.style.cssText = `flex:${Math.max(item.count, 1)};background:${bg};min-height:${pct > 8 ? 56 : 44}px`;
+    const flexVal = item._flex || item.count;
+    cell.style.cssText = `flex:${Math.max(flexVal, 1)};background:${bg};min-height:${pct > 8 ? 56 : 44}px`;
     const nameSpan = document.createElement('span');
     nameSpan.className = 'tm-name';
-    // 显示简短名称
-    // 简称映射
-    const SHORT_NAMES = {
-      'Auckland Region': 'Auckland',
-      'Waikato Region': 'Waikato',
-      'Canterbury Region': 'Canterbury',
-      'Canterbury, Chatham Islands': 'Canterbury',
-      'Wellington Region': 'Wellington',
-      'Manawatū-Whanganui Region': 'Manawatū',
-      'Taranaki, Whanganui, Manawatū': 'Manawatū',
-      'Bay of Plenty Region': 'Bay of Plenty',
-      'Bay of Plenty, Waiariki': 'Bay of Plenty',
-      'Northland Region': 'Northland',
-      'Tai Tokerau': 'Northland',
-      'Otago Region': 'Otago',
-      'Otago, Southland': 'Otago-Southland',
-      'Hawke\'s Bay Region': 'Hawke\'s Bay',
-      'Hawke\'s Bay, Tairāwhiti': 'Hawke\'s Bay',
-      'Nelson, Marlborough, West Coast': 'Nelson-Marlb.',
-      'State : Integrated': 'Integrated',
-      'Charter School': 'Charter',
-      'Other Regions': 'Others',
-    };
     let displayName = SHORT_NAMES[item.name] || item.name.replace(' Region', '');
     nameSpan.textContent = displayName;
     nameSpan.title = item.name;
     const countSpan = document.createElement('span');
     countSpan.className = 'tm-count';
     countSpan.textContent = item.count;
+    cell.title = `${item.name}: ${item.count}`;
     cell.appendChild(nameSpan);
     cell.appendChild(countSpan);
     cell.addEventListener('click', () => onClick(item));
