@@ -2398,74 +2398,85 @@ function toggleYearLevelDropdown(dim, pillEl) {
 
   const presetDiv = document.createElement('div');
   presetDiv.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px';
-  presets.forEach(p => {
-    const btn = document.createElement('button');
-    btn.style.cssText = 'padding:4px 10px;border-radius:12px;border:1px solid var(--border);background:var(--card-bg);font-size:11px;cursor:pointer';
-    if (selMin === p.min && selMax === p.max) {
-      btn.style.background = 'var(--primary)';
-      btn.style.color = '#fff';
-      btn.style.borderColor = 'var(--primary)';
+  function rebuildYearUI() {
+    dd.innerHTML = '';
+    // 读取当前选中状态
+    const curVal = _currentFilters[dim.key];
+    let sMin = 0, sMax = 0;
+    if (curVal && curVal.length) {
+      const m = curVal[0].match(/(\d+)-(\d+)/);
+      if (m) { sMin = +m[1]; sMax = +m[2]; }
     }
-    btn.textContent = p.label;
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      applyYearRange(dim, p.min, p.max);
-      dd.remove(); _openDropdown = null;
-    });
-    presetDiv.appendChild(btn);
-  });
-  dd.appendChild(presetDiv);
 
-  // 年级按钮 (Y1-Y13)
-  const label = document.createElement('div');
-  label.style.cssText = 'font-size:11px;color:var(--text-muted);margin-bottom:6px';
-  label.textContent = '自定义范围（点击起点，再点终点）:';
-  dd.appendChild(label);
-
-  const gridDiv = document.createElement('div');
-  gridDiv.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);gap:3px';
-  let firstClick = 0;
-  for (let y = 1; y <= 13; y++) {
-    const btn = document.createElement('button');
-    btn.style.cssText = 'padding:6px 0;border-radius:4px;border:1px solid var(--border);background:var(--card-bg);font-size:12px;cursor:pointer;text-align:center';
-    if (selMin && selMax && y >= selMin && y <= selMax) {
-      btn.style.background = 'var(--primary)';
-      btn.style.color = '#fff';
-      btn.style.borderColor = 'var(--primary)';
-    }
-    btn.textContent = 'Y' + y;
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (!firstClick) {
-        firstClick = y;
-        btn.style.background = 'var(--primary)';
-        btn.style.color = '#fff';
-      } else {
-        const min = Math.min(firstClick, y);
-        const max = Math.max(firstClick, y);
-        applyYearRange(dim, min, max);
-        dd.remove(); _openDropdown = null;
+    // 快捷项
+    const pDiv = document.createElement('div');
+    pDiv.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px';
+    presets.forEach(p => {
+      const btn = document.createElement('button');
+      btn.style.cssText = 'padding:4px 10px;border-radius:12px;border:1px solid var(--border);background:var(--card-bg);font-size:11px;cursor:pointer';
+      if (sMin === p.min && sMax === p.max) {
+        btn.style.background = 'var(--primary)'; btn.style.color = '#fff'; btn.style.borderColor = 'var(--primary)';
       }
+      btn.textContent = p.label;
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        applyYearRangeQuiet(dim, p.min, p.max);
+        rebuildYearUI();
+      });
+      pDiv.appendChild(btn);
     });
-    gridDiv.appendChild(btn);
-  }
-  dd.appendChild(gridDiv);
+    dd.appendChild(pDiv);
 
-  // Clear
-  if (selMin) {
-    const clearBtn = document.createElement('div');
-    clearBtn.className = 'filter-dropdown-clear';
-    clearBtn.textContent = 'Clear';
-    clearBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      delete _currentFilters[dim.key];
-      delete _currentFilters['year_min'];
-      delete _currentFilters['year_max'];
-      dd.remove(); _openDropdown = null;
-      applyFiltersAndShow();
-    });
-    dd.appendChild(clearBtn);
+    // 自定义标签
+    const lbl = document.createElement('div');
+    lbl.style.cssText = 'font-size:11px;color:var(--text-muted);margin-bottom:6px';
+    lbl.textContent = '自定义范围（点击起点，再点终点）:';
+    dd.appendChild(lbl);
+
+    // 年级网格
+    const gDiv = document.createElement('div');
+    gDiv.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);gap:3px';
+    let firstClick = 0;
+    for (let y = 1; y <= 13; y++) {
+      const btn = document.createElement('button');
+      btn.style.cssText = 'padding:6px 0;border-radius:4px;border:1px solid var(--border);background:var(--card-bg);font-size:12px;cursor:pointer;text-align:center';
+      if (sMin && sMax && y >= sMin && y <= sMax) {
+        btn.style.background = 'var(--primary)'; btn.style.color = '#fff'; btn.style.borderColor = 'var(--primary)';
+      }
+      btn.textContent = 'Y' + y;
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!firstClick) {
+          firstClick = y;
+          btn.style.background = 'var(--primary)'; btn.style.color = '#fff';
+        } else {
+          applyYearRangeQuiet(dim, Math.min(firstClick, y), Math.max(firstClick, y));
+          rebuildYearUI();
+        }
+      });
+      gDiv.appendChild(btn);
+    }
+    dd.appendChild(gDiv);
+
+    // Clear
+    if (sMin) {
+      const clr = document.createElement('div');
+      clr.className = 'filter-dropdown-clear';
+      clr.textContent = 'Clear';
+      clr.addEventListener('click', (e) => {
+        e.stopPropagation();
+        delete _currentFilters[dim.key]; delete _currentFilters['year_min']; delete _currentFilters['year_max'];
+        if (window.location.hash.startsWith('#/schools')) { loadListData(1); }
+        renderFilterBar();
+        rebuildYearUI();
+        // Reposition
+        const newPill = document.getElementById('filterBar').children[FILTER_DIMS.indexOf(dim)];
+        if (newPill) { const r = newPill.getBoundingClientRect(); dd.style.top = (r.bottom+4)+'px'; dd.style.left = r.left+'px'; }
+      });
+      dd.appendChild(clr);
+    }
   }
+  rebuildYearUI();
 
   // Position
   const rect = pillEl.getBoundingClientRect();
@@ -2492,6 +2503,22 @@ function applyFiltersAndShow() {
     loadListData(1);
     renderFilterBar();
     history.replaceState(null, '', hash);
+  }
+}
+
+function applyYearRangeQuiet(dim, min, max) {
+  _currentFilters[dim.key] = [`${min}-${max}`];
+  _currentFilters['year_min'] = [`${min}`];
+  _currentFilters['year_max'] = [`${max}`];
+  delete _currentFilters['school_type'];
+  if (window.location.hash.startsWith('#/schools')) { loadListData(1); }
+  renderFilterBar();
+  // Reposition dropdown after pill re-render
+  const newPill = document.getElementById('filterBar').children[FILTER_DIMS.indexOf(dim)];
+  if (newPill && _openDropdown) {
+    const r = newPill.getBoundingClientRect();
+    _openDropdown.style.top = (r.bottom + 4) + 'px';
+    _openDropdown.style.left = r.left + 'px';
   }
 }
 
