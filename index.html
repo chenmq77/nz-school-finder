@@ -68,6 +68,12 @@ body {
 
 .header .brand span { color: var(--primary); font-weight: 500; }
 
+.header-filter-row {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 4px 20px 10px;
+}
+
 .search-wrap {
   position: relative;
   flex: 1;
@@ -754,8 +760,8 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 12px;
-  border-radius: 20px;
+  padding: 5px 11px;
+  border-radius: 16px;
   border: 1px solid var(--border);
   background: var(--card-bg);
   font-size: 12px;
@@ -968,6 +974,9 @@ body {
       <div class="search-results" id="searchResults"></div>
     </div>
   </div>
+  <div class="header-filter-row">
+    <div class="filter-bar" id="filterBar"></div>
+  </div>
 </div>
 <span id="currentSchoolTag" style="display:none"></span>
 
@@ -1028,7 +1037,6 @@ body {
   <!-- School List View -->
   <div class="list-view" id="listView">
     <div class="list-toolbar">
-      <div class="filter-bar" id="filterBar"></div>
       <div class="list-meta-row">
         <span class="list-meta" id="listMeta"></span>
         <select class="list-sort" id="listSort" onchange="onSortChange()">
@@ -2349,10 +2357,15 @@ function toggleFilterDropdown(dim, pillEl) {
     if (currentPill && currentPill.contains(e.target)) return;
     dd.remove(); _openDropdown = null;
     document.removeEventListener('click', closeHandler, true);
-    // 关闭下拉时同步 URL hash（不触发重载，因为数据已加载）
-    const newHash = buildListHash(_currentFilters);
-    if (window.location.hash !== newHash) {
-      history.replaceState(null, '', newHash);
+    // 关闭下拉时：如果有筛选且在 dashboard → 跳列表页；否则同步 URL
+    const hasFilters = Object.values(_currentFilters).some(v => v && v.length);
+    if (hasFilters && !window.location.hash.startsWith('#/schools')) {
+      navigateTo(buildListHash(_currentFilters));
+    } else {
+      const newHash = buildListHash(_currentFilters);
+      if (window.location.hash !== newHash) {
+        history.replaceState(null, '', newHash);
+      }
     }
   };
   setTimeout(() => document.addEventListener('click', closeHandler, true), 0);
@@ -2447,9 +2460,7 @@ function toggleYearLevelDropdown(dim, pillEl) {
       delete _currentFilters['year_min'];
       delete _currentFilters['year_max'];
       dd.remove(); _openDropdown = null;
-      loadListData(1);
-      renderFilterBar();
-      history.replaceState(null, '', buildListHash(_currentFilters));
+      applyFiltersAndShow();
     });
     dd.appendChild(clearBtn);
   }
@@ -2470,6 +2481,18 @@ function toggleYearLevelDropdown(dim, pillEl) {
   setTimeout(() => document.addEventListener('click', closeHandler, true), 0);
 }
 
+function applyFiltersAndShow() {
+  const hash = buildListHash(_currentFilters);
+  if (!window.location.hash.startsWith('#/schools')) {
+    // 从 dashboard 跳到列表页
+    navigateTo(hash);
+  } else {
+    loadListData(1);
+    renderFilterBar();
+    history.replaceState(null, '', hash);
+  }
+}
+
 function applyYearRange(dim, min, max) {
   _currentFilters[dim.key] = [`${min}-${max}`];
   // 同时设置 year_min/year_max 给后端
@@ -2477,9 +2500,7 @@ function applyYearRange(dim, min, max) {
   _currentFilters['year_max'] = [`${max}`];
   // 如果有 school_type 筛选会冲突，清除它
   delete _currentFilters['school_type'];
-  loadListData(1);
-  renderFilterBar();
-  history.replaceState(null, '', buildListHash(_currentFilters));
+  applyFiltersAndShow();
 }
 
 function buildListHash(filters) {
@@ -2676,6 +2697,8 @@ function handleRoute(hash) {
 
   // #/ or default → Dashboard
   showView('dashboard');
+  _currentFilters = {};
+  renderFilterBar();
   loadDashboard();
 }
 
