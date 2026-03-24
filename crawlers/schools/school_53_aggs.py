@@ -224,7 +224,8 @@ class AggsCrawler(StandardHtmlCrawler):
     # ── Logo ──────────────────────────────────────────
 
     def extract_logo(self):
-        self.data.logo_url = "https://www.aggs.school.nz/wp-content/uploads/2024/07/AGGS_Logo.png"
+        # Use square crest (192x192) instead of wide banner (489x119)
+        self.data.logo_url = "https://www.aggs.school.nz/wp-content/uploads/2024/08/cropped-android-chrome-512x512-1-192x192.png"
 
     # ── Zone ──────────────────────────────────────────
 

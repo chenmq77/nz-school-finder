@@ -1415,7 +1415,7 @@ function renderSectionA(s) {
 
   document.getElementById('bodyA').innerHTML = `
     <div style="position:relative">
-      <img id="schoolLogo" src="" alt="" style="display:none;position:absolute;right:8px;top:8px;width:180px;height:180px;object-fit:contain;opacity:0.6">
+      <img id="schoolLogo" src="" alt="" style="display:none;position:absolute;right:8px;top:8px;max-width:160px;max-height:160px;object-fit:contain;opacity:0.6">
       <div class="school-name-row">
         <span class="school-main-name">${esc(safe(s.school_name))}</span>
         <span class="school-number">No. ${esc(safe(s.school_number))}</span>
@@ -1543,6 +1543,7 @@ async function loadWebData(schoolNum) {
     const logoUrl = safeUrl(w.logo_url);
     if (logoEl && logoUrl) {
       logoEl.onerror = function() { this.style.display = 'none'; };
+      logoEl.onload = function() { /* use default sizing from inline style */ };
       logoEl.src = logoUrl;
       logoEl.style.display = 'block';
     } else if (logoEl) {

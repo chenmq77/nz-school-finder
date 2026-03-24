@@ -246,7 +246,8 @@ class WestlakeGirlsCrawler(StandardHtmlCrawler):
     # ── Logo ──────────────────────────────────────────
 
     def extract_logo(self):
-        self.data.logo_url = "https://www.westlakegirls.school.nz/wp-content/themes/wghs-2024/assets/wghs-logo-maori.svg"
+        # Use square crest (242x242) instead of wide banner SVG (2800x574)
+        self.data.logo_url = "https://www.westlakegirls.school.nz/wp-content/uploads/2024/09/WGHS-Shield-crest-only-RGB.png"
 
     # ── Zone ──────────────────────────────────────────
 

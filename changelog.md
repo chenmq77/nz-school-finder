@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026-03-25 — Logo 自适应宽高比布局修复
+
+### Why
+横幅式 logo（如 WGHS 2800×574 SVG、AGGS 489×119 PNG）在固定 180×180 正方形容器中被 object-fit:contain 压缩到很小，用户几乎看不清。
+
+### What
+- 将 logo 从 `position:absolute` 浮层改为 flexbox 并排布局，与校名同行
+- JS onload 根据宽高比动态调整 `max-width/max-height`（>4:1 用 380×90，>2:1 用 300×90，其余 200×120）
+- 消除了 logo 遮挡 tag 卡片的问题
+
+### How
+- `index.html`：section A 头部改为 `display:flex;align-items:center;justify-content:space-between`
+- `logoEl.onload` 检测 `naturalWidth/naturalHeight` 比例，动态设置尺寸
+- 4 轮截图迭代验证（Playwright headless），所有学校 logo 均达到 8/10 以上
+
+---
+
 ## 2026-03-23 — 国际生学费多年份存储与智能展示
 
 ### Why
