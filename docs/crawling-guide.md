@@ -1,6 +1,7 @@
 # 爬虫指南 — NZ School Finder
 
-从 AGS、Rangitoto、Avondale、Westlake Boys 四所学校的爬取经验中总结的规则和教训。
+从 8 所学校的爬取经验中总结的规则和教训。
+（AGS, Rangitoto, Avondale, Westlake Boys, EGGS, Westlake Girls, AGGS, Kelston Girls）
 
 ---
 
@@ -12,6 +13,7 @@
 | **Sports** | JSON string in school_web_data | 扁平列表，纯名称 |
 | **Arts** | JSON string in school_web_data (music 字段) | 表演艺术团体（音乐/戏剧/舞蹈+Kapa Haka） |
 | **Activities/Clubs** | JSON string in school_web_data | 社团、cultural clubs、其他活动 |
+| **Fees** | school_fees 表（多年份） | `(school_number, year)` 复合主键，支持同校多年费用 |
 
 ---
 
@@ -27,6 +29,11 @@
 - **"作为独立课程出现在导航/课程列表中"才算开设**
 - 在描述文本中被提到 ≠ 开设（如 AGS 提到 Art History 但没有单独开课）
 - 系页面标题 ≠ 科目（如 "Information Services" 是学校支持服务不是学科）
+
+### 多页面合并
+- **curriculum 页面不一定完整**：部分学校（如 KGC）的 curriculum 页面只列了宽泛分类
+- **international students 页面常有更详细的科目列表**（如 KGC 的 intl 页面列出了 Biology, Chemistry, Physics, Geography, History 等）
+- 建议：同时爬 curriculum 页面 + international 页面，合并去重
 
 ### 粒度规则
 - 优先存细颗粒度（Accounting 而不是 Commerce）
@@ -51,6 +58,7 @@
 - 存纯名称 JSON list，不存 terms
 - 按运动项目计数（Basketball = 1，不管几支队伍）
 - 去掉非运动项目（如 "Our Facilities", "Sports Team", "Our People"）
+- **多页面合并**：sports 页面可能不完整，international students 页面常有补充（如 WGHS 的 Football、Volleyball 只在 intl 页面提到）
 - 来源页面通常：/sport/, /sports/, /extracurricular-activities/
 
 ---
@@ -69,7 +77,11 @@
 - Cultural social clubs：Pasifika Club, Sri Lankan Club, Korean Club, Asian Club, Indian Club
 - 这些是社交/兴趣性质，不是表演团体
 
-来源页面通常：/performing-arts/, /arts/, /extracurricular-activities/
+**命名规则：**
+- 合唱团名如果不含 "Choir" 且名字不明显（如 Cantare、Cigno Voce、Nota Bella），**后缀加 "Choir"**（如 "Cantare Choir"）
+- 让用户一眼就知道是什么类型的团体
+
+来源页面通常：/performing-arts/, /arts/, /extracurricular-activities/, /music/
 
 ---
 
@@ -82,6 +94,8 @@
 - 按 club 名计数
 
 来源页面通常：/clubs/, /clubs-activities/, /service-opportunities/
+- **PDF 提取**：部分学校（如 WGHS）clubs 全在 PDF 文档里，页面只有链接。用 PyPDF2 提取 PDF 文本，每页通常是一个 club
+- 提取后需过滤掉已在 arts/sports 中的项目
 
 ---
 
@@ -91,6 +105,23 @@
 - 如果官网没有直接显示金额 → Google 搜索 "{学校名} international fees"
 - 找学校官网的 PDF 链接（通常在 /international/ 页面下）
 - **必须存 intl_fees_url 指向费用来源**
+
+### 多年份存储（school_fees 表）
+- 费用存入独立的 `school_fees` 表，`(school_number, year)` 复合主键
+- 同一学校可存多个年份的费用（如 WGHS 同时有 2026 和 2027）
+- **冲突检测**：重复爬同校同年时，金额一致 → 更新时间戳；金额不一致 → 不覆盖，警告人工审核
+- API 智能查询顺序：当年 → 最近未来年 → 最近过去年
+
+### 费用年份判断
+- **页面明确标注年份**（如 "2026 Fees"）→ 用标注的年份
+- **页面没有标注年份** → 用爬虫运行时的年份（即当年）
+- **不要用正则从页面抓年份**：页面中的 "2024" 可能是 WordPress 主题/版权声明的年份，不是费用年份（AGGS 教训）
+- **PDF 有年份最可靠**：如 WGHS 的 PDF 标题 "International Fees 2026/2027"，KGC 的 "Fees 2026"
+
+### 住宿费换算
+- 有的学校给年费（如 AGGS $19,320/year）→ 除以 46 周换算为周费（≈ $420/week）
+- 有的学校直接给周费（如 KGC $420/week）→ 直接存
+- 前端用 `× 46 weeks` 计算年化住宿费展示
 
 ---
 
@@ -125,6 +156,20 @@
 ### 数据刷新
 - 每次爬虫按 school_number 全量替换 school_subjects（事务内 delete + insert）
 - school_web_data 用 INSERT OR REPLACE
+- school_fees 用 SELECT 比对后 INSERT/UPDATE/WARN
+
+### Sporty CMS 网站（如 KGC）
+- 部分学校使用 sporty.co.nz 平台建站
+- 文档/PDF 链接格式：`https://www.sporty.co.nz/asset/downloadasset?id={UUID}`
+- Logo 在 `<meta>` 标签中：`https://prodcdn.sporty.co.nz/cms/{id}/logo.jpg`
+- 费用 PDF 可能是 Sporty asset link，需要从页面 `data-link-data` 属性提取 UUID
+
+### Logo 选择规则
+- **优先用正方形/接近正方形的 crest/shield 图**（宽高比 ≤ 1.5:1）
+- **不要用横幅式 banner logo**（如 WGHS 的 2800×574 SVG，AGGS 的 489×119 PNG）— 在 160×160 容器中会被压到很小
+- 查找顺序：`apple-touch-icon` > `android-chrome` icon > 页面 `<meta og:image>` > 导航 header `<img>`
+- 好的来源：`/wp-content/uploads/*/cropped-android-chrome-512x512*.png`、`WGHS-Shield-crest-only-RGB.png`
+- 前端容器：`position:absolute; right:8px; top:8px; max-width:160px; max-height:160px; object-fit:contain; opacity:0.6`
 
 ### URL 安全
 - 所有 URL 经过 `safeUrl()` 白名单校验（只允许 http:// 和 https://）
@@ -148,6 +193,12 @@
 | Art ≠ 所有 Visual Arts | AGS 有 Art 系但没开 Sculpture | 只加学校实际开设的子科目 |
 | 科目别名 | Carpentry = Wood Technology, Samoan = Gagana Samoa | 用 pool 标准名，raw_name 保留原始名 |
 | Coursebook PDF | 官网看不到细颗粒度科目 | 找学校 prospectus/coursebook PDF 提取 |
+| 费用年份误匹配 | AGGS 正则抓到 WordPress 主题的 "2024" | 页面无明确年份时硬编码爬虫运行年份 |
+| 横幅 logo 太小 | WGHS 2800×574 SVG 在 160px 容器中只有 30px 高 | 找正方形 crest 图代替 banner logo |
+| Clubs 在 PDF 里 | WGHS clubs 页面只有 PDF 链接 | 用 PyPDF2 提取 PDF 文本 |
+| 合唱团名不明确 | Cantare、Cigno Voce 不知道是什么 | 加 "Choir" 后缀：Cantare Choir |
+| 只爬一个页面 | KGC curriculum 页没列具体科目 | 合并 curriculum + international 页面的科目 |
+| Sporty asset 找不到 | KGC 费用 PDF 链接藏在 `data-link-data` 属性 | 从 HTML 源码 `data-link-data` 提取 UUID |
 
 ---
 
@@ -201,6 +252,16 @@ p.stop()
 | Art Design | Design | Visual Arts 下的子科目 |
 | Digital Technologies Programming | Digital Technology | pool 标准名 |
 | Food and Hospitality | 拆分为 Food Technology + Hospitality | 看学校实际开设 |
+| Tongan / Lea-Faka Tonga | Lea Faka-Tonga | 注意连字符位置 |
+| Visual Art | Painting | pool 中 Visual Arts 是 group |
+| Soft Materials | Textiles | KGC 叫法 |
+| Design and Visual Communication | Design & Visual Communication | `and` → `&` |
+| Agriculture | Agricultural and Horticultural Science | NZQA 官方名 |
+| Earth & Space | Earth and Space Science | pool 标准名 |
+| Textiles Technology | Textiles | pool 标准名 |
+| Tourism and the Travel Industry | Tourism | AGGS 叫法 |
+| Hospitality/Food Technology | Food Technology | 合并科目取主体 |
+| Health Studies | Health | pool 标准名 |
 
 ---
 
@@ -241,9 +302,19 @@ p.stop()
 
 ## 16. 已爬学校记录
 
-| # | 学校 | Subjects | Sports | Arts | Clubs | Fees | Curriculum | 网站类型 |
-|---|------|----------|--------|------|-------|------|-----------|---------|
-| 54 | Auckland Grammar | 27 | 32 | 16 | 6 | $25,750 | NCEA, A-Level | WordPress |
-| 28 | Rangitoto College | 40 | 30 | 6 | 87 | $20,500 | NCEA, IB | 标准 HTML |
-| 78 | Avondale College | 37 | 29 | 14 | 20 | $21,000 | NCEA, A-Level | Wix (需 Playwright) |
-| 37 | Westlake Boys | 40 | 31 | 15 | 21 | $23,000 | NCEA | 标准 HTML |
+| # | 学校 | Subjects | Sports | Arts | Clubs | Fees (年学费) | Fee Year | Curriculum | 网站类型 |
+|---|------|----------|--------|------|-------|-------------|----------|-----------|---------|
+| 54 | Auckland Grammar | 27 | 32 | 16 | 6 | $25,750 | — | NCEA, A-Level | WordPress |
+| 28 | Rangitoto College | 40 | 30 | 6 | 87 | $16,500 | 2026 | NCEA, IB | 标准 HTML |
+| 78 | Avondale College | 37 | 29 | 14 | 20 | $21,000 | 2027 | NCEA, A-Level | Wix (需 Playwright) |
+| 37 | Westlake Boys | 40 | 31 | 15 | 21 | $23,000 | 2027 | NCEA | 标准 HTML |
+| 64 | Epsom Girls Grammar | 19+ | 40+ | 12 | 14+ | $23,000 | 2026 | NCEA | 标准 HTML |
+| 38 | Westlake Girls | 38 | 36 | 20 | 40 | $23,000 | 2026 | NCEA | WordPress |
+| 53 | Auckland Girls Grammar | 35 | 18 | 4 | 7 | $17,900 | 2026 | NCEA | WordPress (Elementor) |
+| 84 | Kelston Girls | 26 | 9 | 3 | 7 | $16,800 | 2026 | NCEA | Sporty CMS |
+
+### 特殊经验备注
+- **WGHS #38**: logo 用 `WGHS-Shield-crest-only-RGB.png`（正方形），不用横幅 SVG；clubs 全在 PDF 里（73 页，每页一个 club）；fees PDF 同时有 2026 和 2027 两年费用
+- **AGGS #53**: logo 用 `android-chrome-512x512` crest，不用横幅 PNG；费用页无年份标注，用爬虫运行年份 2026；homestay 给的是年费需除以 46 转周费
+- **KGC #84**: Sporty CMS 平台，费用 PDF 链接藏在 `data-link-data` 属性中；curriculum 页只有宽泛描述，需合并 international 页面补充科目
+- **EGGS #64**: 标准 HTML，Year 11-13 科目在图片中无法爬取，需手动读取
