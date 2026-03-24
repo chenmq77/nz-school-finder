@@ -1,0 +1,324 @@
+{
+  "school_number": 53,
+  "school_name": "Auckland Girls' Grammar School",
+  "subjects": [
+    "English",
+    "Mathematics",
+    "Science",
+    "Social Studies",
+    "Physical Education",
+    "Health",
+    "French",
+    "Japanese",
+    "Gagana Samoa",
+    "Lea Faka-Tonga",
+    "Te Reo Maori",
+    "Dance",
+    "Drama",
+    "Music",
+    "Painting",
+    "Photography",
+    "Art History",
+    "Design & Visual Communication",
+    "Digital Technology",
+    "Hospitality",
+    "Textiles",
+    "Product Development",
+    "Food Technology",
+    "Media Studies",
+    "ESOL",
+    "Biology",
+    "Chemistry",
+    "Physics",
+    "Geography",
+    "History",
+    "Economics",
+    "Classical Studies",
+    "Tourism",
+    "Business Studies",
+    "Te Ao Haka"
+  ],
+  "subjects_raw": [
+    {
+      "name": "English",
+      "raw_name": "English",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Mathematics",
+      "raw_name": "Mathematics",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Science",
+      "raw_name": "Science",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Social Studies",
+      "raw_name": "Social Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Physical Education",
+      "raw_name": "Physical Education",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Health",
+      "raw_name": "Health",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "French",
+      "raw_name": "French",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Japanese",
+      "raw_name": "Japanese",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Gagana Samoa",
+      "raw_name": "Samoan",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Lea Faka-Tonga",
+      "raw_name": "Tongan",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Te Reo Maori",
+      "raw_name": "Te Reo Māori",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Dance",
+      "raw_name": "Dance",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Drama",
+      "raw_name": "Drama",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Music",
+      "raw_name": "Music",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Painting",
+      "raw_name": "Visual Art",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Photography",
+      "raw_name": "Photography",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Art History",
+      "raw_name": "Art History",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Design & Visual Communication",
+      "raw_name": "Design & Visual Communication",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Digital Technology",
+      "raw_name": "Digital Technologies (Programming)",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Hospitality",
+      "raw_name": "Hospitality",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Textiles",
+      "raw_name": "Textiles Technology",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Product Development",
+      "raw_name": "Product Design",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Food Technology",
+      "raw_name": "Hospitality/Food Technology",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Media Studies",
+      "raw_name": "Media Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "ESOL",
+      "raw_name": "ESOL",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Biology",
+      "raw_name": "Biology",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Chemistry",
+      "raw_name": "Chemistry",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Physics",
+      "raw_name": "Physics",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Geography",
+      "raw_name": "Geography",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "History",
+      "raw_name": "History",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Economics",
+      "raw_name": "Economics",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Classical Studies",
+      "raw_name": "Classical Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Tourism",
+      "raw_name": "Tourism and the Travel Industry",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Business Studies",
+      "raw_name": "Commerce",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    },
+    {
+      "name": "Te Ao Haka",
+      "raw_name": "Te Ao Haka",
+      "confidence": 0.9,
+      "source_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/"
+    }
+  ],
+  "subjects_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/",
+  "subjects_count": 35,
+  "sports": [
+    "Athletics",
+    "Badminton",
+    "Basketball",
+    "Crossfit",
+    "Dragon Boating",
+    "Football",
+    "Hockey",
+    "Kilikiti",
+    "Lacrosse",
+    "Lawn Bowls",
+    "Netball",
+    "Rugby",
+    "Softball",
+    "Swimming",
+    "Tennis",
+    "Touch",
+    "Volleyball",
+    "Waka Ama"
+  ],
+  "sports_url": "https://www.aggs.school.nz/school-life/co-curricular/sports/",
+  "sports_count": 18,
+  "arts": [
+    "Chamber Music",
+    "Jazz Combo",
+    "Flute Ensemble",
+    "Choir"
+  ],
+  "arts_url": "https://www.aggs.school.nz/school-life/co-curricular/arts-and-culture/",
+  "arts_count": 4,
+  "clubs": [
+    "Debating Club",
+    "Duke of Edinburgh",
+    "Interact",
+    "Spoken Word",
+    "Rainbow Group",
+    "Upcycling Club",
+    "Model United Nations"
+  ],
+  "clubs_url": "https://www.aggs.school.nz/school-life/co-curricular/community-groups-committees/",
+  "clubs_count": 7,
+  "intl_tuition_annual": 17900.0,
+  "intl_homestay_weekly": 420.0,
+  "intl_fees_url": "https://www.aggs.school.nz/international/international-fees/",
+  "intl_fees_year": 2024,
+  "curriculum_systems": [
+    {
+      "system": "NCEA",
+      "status": "offered",
+      "evidence_url": "https://www.aggs.school.nz/school-life/curriculum-academic-learning/academic-achievement/"
+    }
+  ],
+  "zone_map_url": "https://www.aggs.school.nz/wp-content/uploads/2024/07/aggs-geographic-zone-map_full2005.pdf",
+  "zone_streets_url": "",
+  "zone_page_url": "https://www.aggs.school.nz/enrolments/school-enrolment-zone/",
+  "logo_url": "https://www.aggs.school.nz/wp-content/uploads/2024/07/AGGS_Logo.png",
+  "site_type": "wordpress",
+  "pages_crawled": [
+    "http://www.aggs.school.nz",
+    "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-9-10/",
+    "https://www.aggs.school.nz/school-life/curriculum-academic-learning/years-11-13/",
+    "https://www.aggs.school.nz/school-life/co-curricular/sports/",
+    "https://www.aggs.school.nz/school-life/co-curricular/arts-and-culture/",
+    "https://www.aggs.school.nz/school-life/co-curricular/community-groups-committees/",
+    "https://www.aggs.school.nz/international/international-fees/",
+    "https://www.aggs.school.nz/enrolments/school-enrolment-zone/"
+  ],
+  "warnings": [],
+  "crawled_at": "2026-03-24T11:09:32.406886"
+}

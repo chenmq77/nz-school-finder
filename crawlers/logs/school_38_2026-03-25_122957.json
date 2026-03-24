@@ -1,0 +1,370 @@
+{
+  "school_number": 38,
+  "school_name": "Westlake Girls' High School",
+  "subjects": [
+    "English",
+    "Mathematics",
+    "Science",
+    "Social Studies",
+    "Physical Education",
+    "Health",
+    "Biology",
+    "Chemistry",
+    "Physics",
+    "Earth and Space Science",
+    "Geography",
+    "History",
+    "Economics",
+    "Business Studies",
+    "Classical Studies",
+    "Media Studies",
+    "French",
+    "Spanish",
+    "Japanese",
+    "Chinese",
+    "Te Reo Maori",
+    "Gagana Samoa",
+    "Lea Faka-Tonga",
+    "Korean",
+    "Music",
+    "Drama",
+    "Dance",
+    "Painting",
+    "Photography",
+    "Art History",
+    "Design & Visual Communication",
+    "Digital Technology",
+    "Food Technology",
+    "Textiles",
+    "Product Development",
+    "Hospitality",
+    "ESOL",
+    "Tourism"
+  ],
+  "subjects_raw": [
+    {
+      "name": "English",
+      "raw_name": "English",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Mathematics",
+      "raw_name": "Mathematics",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Science",
+      "raw_name": "Science",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Social Studies",
+      "raw_name": "Social Studies",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Physical Education",
+      "raw_name": "Physical Education",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Health",
+      "raw_name": "Health",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Biology",
+      "raw_name": "Biology",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Chemistry",
+      "raw_name": "Chemistry",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Physics",
+      "raw_name": "Physics",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Earth and Space Science",
+      "raw_name": "Earth and Space Science",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Geography",
+      "raw_name": "Geography",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "History",
+      "raw_name": "History",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Economics",
+      "raw_name": "Economics",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Business Studies",
+      "raw_name": "Business Studies",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Classical Studies",
+      "raw_name": "Classical Studies",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Media Studies",
+      "raw_name": "Media Studies",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "French",
+      "raw_name": "French",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Spanish",
+      "raw_name": "Spanish",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Japanese",
+      "raw_name": "Japanese",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Chinese",
+      "raw_name": "Chinese",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Te Reo Maori",
+      "raw_name": "Te Reo Māori",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Gagana Samoa",
+      "raw_name": "Samoan",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Lea Faka-Tonga",
+      "raw_name": "Tongan",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Korean",
+      "raw_name": "Korean",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Music",
+      "raw_name": "Music",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Drama",
+      "raw_name": "Drama",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Dance",
+      "raw_name": "Dance",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Painting",
+      "raw_name": "Visual Art",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Photography",
+      "raw_name": "Photography",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Art History",
+      "raw_name": "Art History",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Design & Visual Communication",
+      "raw_name": "Design and Visual Communication",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Digital Technology",
+      "raw_name": "Digital Technology",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Food Technology",
+      "raw_name": "Food Technology",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Textiles",
+      "raw_name": "Textiles Technology",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Product Development",
+      "raw_name": "Product Design",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Hospitality",
+      "raw_name": "Hospitality",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "ESOL",
+      "raw_name": "ESOL",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    },
+    {
+      "name": "Tourism",
+      "raw_name": "Tourism",
+      "confidence": 0.7,
+      "source_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/"
+    }
+  ],
+  "subjects_url": "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/",
+  "subjects_count": 38,
+  "sports": [
+    "Adventure Racing",
+    "Athletics",
+    "Badminton",
+    "Basketball",
+    "Beach Volleyball",
+    "Cheerleading",
+    "Cricket",
+    "Cycling",
+    "Distance Running",
+    "Diving",
+    "Equestrian",
+    "Football",
+    "Golf",
+    "Gymsports",
+    "Hockey",
+    "Kilikiti",
+    "Lacrosse",
+    "Motocross",
+    "Multisport",
+    "Netball",
+    "Orienteering",
+    "Rock Climbing",
+    "Rowing",
+    "Rugby",
+    "Sailing",
+    "Snowsports",
+    "Softball",
+    "Squash",
+    "Swimming",
+    "Table Tennis",
+    "Tag",
+    "Tennis",
+    "Touch",
+    "Volleyball",
+    "Waka Ama",
+    "Waterpolo"
+  ],
+  "sports_url": "https://www.westlakegirls.school.nz/student-life/sports/",
+  "sports_count": 36,
+  "arts": [
+    "Cantare Choir",
+    "Choralation Choir",
+    "Cigno Voce Choir",
+    "Nota Bella Choir",
+    "Kotahi Voices Choir",
+    "Westlake Symphony Orchestra",
+    "Westlake Chamber Orchestra",
+    "Westlake Concert Band",
+    "Westlake Big Band",
+    "Taharoto Strings",
+    "Symphonic Band",
+    "Jazz Band",
+    "Chamber Music",
+    "Rock Bands",
+    "Silver Keys Flute Choir",
+    "Theatresports",
+    "Sheilah Winn Shakespeare",
+    "Dance Club",
+    "Dance Troupes",
+    "Bollywood Dance Group"
+  ],
+  "arts_url": "https://www.westlakegirls.school.nz/student-life/music/",
+  "arts_count": 20,
+  "clubs": [],
+  "clubs_url": "https://www.westlakegirls.school.nz/student-life/clubs-activities/",
+  "clubs_count": 0,
+  "intl_tuition_annual": 23000.0,
+  "intl_homestay_weekly": 400.0,
+  "intl_fees_url": "https://international.westlakegirls.school.nz/fees/",
+  "intl_fees_year": 2026,
+  "curriculum_systems": [
+    {
+      "system": "NCEA",
+      "status": "offered",
+      "evidence_url": "https://www.westlakegirls.school.nz/student-life/academic/ncea/"
+    }
+  ],
+  "zone_map_url": "",
+  "zone_streets_url": "",
+  "zone_page_url": "https://www.westlakegirls.school.nz/enrolment/school-zone/",
+  "logo_url": "https://www.westlakegirls.school.nz/wp-content/themes/wghs-2024/assets/wghs-logo-maori.svg",
+  "site_type": "wordpress",
+  "pages_crawled": [
+    "http://www.westlakegirls.school.nz",
+    "https://www.westlakegirls.school.nz/student-life/academic/curriculum-learning/",
+    "https://www.westlakegirls.school.nz/student-life/sports/",
+    "https://www.westlakegirls.school.nz/student-life/music/",
+    "https://www.westlakegirls.school.nz/student-life/drama-and-dance/",
+    "https://www.westlakegirls.school.nz/student-life/clubs-activities/",
+    "https://www.westlakegirls.school.nz/enrolment/school-zone/"
+  ],
+  "warnings": [],
+  "crawled_at": "2026-03-25T12:29:41.201275"
+}
