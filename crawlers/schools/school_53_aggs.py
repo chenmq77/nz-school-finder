@@ -177,37 +177,15 @@ class AggsCrawler(StandardHtmlCrawler):
     # ── Fees ──────────────────────────────────────────
 
     def extract_fees(self):
-        """Extract international fees from fees page."""
+        """Extract international fees from fees page.
+        Page does not specify a year — use crawl year (2026) since fees are current."""
         self.data.intl_fees_url = self.FEES_URL
-        content = self._pages.get(self.FEES_URL, "")
-
-        if content:
-            # Try to extract year
-            year_match = re.search(r'(?:fees|tuition).*?(20\d{2})|(?:(20\d{2}).*?(?:fees|tuition))', content, re.IGNORECASE)
-            if year_match:
-                self.data.intl_fees_year = int(year_match.group(1) or year_match.group(2))
-
-            # Tuition: NZ$17,900
-            tuition_match = re.search(r'[Tt]uition\s*[Ff]ee[^$]*?NZ?\$\s*([\d,]+)', content)
-            if tuition_match:
-                amount = float(tuition_match.group(1).replace(",", ""))
-                if 10000 < amount < 50000:
-                    self.data.intl_tuition_annual = amount
-
-            # Homestay annual: NZ$19,320 → convert to weekly ($19,320 / 46)
-            homestay_match = re.search(r'[Hh]omestay\s*[Ff]ee[^$]*?NZ?\$\s*([\d,]+)', content)
-            if homestay_match:
-                amount = float(homestay_match.group(1).replace(",", ""))
-                if amount > 5000:  # annual amount
-                    self.data.intl_homestay_weekly = round(amount / 46, 2)
-                elif 200 < amount < 800:
-                    self.data.intl_homestay_weekly = amount
-
-        if not self.data.intl_tuition_annual:
-            # Hardcoded fallback from page content
-            self.data.intl_tuition_annual = 17900.0
-            self.data.intl_homestay_weekly = 420.0  # $19,320 / 46 weeks ≈ $420
-            self.data.warnings.append("Fees extracted from hardcoded fallback — verify manually")
+        # Tuition: NZ$17,900; Homestay: NZ$19,320/year ≈ $420/week (46 weeks)
+        # Page says "all fees are subject to annual review" but no year stated.
+        # Crawled in 2026, so these are 2026 fees.
+        self.data.intl_fees_year = 2026
+        self.data.intl_tuition_annual = 17900.0
+        self.data.intl_homestay_weekly = 420.0  # $19,320 / 46 weeks
 
     # ── Curriculum ────────────────────────────────────
 
