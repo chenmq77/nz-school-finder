@@ -1592,7 +1592,7 @@ function renderSectionB(s) {
   const latNum = parseFloat(lat);
   const lngNum = parseFloat(lng);
   const hasCoords = coordParts.length === 2 && !isNaN(latNum) && !isNaN(lngNum);
-  const mapLink = hasCoords ? `<a href="https://www.google.com/maps?q=${latNum},${lngNum}" target="_blank" rel="noopener">[Open Map]</a>` : '';
+  const mapLink = hasCoords ? `<a href="https://www.google.com/maps?q=${latNum},${lngNum}" target="_blank" rel="noopener">[${t('open_map')}]</a>` : '';
 
   // EQI
   const eqi = parseFloat(s.equity_index_eqi) || 0;
@@ -1601,29 +1601,33 @@ function renderSectionB(s) {
   const eqiPct = eqi > 0 ? Math.min(100, Math.max(0, (eqi - 344) / (569 - 344) * 100)) : 0;
   const band = eqi > 0 ? getEqiBand(eqi) : null;
   const group = band ? EQI_GROUPS[band.group] : null;
-  const bandTag = band ? `<span class="eqi-band-tag ${band.group}">${esc(band.name)} / ${esc(band.cn)}</span>` : '';
-  const eqiInterpret = group ? `${group.cn} / ${group.name}` : '--';
+  const bandName = band ? (_lang === 'en' ? band.name : _lang === 'cn' ? band.cn : `${band.name} / ${band.cn}`) : '';
+  const bandTag = band ? `<span class="eqi-band-tag ${band.group}">${esc(bandName)}</span>` : '';
+  const eqiInterpret = group ? (_lang === 'en' ? group.name : _lang === 'cn' ? group.cn : `${group.cn} / ${group.name}`) : '--';
 
   // Enrolment Scheme
   const enrol = safe(s.enrolment_scheme);
-  const enrolCn = enrol === 'Yes' ? '有学区限制' : enrol === 'No' ? '无学区限制' : enrol;
+  const enrolDisplay = td('enrolment_scheme', enrol);
+
+  // Area
+  const areaDisplay = td('urban_rural', safe(s.urban_rural));
 
   document.getElementById('bodyB').innerHTML = `
-    <div class="info-row"><span class="info-label">Address / 详细地址</span><span class="info-value">${esc(address)}</span></div>
-    <div class="info-row"><span class="info-label">Post / 邮寄地址</span><span class="info-value">${esc(postal)}</span></div>
-    <div class="info-row"><span class="info-label">Area / 城乡属性</span><span class="info-value">${esc(safe(s.urban_rural))}</span></div>
-    <div class="info-row"><span class="info-label">Location / 地理坐标</span><span class="info-value">${esc(coord)} ${mapLink}</span></div>
+    <div class="info-row"><span class="info-label">${t('address')}</span><span class="info-value">${esc(address)}</span></div>
+    <div class="info-row"><span class="info-label">${t('post')}</span><span class="info-value">${esc(postal)}</span></div>
+    <div class="info-row"><span class="info-label">${t('area')}</span><span class="info-value">${esc(areaDisplay)}</span></div>
+    <div class="info-row"><span class="info-label">${t('location')}</span><span class="info-value">${esc(coord)} ${mapLink}</span></div>
     <div class="divider"></div>
-    <div class="info-row"><span class="info-label">Tel / 电话</span><span class="info-value">${telLink}</span></div>
-    <div class="info-row"><span class="info-label">Email / 邮箱</span><span class="info-value">${emailLink}</span></div>
+    <div class="info-row"><span class="info-label">${t('tel')}</span><span class="info-value">${telLink}</span></div>
+    <div class="info-row"><span class="info-label">${t('email')}</span><span class="info-value">${emailLink}</span></div>
     <div class="divider"></div>
-    <div class="info-row"><span class="info-label">Enrolment / 招生计划</span><span class="info-value">${esc(enrol)} (${esc(enrolCn)})</span></div>
+    <div class="info-row"><span class="info-label">${t('enrolment')}</span><span class="info-value">${esc(enrolDisplay)}</span></div>
     <div id="zoneRow"></div>
     <div class="divider"></div>
     <div class="gauge-row">
       <div class="gauge-card">
-        <div class="gauge-label">EQI / 公平指数</div>
-        <button class="eqi-help-btn" onclick="openEqiModal(event)" title="What is EQI? / 什么是EQI？">?</button>
+        <div class="gauge-label">${t('eqi')}</div>
+        <button class="eqi-help-btn" onclick="openEqiModal(event)" title="${t('eqi')}">?</button>
         <div class="gauge-value">${eqiDisplay} ${bandTag}</div>
         <div class="gauge-bar-wrap"><div class="gauge-bar eqi" style="width:${eqiPct}%"></div></div>
         <div class="gauge-interpret">${eqiInterpret}</div>
@@ -1643,9 +1647,9 @@ async function loadWebData(schoolNum) {
   _webDataSchoolNum = schoolNum;
 
   // 默认显示"暂无数据"（C=课程, D=活动, E=费用）
-  document.getElementById('bodyC').innerHTML = '<div class="info-row" style="color:var(--text-muted);padding:12px 0">暂无课程数据 / No subject data available</div>';
-  document.getElementById('bodyD').innerHTML = '<div class="info-row" style="color:var(--text-muted);padding:12px 0">暂无活动数据 / No activity data available</div>';
-  document.getElementById('bodyE').innerHTML = '<div class="info-row" style="color:var(--text-muted);padding:12px 0">暂无费用数据 / No fee data available</div>';
+  document.getElementById('bodyC').innerHTML = `<div class="info-row" style="color:var(--text-muted);padding:12px 0">${t('no_subject_data')}</div>`;
+  document.getElementById('bodyD').innerHTML = `<div class="info-row" style="color:var(--text-muted);padding:12px 0">${t('no_activity_data')}</div>`;
+  document.getElementById('bodyE').innerHTML = `<div class="info-row" style="color:var(--text-muted);padding:12px 0">${t('no_fee_data')}</div>`;
 
   try {
     const res = await fetch(`/api/school/${schoolNum}/web`, { signal: _webDataController.signal });
@@ -1727,18 +1731,18 @@ function renderFees(w) {
   const homestayAnnual = w.intl_homestay_weekly ? `($${Math.round(w.intl_homestay_weekly * 46).toLocaleString()} /46wks)` : '';
   const feesYear = w.intl_fees_year ? ` (${w.intl_fees_year})` : '';
   const feesUrl = safeUrl(w.intl_fees_url);
-  const feesLink = feesUrl ? `<a href="${esc(feesUrl)}" target="_blank" rel="noopener" style="font-size:12px;color:var(--primary)">[查看完整费用政策 / Full fees]</a>` : '';
+  const feesLink = feesUrl ? `<a href="${esc(feesUrl)}" target="_blank" rel="noopener" style="font-size:12px;color:var(--primary)">[${t('full_fees')}]</a>` : '';
 
   document.getElementById('bodyE').innerHTML = `
     <div class="highlight-cards">
       <div class="highlight-card">
-        <div class="card-label">Tuition / 年学费</div>
+        <div class="card-label">${t('tuition')}</div>
         <div class="card-value">${tuition}</div>
-        <div class="card-sub">NZD per year${feesYear}</div>
+        <div class="card-sub">${t('nzd_per_year')}${feesYear}</div>
       </div>
       <div class="highlight-card">
-        <div class="card-label">Homestay / 住宿费</div>
-        <div class="card-value">${homestay} <small style="font-size:13px;font-weight:400">/week</small></div>
+        <div class="card-label">${t('homestay')}</div>
+        <div class="card-value">${homestay} <small style="font-size:13px;font-weight:400">${t('per_week')}</small></div>
         <div class="card-sub">${homestayAnnual}</div>
       </div>
     </div>
@@ -1838,8 +1842,9 @@ function renderSectionF(s) {
   let barsHtml = '';
   ethnicities.forEach(e => {
     const pct = total > 0 ? (e.count / total * 100) : 0;
+    const label = _lang === 'en' ? e.en : _lang === 'cn' ? e.cn : `${e.cn}<br><small>${e.en}</small>`;
     barsHtml += `<div class="ethnic-bar-row">
-      <span class="ethnic-label">${e.cn}<br><small>${e.en}</small></span>
+      <span class="ethnic-label">${label}</span>
       <div class="ethnic-bar-wrap"><div class="ethnic-bar" style="width:${pct}%;background:${e.color}"></div></div>
       <span class="ethnic-count">${e.count.toLocaleString()}</span>
       <span class="ethnic-pct">${pct.toFixed(1)}%</span>
@@ -1848,23 +1853,21 @@ function renderSectionF(s) {
 
   const intl = parseInt(s.international) || 0;
   const intlPct = total > 0 ? (intl / total * 100).toFixed(1) : '0.0';
-  const enrol = safe(s.enrolment_scheme);
-  const enrolCn = enrol === 'Yes' ? '有学区限制' : enrol === 'No' ? '无学区限制' : enrol;
 
   document.getElementById('bodyF').innerHTML = `
     <div class="highlight-cards">
       <div class="highlight-card" style="border-color:var(--primary);background:var(--primary-light)">
-        <div class="card-label">Total Students / 学校总人数</div>
+        <div class="card-label">${t('total_students')}</div>
         <div class="card-value" style="font-size:28px;color:var(--primary)">${total !== null ? total.toLocaleString() : '--'}</div>
       </div>
       <div class="highlight-card">
-        <div class="card-label">International Students / 国际学生</div>
+        <div class="card-label">${t('intl_students')}</div>
         <div class="card-value">${intl.toLocaleString()}</div>
-        <div class="card-sub">占总人数 ${intlPct}%</div>
+        <div class="card-sub">${t('intl_pct')} ${intlPct}%</div>
       </div>
     </div>
     <div class="ethnic-chart" style="margin-top:20px">
-      <h4>Ethnic Distribution / 族裔分布</h4>
+      <h4>${t('ethnic_distribution')}</h4>
       ${barsHtml}
     </div>
   `;
@@ -1873,15 +1876,27 @@ function renderSectionF(s) {
 function renderSectionG(s) {
   const iso = parseFloat(s.isolation_index);
   const isoValid = !isNaN(iso) && hasValue(s.isolation_index);
-  const isoInterpret = !isoValid ? '--' : iso < 1 ? '靠近市中心 / Near city centre' : iso < 5 ? '郊区 / Suburban' : iso < 10 ? '偏远地区 / Remote' : '极偏远 / Very remote';
+  const isoLabels = {
+    near: { en: 'Near city centre', cn: '靠近市中心' },
+    suburban: { en: 'Suburban', cn: '郊区' },
+    remote: { en: 'Remote', cn: '偏远地区' },
+    very_remote: { en: 'Very remote', cn: '极偏远' },
+  };
+  const isoKey = !isoValid ? null : iso < 1 ? 'near' : iso < 5 ? 'suburban' : iso < 10 ? 'remote' : 'very_remote';
+  const isoInterpret = !isoKey ? '--' : (_lang === 'en' ? isoLabels[isoKey].en : _lang === 'cn' ? isoLabels[isoKey].cn : `${isoLabels[isoKey].cn} / ${isoLabels[isoKey].en}`);
   const isoText = isoValid ? `${iso} (${isoInterpret})` : '--';
 
   const status = safe(s.status).toLowerCase();
-  const statusMap = { 'open': ['Open (运营中)', 'open'], 'closed': ['Closed (已关闭)', 'closed'], 'merger': ['Merger (合并中)', 'other'], 'new': ['New (筹建中)', 'other'], 'not yet open': ['Not Yet Open (未开放)', 'other'], 'proposed': ['Proposed (规划中)', 'other'] };
-  const [statusText, statusClass] = statusMap[status] || [safe(s.status), 'other'];
+  const statusMapEn = { 'open': 'Open', 'closed': 'Closed', 'merger': 'Merger', 'new': 'New', 'not yet open': 'Not Yet Open', 'proposed': 'Proposed' };
+  const statusMapCn = { 'open': '运营中', 'closed': '已关闭', 'merger': '合并中', 'new': '筹建中', 'not yet open': '未开放', 'proposed': '规划中' };
+  const statusEn = statusMapEn[status] || safe(s.status);
+  const statusCn = statusMapCn[status] || safe(s.status);
+  const statusText = _lang === 'en' ? statusEn : _lang === 'cn' ? statusCn : `${statusEn}（${statusCn}）`;
+  const statusClass = status === 'open' ? 'open' : status === 'closed' ? 'closed' : 'other';
 
   const cohort = safe(s.cohort_entry);
   const cohortCn = cohort === 'Yes' ? '群体入学' : cohort === 'No' ? '非群体入学' : cohort;
+  const cohortDisplay = _lang === 'en' ? cohort : _lang === 'cn' ? cohortCn : `${cohort}（${cohortCn}）`;
 
   const sa2Name = safe(s.neighbourhood_sa2);
   const sa2Code = safe(s.neighbourhood_sa2_code);
@@ -1893,33 +1908,33 @@ function renderSectionG(s) {
 
   document.getElementById('bodyG').innerHTML = `
     <div class="sub-section">
-      <div class="sub-section-title">Quality / 质量特色</div>
-      <div class="info-row"><span class="info-label">Isolation / 偏远指数</span><span class="info-value">${esc(isoText)}</span></div>
-      <div class="info-row"><span class="info-label">Teaching Language / 教学语言</span><span class="info-value">${esc(safe(s.language_of_instruction))}</span></div>
-      <div class="info-row"><span class="info-label">Donations / 捐赠政策</span><span class="info-value">${esc(safe(s.donations))}</span></div>
-      <div class="info-row"><span class="info-label">KME Peak Body / 毛利教育机构</span><span class="info-value">${esc(safe(s.kme_peak_body))}</span></div>
-      <div class="info-row"><span class="info-label">Principal / 校长</span><span class="info-value">${esc(safe(s.principal))}</span></div>
-      <div class="info-row"><span class="info-label">Definition / 办学定义</span><span class="info-value">${esc(safe(s.definition))}</span></div>
-      <div class="info-row"><span class="info-label">Status / 运营状态</span><span class="info-value"><span class="status-badge ${esc(statusClass)}">${esc(statusText)}</span></span></div>
-      <div class="info-row"><span class="info-label">Cohort Entry / 群体入学</span><span class="info-value">${esc(cohort)} (${esc(cohortCn)})</span></div>
+      <div class="sub-section-title">${t('sub_quality')}</div>
+      <div class="info-row"><span class="info-label">${t('isolation')}</span><span class="info-value">${esc(isoText)}</span></div>
+      <div class="info-row"><span class="info-label">${t('teaching_lang')}</span><span class="info-value">${esc(safe(s.language_of_instruction))}</span></div>
+      <div class="info-row"><span class="info-label">${t('donations')}</span><span class="info-value">${esc(safe(s.donations))}</span></div>
+      <div class="info-row"><span class="info-label">${t('kme')}</span><span class="info-value">${esc(safe(s.kme_peak_body))}</span></div>
+      <div class="info-row"><span class="info-label">${t('principal')}</span><span class="info-value">${esc(safe(s.principal))}</span></div>
+      <div class="info-row"><span class="info-label">${t('definition')}</span><span class="info-value">${esc(safe(s.definition))}</span></div>
+      <div class="info-row"><span class="info-label">${t('status')}</span><span class="info-value"><span class="status-badge ${esc(statusClass)}">${esc(statusText)}</span></span></div>
+      <div class="info-row"><span class="info-label">${t('cohort_entry')}</span><span class="info-value">${esc(cohortDisplay)}</span></div>
     </div>
     <div class="sub-section">
-      <div class="sub-section-title">Region / 区域管辖</div>
-      <div class="info-row"><span class="info-label">Education Region / 教育大区</span><span class="info-value">${esc(safe(s.education_region))}</span></div>
-      <div class="info-row"><span class="info-label">Takiwā / 毛利语区域</span><span class="info-value">${esc(safe(s.takiwa))}</span></div>
-      <div class="info-row"><span class="info-label">Territorial Auth / 领土管理局</span><span class="info-value">${esc(safe(s.territorial_authority))}</span></div>
-      <div class="info-row"><span class="info-label">Regional Council / 区域议会</span><span class="info-value">${esc(safe(s.regional_council))}</span></div>
-      <div class="info-row"><span class="info-label">Local Office / 地方办事处</span><span class="info-value">${esc(safe(s.local_office))}</span></div>
+      <div class="sub-section-title">${t('sub_region')}</div>
+      <div class="info-row"><span class="info-label">${t('education_region')}</span><span class="info-value">${esc(safe(s.education_region))}</span></div>
+      <div class="info-row"><span class="info-label">${t('takiwa')}</span><span class="info-value">${esc(safe(s.takiwa))}</span></div>
+      <div class="info-row"><span class="info-label">${t('territorial_auth')}</span><span class="info-value">${esc(safe(s.territorial_authority))}</span></div>
+      <div class="info-row"><span class="info-label">${t('regional_council')}</span><span class="info-value">${esc(safe(s.regional_council))}</span></div>
+      <div class="info-row"><span class="info-label">${t('local_office')}</span><span class="info-value">${esc(safe(s.local_office))}</span></div>
     </div>
     <div class="sub-section">
-      <div class="sub-section-title">Electorate / 选区信息</div>
-      <div class="info-row"><span class="info-label">General Electorate / 普通选区</span><span class="info-value">${esc(safe(s.general_electorate))}</span></div>
-      <div class="info-row"><span class="info-label">Māori Electorate / 毛利选区</span><span class="info-value">${esc(safe(s.maori_electorate))}</span></div>
+      <div class="sub-section-title">${t('sub_electorate')}</div>
+      <div class="info-row"><span class="info-label">${t('general_electorate')}</span><span class="info-value">${esc(safe(s.general_electorate))}</span></div>
+      <div class="info-row"><span class="info-label">${t('maori_electorate')}</span><span class="info-value">${esc(safe(s.maori_electorate))}</span></div>
     </div>
     <div class="sub-section">
-      <div class="sub-section-title">Community / 社区归属</div>
-      <div class="info-row"><span class="info-label">Neighbourhood / 社区</span><span class="info-value">${esc(nb)}</span></div>
-      <div class="info-row"><span class="info-label">Ward / 地方选区</span><span class="info-value">${esc(safe(s.ward))}</span></div>
+      <div class="sub-section-title">${t('sub_community')}</div>
+      <div class="info-row"><span class="info-label">${t('neighbourhood')}</span><span class="info-value">${esc(nb)}</span></div>
+      <div class="info-row"><span class="info-label">${t('ward')}</span><span class="info-value">${esc(safe(s.ward))}</span></div>
     </div>
     <div class="sub-section">
       <div class="sub-section-title">Learning Community / 学习社区</div>

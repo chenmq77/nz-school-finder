@@ -55,6 +55,37 @@ const TRANSLATIONS = {
     streets_pdf:          { en: "Streets PDF", cn: "街道列表" },
     enrolment_link:       { en: "Enrolment", cn: "入学详情" },
 
+    // Field Labels — Section F (Students)
+    total_students:       { en: "Total Students", cn: "学校总人数" },
+    intl_students:        { en: "International Students", cn: "国际学生" },
+    intl_pct:             { en: "of total", cn: "占总人数" },
+    ethnic_distribution:  { en: "Ethnic Distribution", cn: "族裔分布" },
+
+    // Field Labels — Section G (Other)
+    sub_quality:          { en: "Quality", cn: "质量特色" },
+    sub_region:           { en: "Region", cn: "区域管辖" },
+    sub_electorate:       { en: "Electorate", cn: "选区信息" },
+    sub_community:        { en: "Community", cn: "社区归属" },
+    isolation:            { en: "Isolation", cn: "偏远指数" },
+    teaching_lang:        { en: "Teaching Language", cn: "教学语言" },
+    donations:            { en: "Donations", cn: "捐赠政策" },
+    kme:                  { en: "KME Peak Body", cn: "毛利教育机构" },
+    principal:            { en: "Principal", cn: "校长" },
+    definition:           { en: "Definition", cn: "办学定义" },
+    status:               { en: "Status", cn: "运营状态" },
+    cohort_entry:         { en: "Cohort Entry", cn: "群体入学" },
+    education_region:     { en: "Education Region", cn: "教育大区" },
+    takiwa:               { en: "Takiwā", cn: "毛利语区域" },
+    territorial_auth:     { en: "Territorial Authority", cn: "领土管理局" },
+    regional_council:     { en: "Regional Council", cn: "区域议会" },
+    local_office:         { en: "Local Office", cn: "地方办事处" },
+    general_electorate:   { en: "General Electorate", cn: "普通选区" },
+    maori_electorate:     { en: "Māori Electorate", cn: "毛利选区" },
+    neighbourhood:        { en: "Neighbourhood", cn: "社区" },
+    ward:                 { en: "Ward", cn: "地方选区" },
+    col_id:               { en: "CoL ID", cn: "学习社区 ID" },
+    col_name:             { en: "CoL Name", cn: "学习社区名称" },
+
     // Field Labels — Section C-D
     subjects:             { en: "Subjects", cn: "学科" },
     sports:               { en: "Sports", cn: "体育运动" },
