@@ -2784,10 +2784,8 @@ const TABLE_COLUMNS = [
   { key:'eth_melaa',    tKey:'col_eth_melaa',     fixed:false, default:false, gKey:'col_group_ethnicity',  sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
   { key:'eth_other',    tKey:'col_eth_other',     fixed:false, default:false, gKey:'col_group_ethnicity',  sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
   // International students group
-  { key:'intl_count',   tKey:'col_intl_count',    fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
-  { key:'eth_intl',     tKey:'col_eth_intl',      fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
+  { key:'intl',         tKey:'col_intl',          fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
   { key:'intl_fee',     tKey:'col_intl_fee',      fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'asc' },
-  { key:'intl_homestay',tKey:'col_intl_homestay', fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'asc' },
   { key:'intl_total',   tKey:'col_intl_total',    fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'asc' },
   { key:'ncea_l3',      tKey:'col_ncea_l3',       fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
   // Activities group
@@ -2803,7 +2801,7 @@ const DEFAULT_COLS = TABLE_COLUMNS.filter(c => c.fixed || c.default).map(c => c.
 // Preset column configurations
 const COL_PRESETS = {
   compact:  ['name', 'suburb', 'school_level', 'gender', 'eqi', 'roll'],
-  intl:     ['name', 'eqi', 'roll', 'intl_count', 'eth_intl', 'intl_fee', 'intl_homestay', 'intl_total', 'ncea_l3'],
+  intl:     ['name', 'eqi', 'roll', 'intl', 'eth_asian', 'intl_fee', 'intl_total', 'ncea_l3'],
   local:    ['name', 'suburb', 'school_level', 'gender', 'eqi', 'roll', 'zone', 'ethnicity'],
   full:     ['name', 'suburb', 'eqi', 'roll', 'intl_fee', 'curriculum', 'subjects', 'sports', 'arts', 'ethnicity'],
 };
@@ -2875,6 +2873,7 @@ function getCellValue(s, key) {
         return systems.map(c => c.system || c).join(', ');
       } catch(e) { return s.curriculum_systems; }
     }
+    case 'intl': return parseInt(s.international) || null; // sort by count
     case 'intl_count': return parseInt(s.international) || null;
     case 'intl_fee': return s.intl_tuition_annual || null;
     case 'intl_homestay': return s.intl_homestay_weekly || null;
@@ -2932,6 +2931,13 @@ function formatCell(key, val, s) {
     const v = parseFloat(val);
     const color = v <= 429 ? '#16a34a' : v <= 493 ? '#d97706' : '#dc2626';
     return `<span style="color:${color};font-weight:600">${Math.round(v)}</span>`;
+  }
+  if (key === 'intl') {
+    const count = parseInt(s.international) || 0;
+    const roll = parseInt(s.total_school_roll) || 0;
+    if (!count) return '<span class="td-null">—</span>';
+    const pct = roll > 0 ? Math.round(count / roll * 100) : 0;
+    return `${count.toLocaleString()} (${pct}%)`;
   }
   if (key === 'roll' || key === 'intl_count') return parseInt(val).toLocaleString();
   if (key === 'fee' || key === 'intl_fee' || key === 'intl_total') return '$' + parseFloat(val).toLocaleString();

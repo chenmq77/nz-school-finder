@@ -144,6 +144,7 @@ const TRANSLATIONS = {
     col_eth_melaa:        { en: "MELAA%", cn: "MELAA%" },
     col_eth_other:        { en: "Other%", cn: "其他%" },
     col_eth_intl:         { en: "Intl%", cn: "国际生%" },
+    col_intl:             { en: "Intl", cn: "国际生" },
     col_intl_count:       { en: "Intl Students", cn: "国际生人数" },
     col_intl_fee:         { en: "Tuition/Year", cn: "学费/年" },
     col_intl_homestay:    { en: "Homestay/Week", cn: "住宿费/周" },
