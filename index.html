@@ -961,6 +961,14 @@ body {
 <script src="translations.js"></script>
 </head>
 <body>
+<script>
+// Immediately set lang BEFORE any rendering to prevent flash
+var _lang = localStorage.getItem('lang')
+  || (navigator.language.startsWith('zh') ? 'cn' : 'en');
+// Hide body until JS is ready
+document.body.style.opacity = '0';
+document.body.style.transition = 'opacity 0.15s';
+</script>
 
 <!-- Header (sticky, Google News style) -->
 <div class="header">
@@ -970,15 +978,17 @@ body {
       <div class="search-wrap">
         <div class="search-box">
           <div class="search-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></div>
-          <input type="text" id="searchInput" placeholder="Search for schools..." autocomplete="off">
+          <input type="text" id="searchInput" placeholder="" autocomplete="off">
           <button id="clearBtn" onclick="clearSearch()" title="Clear search" style="display:none;position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:18px;padding:4px 8px;line-height:1">&times;</button>
         </div>
         <div class="search-results" id="searchResults"></div>
       </div>
-      <div id="langSwitcher" style="display:flex;gap:3px;margin-left:12px;align-items:center;flex-shrink:0">
-        <button onclick="setLang('en')" class="lang-btn" data-lang="en" style="padding:3px 10px;border:1px solid var(--border);border-radius:12px;background:none;cursor:pointer;font-size:12px;color:var(--text-muted);transition:all .2s">EN</button>
-        <button onclick="setLang('cn')" class="lang-btn" data-lang="cn" style="padding:3px 10px;border:1px solid var(--border);border-radius:12px;background:none;cursor:pointer;font-size:12px;color:var(--text-muted);transition:all .2s">中</button>
-        <button onclick="setLang('both')" class="lang-btn" data-lang="both" style="padding:3px 10px;border:1px solid var(--border);border-radius:12px;background:none;cursor:pointer;font-size:12px;color:var(--text-muted);transition:all .2s">双</button>
+      <div id="langSwitcher" style="display:flex;align-items:center;flex-shrink:0;margin-left:12px;font-size:13px;gap:0">
+        <a href="javascript:void(0)" onclick="setLang('en')" class="lang-btn" data-lang="en" style="color:var(--text-muted);text-decoration:none;padding:4px 6px;cursor:pointer;transition:color .2s">EN</a>
+        <span style="color:var(--border)">|</span>
+        <a href="javascript:void(0)" onclick="setLang('cn')" class="lang-btn" data-lang="cn" style="color:var(--text-muted);text-decoration:none;padding:4px 6px;cursor:pointer;transition:color .2s">中</a>
+        <span style="color:var(--border)">|</span>
+        <a href="javascript:void(0)" onclick="setLang('both')" class="lang-btn" data-lang="both" style="color:var(--text-muted);text-decoration:none;padding:4px 6px;cursor:pointer;transition:color .2s">双</a>
       </div>
     </div>
     <div class="header-filter-row">
@@ -1066,7 +1076,7 @@ body {
     <!-- A. 学校身份概览 -->
     <div class="section" id="sectionA">
       <div class="section-header collapsible" onclick="toggleSection('A')">
-        <div class="section-title" id="titleA">A. School Identity</div>
+        <div class="section-title" id="titleA"></div>
         <span class="section-toggle open" id="toggleA">&#9660;</span>
       </div>
       <div class="section-body" id="bodyA"></div>
@@ -1075,7 +1085,7 @@ body {
     <!-- B. 位置与入学 -->
     <div class="section" id="sectionB">
       <div class="section-header collapsible" onclick="toggleSection('B')">
-        <div class="section-title" id="titleB">B. Location & Admissions</div>
+        <div class="section-title" id="titleB"></div>
         <span class="section-toggle open" id="toggleB">&#9660;</span>
       </div>
       <div class="section-body" id="bodyB"></div>
@@ -1084,7 +1094,7 @@ body {
     <!-- C. 课程 -->
     <div class="section" id="sectionC">
       <div class="section-header collapsible" onclick="toggleSection('C')">
-        <div class="section-title" id="titleC">C. Subjects & Curriculum</div>
+        <div class="section-title" id="titleC"></div>
         <span class="section-toggle open" id="toggleC">&#9660;</span>
       </div>
       <div class="section-body" id="bodyC"></div>
@@ -1093,7 +1103,7 @@ body {
     <!-- D. 课外活动 -->
     <div class="section" id="sectionD">
       <div class="section-header collapsible" onclick="toggleSection('D')">
-        <div class="section-title" id="titleD">D. Activities & Co-curricular</div>
+        <div class="section-title" id="titleD"></div>
         <span class="section-toggle open" id="toggleD">&#9660;</span>
       </div>
       <div class="section-body" id="bodyD"></div>
@@ -1102,7 +1112,7 @@ body {
     <!-- E. 国际生费用 -->
     <div class="section" id="sectionE">
       <div class="section-header collapsible" onclick="toggleSection('E')">
-        <div class="section-title" id="titleE">E. International Fees</div>
+        <div class="section-title" id="titleE"></div>
         <span class="section-toggle open" id="toggleE">&#9660;</span>
       </div>
       <div class="section-body" id="bodyE"></div>
@@ -1111,7 +1121,7 @@ body {
     <!-- F. 学生规模与构成 -->
     <div class="section" id="sectionF">
       <div class="section-header collapsible" onclick="toggleSection('F')">
-        <div class="section-title" id="titleF">F. Students</div>
+        <div class="section-title" id="titleF"></div>
         <span class="section-toggle open" id="toggleF">&#9660;</span>
       </div>
       <div class="section-body" id="bodyF"></div>
@@ -1120,7 +1130,7 @@ body {
     <!-- G. 其他信息 -->
     <div class="section" id="sectionG">
       <div class="section-header collapsible" onclick="toggleSection('G')">
-        <div class="section-title" id="titleG">G. Other Details</div>
+        <div class="section-title" id="titleG"></div>
         <span class="section-toggle" id="toggleG">&#9660;</span>
       </div>
       <div class="section-body collapsed" id="bodyG"></div>
@@ -1182,8 +1192,7 @@ body {
 
 <script>
 /* ── i18n Core ───────────────────────────────────── */
-let _lang = localStorage.getItem('lang')
-  || (navigator.language.startsWith('zh') ? 'cn' : 'en');
+// _lang already set in early <script> block to prevent flash
 
 /** Get translation for a UI key */
 function t(key) {
@@ -1203,7 +1212,8 @@ function td(category, value) {
   if (!item) return value;
   if (_lang === 'en') return item.en;
   if (_lang === 'cn') return item.cn || item.en;
-  return item.cn ? `${item.cn}` : item.en; // both: show cn for data values (en is in the tag already)
+  // both: show "English / 中文" or just English if no cn
+  return item.cn ? `${item.en} / ${item.cn}` : item.en;
 }
 
 /** Render bilingual HTML — en primary, cn subtitle */
@@ -1231,28 +1241,52 @@ function setLang(lang) {
   localStorage.setItem('lang', lang);
   // Update button styles
   document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.style.background = btn.dataset.lang === lang ? 'var(--primary)' : 'none';
-    btn.style.color = btn.dataset.lang === lang ? '#fff' : 'var(--text-muted)';
+    btn.style.color = btn.dataset.lang === lang ? 'var(--primary)' : 'var(--text-muted)';
+    btn.style.fontWeight = btn.dataset.lang === lang ? '700' : '400';
   });
   // Update search placeholder
   const searchInput = document.getElementById('searchInput');
   if (searchInput) searchInput.placeholder = t('search_placeholder');
   // Update section titles
   updateSectionTitles();
-  // Re-render current view
+
+  // If on school detail page with cached data, re-render from cache (no fetch, no flash)
+  if (_cachedSchool && location.hash.startsWith('#/school/')) {
+    renderSectionA(_cachedSchool);
+    renderSectionB(_cachedSchool);
+    renderSectionF(_cachedSchool);
+    renderSectionG(_cachedSchool);
+    if (_cachedWebData) {
+      // Restore logo
+      const logoEl = document.getElementById('schoolLogo');
+      const logoUrl = safeUrl(_cachedWebData.logo_url);
+      if (logoEl && logoUrl) {
+        logoEl.onerror = function() { this.style.display = 'none'; };
+        logoEl.src = logoUrl;
+        logoEl.style.display = 'block';
+      }
+      renderCurriculumBadges(_cachedWebData);
+      renderSubjects(_cachedWebData);
+      renderActivities(_cachedWebData);
+      renderFees(_cachedWebData);
+      appendZoneToB(_cachedWebData);
+    }
+    return;
+  }
+  // Other pages: re-render via route
   handleRoute();
 }
 
-// Initialize lang button styles on load
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.style.background = btn.dataset.lang === _lang ? 'var(--primary)' : 'none';
-    btn.style.color = btn.dataset.lang === _lang ? '#fff' : 'var(--text-muted)';
-  });
-  const searchInput = document.getElementById('searchInput');
-  if (searchInput) searchInput.placeholder = t('search_placeholder');
-  updateSectionTitles();
+// Initialize lang immediately (script is at end of body, DOM is ready)
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.style.color = btn.dataset.lang === _lang ? 'var(--primary)' : 'var(--text-muted)';
+  btn.style.fontWeight = btn.dataset.lang === _lang ? '700' : '400';
 });
+const _searchInput = document.getElementById('searchInput');
+if (_searchInput) _searchInput.placeholder = t('search_placeholder');
+updateSectionTitles();
+// Reveal body after i18n is applied
+document.body.style.opacity = '1';
 
 /* ── State ────────────────────────────────────────── */
 let searchTimer = null;
@@ -1466,7 +1500,11 @@ async function loadSchool(num, schoolName) {
 }
 
 /* ── Render School ────────────────────────────────── */
+let _cachedSchool = null;     // cached school basic data (from /api/school/:id)
+let _cachedWebData = null;    // cached web data (from /api/school/:id/web)
+
 function renderSchool(s) {
+  _cachedSchool = s;  // cache for lang switch
   // 确保所有 section 可见（从错误状态恢复时）
   ['B','C','D','E','F','G'].forEach(k => { document.getElementById('section' + k).style.display = ''; });
   // 显示当前学校名标签
@@ -1616,6 +1654,7 @@ async function loadWebData(schoolNum) {
     if (_webDataSchoolNum !== schoolNum) return;
     const w = await res.json();
     if (w.error) return;
+    _cachedWebData = w;  // cache for lang switch
     // Logo
     const logoEl = document.getElementById('schoolLogo');
     const logoUrl = safeUrl(w.logo_url);
@@ -2790,6 +2829,9 @@ function handleRoute(hash) {
     loadSchool(schoolMatch[1]);
     return;
   }
+  // Clear school cache when leaving detail page
+  _cachedSchool = null;
+  _cachedWebData = null;
 
   // #/schools?region=xxx&...
   if (hash.startsWith('#/schools')) {
