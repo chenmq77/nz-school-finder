@@ -149,6 +149,7 @@ const TRANSLATIONS = {
     col_intl_homestay:    { en: "Homestay/Week", cn: "住宿费/周" },
     col_intl_total:       { en: "Total/Year", cn: "总费用/年" },
     col_group_intl:       { en: "International", cn: "国际生" },
+    col_ncea_l3:          { en: "NCEA L3", cn: "NCEA L3" },
     col_curriculum:       { en: "Curriculum", cn: "课程" },
     col_fee:              { en: "Fee/Year", cn: "学费/年" },
     col_subjects:         { en: "Subjects", cn: "科目" },
@@ -219,9 +220,9 @@ const TRANSLATIONS = {
     },
 
     gender: {
-      "Co-Educational":                  { en: "Co-Educational", cn: "男女混校" },
-      "Girls School":                    { en: "Girls School", cn: "女校" },
-      "Boys School":                     { en: "Boys School", cn: "男校" },
+      "Co-Educational":                  { en: "Co-ed", cn: "混校" },
+      "Girls School":                    { en: "Girls", cn: "女校" },
+      "Boys School":                     { en: "Boys", cn: "男校" },
       "Boys/Senior Co-Ed":               { en: "Boys/Senior Co-Ed", cn: "男校/高年级混校" },
       "Primary Co-Ed/Secondary Girls":   { en: "Primary Co-Ed/Secondary Girls", cn: "小学混校/中学女校" },
       "Primary Co-Ed/Secondary Boys":    { en: "Primary Co-Ed/Secondary Boys", cn: "小学混校/中学男校" },

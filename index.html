@@ -2789,6 +2789,7 @@ const TABLE_COLUMNS = [
   { key:'intl_fee',     tKey:'col_intl_fee',      fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'asc' },
   { key:'intl_homestay',tKey:'col_intl_homestay', fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'asc' },
   { key:'intl_total',   tKey:'col_intl_total',    fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'asc' },
+  { key:'ncea_l3',      tKey:'col_ncea_l3',       fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
   // Activities group
   { key:'curriculum',   tKey:'col_curriculum',    fixed:false, default:false, gKey:'col_group_activities', sortable:false, align:'left' },
   { key:'subjects',     tKey:'col_subjects',      fixed:false, default:false, gKey:'col_group_activities', sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
@@ -2802,7 +2803,7 @@ const DEFAULT_COLS = TABLE_COLUMNS.filter(c => c.fixed || c.default).map(c => c.
 // Preset column configurations
 const COL_PRESETS = {
   compact:  ['name', 'suburb', 'school_level', 'gender', 'eqi', 'roll'],
-  intl:     ['name', 'suburb', 'eqi', 'roll', 'intl_fee', 'intl_homestay', 'intl_total', 'eth_intl', 'eth_asian', 'subjects'],
+  intl:     ['name', 'eqi', 'roll', 'intl_count', 'eth_intl', 'intl_fee', 'intl_homestay', 'intl_total', 'ncea_l3'],
   local:    ['name', 'suburb', 'school_level', 'gender', 'eqi', 'roll', 'zone', 'ethnicity'],
   full:     ['name', 'suburb', 'eqi', 'roll', 'intl_fee', 'curriculum', 'subjects', 'sports', 'arts', 'ethnicity'],
 };
@@ -2884,6 +2885,7 @@ function getCellValue(s, key) {
       // Total = tuition + homestay * 40 weeks (school year)
       return homestay ? Math.round(tuition + homestay * 40) : null;
     }
+    case 'ncea_l3': return null; // TODO: data not yet crawled
     case 'fee': return s.intl_tuition_annual || null;
     case 'subjects': return s.subjects_count || null;
     case 'sports': return s.sports_count || null;
@@ -2909,9 +2911,24 @@ function formatCell(key, val, s) {
       tags.push(`<span class="sc-badge">${esc(td('authority', s.authority))}</span>`);
     return tags.join(' ');
   }
-  if (key === 'school_level') return val ? esc(String(val)) : '<span class="td-null">--</span>';
-  if (key === 'gender') return val ? esc(String(val)) : '<span class="td-null">--</span>';
+  if (key === 'school_level') {
+    if (!s.school_type) return '<span class="td-null">--</span>';
+    const cat = TRANSLATIONS.data['school_type_label'];
+    const item = cat && cat[s.school_type];
+    return item ? bilingual(item.en, item.cn) : esc(s.school_type);
+  }
+  if (key === 'gender') {
+    if (!s.gender_of_students) return '<span class="td-null">--</span>';
+    const cat = TRANSLATIONS.data['gender'];
+    const item = cat && cat[s.gender_of_students];
+    return item ? bilingual(item.en, item.cn) : esc(s.gender_of_students);
+  }
   if (val === null || val === undefined) return '<span class="td-null">—</span>';
+  if (key === 'eqi') {
+    const v = parseFloat(val);
+    const color = v <= 429 ? '#16a34a' : v <= 493 ? '#d97706' : '#dc2626';
+    return `<span style="color:${color};font-weight:600">${Math.round(v)}</span>`;
+  }
   if (key === 'roll' || key === 'intl_count') return parseInt(val).toLocaleString();
   if (key === 'fee' || key === 'intl_fee' || key === 'intl_total') return '$' + parseFloat(val).toLocaleString();
   if (key === 'intl_homestay') return '$' + parseFloat(val).toLocaleString() + '/w';
@@ -3151,8 +3168,11 @@ function renderListCards(results, total, page, pages) {
     const th = document.createElement('th');
     th.className = (col.sortable ? 'sortable ' : '') + (col.align === 'right' ? 'num' : '');
 
-    let labelText = t(col.tKey);
     if (col.tipKey) th.title = t(col.tipKey);
+
+    // Column header: bilingual top-bottom layout
+    const tItem = TRANSLATIONS.ui[col.tKey];
+    const headerHtml = tItem ? bilingual(tItem.en, tItem.cn) : t(col.tKey);
 
     // Sort indicator
     let sortIcon = '';
@@ -3162,7 +3182,7 @@ function renderListCards(results, total, page, pages) {
       }
       th.onclick = () => onTableHeaderClick(col.key);
     }
-    th.innerHTML = esc(labelText) + (sortIcon ? `<span class="sort-icon">${sortIcon}</span>` : '');
+    th.innerHTML = headerHtml + (sortIcon ? `<span class="sort-icon">${sortIcon}</span>` : '');
     headerRow.appendChild(th);
   });
   thead.appendChild(headerRow);
