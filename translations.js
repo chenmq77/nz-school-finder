@@ -131,6 +131,8 @@ const TRANSLATIONS = {
     col_name:             { en: "Name", cn: "学校名" },
     col_suburb:           { en: "Area", cn: "区域" },
     col_tags:             { en: "Type", cn: "类型" },
+    col_school_level:     { en: "Level", cn: "学段" },
+    col_gender:           { en: "Gender", cn: "性别" },
     col_eqi:              { en: "EQI", cn: "EQI" },
     col_roll:             { en: "Roll", cn: "人数" },
     col_zone:             { en: "Zone", cn: "学区" },

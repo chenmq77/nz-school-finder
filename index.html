@@ -2771,7 +2771,8 @@ async function loadListData(page) {
 const TABLE_COLUMNS = [
   { key:'name',         tKey:'col_name',         fixed:true,  default:true,  gKey:'col_group_basic',      sortable:true,  sortType:'text',   align:'left' },
   { key:'suburb',       tKey:'col_suburb',        fixed:false, default:true,  gKey:'col_group_basic',      sortable:true,  sortType:'text',   align:'left' },
-  { key:'tags',         tKey:'col_tags',          fixed:false, default:true,  gKey:'col_group_basic',      sortable:false, align:'left' },
+  { key:'school_level', tKey:'col_school_level',   fixed:false, default:true,  gKey:'col_group_basic',      sortable:false, align:'left', autoHide:'year_level' },
+  { key:'gender',       tKey:'col_gender',         fixed:false, default:true,  gKey:'col_group_basic',      sortable:false, align:'left', autoHide:'gender' },
   { key:'eqi',          tKey:'col_eqi',           fixed:false, default:true,  gKey:'col_group_basic',      sortable:true,  sortType:'number', align:'right', firstDir:'asc', tipKey:'col_eqi_tip' },
   { key:'roll',         tKey:'col_roll',          fixed:false, default:true,  gKey:'col_group_basic',      sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
   { key:'zone',         tKey:'col_zone',          fixed:false, default:false, gKey:'col_group_basic',      sortable:false, align:'center' },
@@ -2800,9 +2801,9 @@ const DEFAULT_COLS = TABLE_COLUMNS.filter(c => c.fixed || c.default).map(c => c.
 
 // Preset column configurations
 const COL_PRESETS = {
-  compact:  ['name', 'suburb', 'tags', 'eqi', 'roll'],
+  compact:  ['name', 'suburb', 'school_level', 'gender', 'eqi', 'roll'],
   intl:     ['name', 'suburb', 'eqi', 'roll', 'intl_fee', 'intl_homestay', 'intl_total', 'eth_intl', 'eth_asian', 'subjects'],
-  local:    ['name', 'suburb', 'tags', 'eqi', 'roll', 'zone', 'ethnicity'],
+  local:    ['name', 'suburb', 'school_level', 'gender', 'eqi', 'roll', 'zone', 'ethnicity'],
   full:     ['name', 'suburb', 'eqi', 'roll', 'intl_fee', 'curriculum', 'subjects', 'sports', 'arts', 'ethnicity'],
 };
 let _visibleCols = [];
@@ -2836,7 +2837,9 @@ function getCellValue(s, key) {
   switch(key) {
     case 'name': return null; // special rendering
     case 'suburb': return s.suburb || s.town_city || '';
-    case 'tags': return null; // special rendering
+    case 'tags': return null; // legacy, unused
+    case 'school_level': return s.school_type ? td('school_type_label', s.school_type) : null;
+    case 'gender': return s.gender_of_students ? td('gender', s.gender_of_students) : null;
     case 'eqi': {
       const v = parseFloat(s.equity_index_eqi);
       return isNaN(v) ? null : v;
@@ -2906,6 +2909,8 @@ function formatCell(key, val, s) {
       tags.push(`<span class="sc-badge">${esc(td('authority', s.authority))}</span>`);
     return tags.join(' ');
   }
+  if (key === 'school_level') return val ? esc(String(val)) : '<span class="td-null">--</span>';
+  if (key === 'gender') return val ? esc(String(val)) : '<span class="td-null">--</span>';
   if (val === null || val === undefined) return '<span class="td-null">—</span>';
   if (key === 'roll' || key === 'intl_count') return parseInt(val).toLocaleString();
   if (key === 'fee' || key === 'intl_fee' || key === 'intl_total') return '$' + parseFloat(val).toLocaleString();
@@ -3088,6 +3093,19 @@ loadVisibleCols();
 
 function renderListCards(results, total, page, pages) {
   _lastListData = { results, total, page, pages };
+
+  // Smart auto-hide: if user hasn't customized columns, hide redundant cols based on active filters
+  if (!localStorage.getItem('schoolColumns')) {
+    let cols = [...DEFAULT_COLS];
+    // Year level filter active → hide school_level column
+    const yearActive = (_currentFilters['year_level'] && _currentFilters['year_level'].length > 0)
+                    || (_currentFilters['year_min'] && _currentFilters['year_min'].length > 0);
+    if (yearActive) cols = cols.filter(k => k !== 'school_level');
+    // Gender filter active → hide gender column
+    const genderActive = _currentFilters['gender'] && _currentFilters['gender'].length > 0;
+    if (genderActive) cols = cols.filter(k => k !== 'gender');
+    _visibleCols = cols;
+  }
 
   // Update meta with column chooser
   const metaRow = document.querySelector('.list-meta-row');
