@@ -1,5 +1,65 @@
 # Changelog
 
+## 2026-03-25 — 新增 3 所学校爬虫（Long Bay #27, Northcote #32, Selwyn #49）
+
+### Why
+继续扩展学校覆盖范围，新增 3 所不同 CMS 平台（WordPress、Drupal）的 Auckland 学校。
+
+### What
+- **school_27_long_bay.py**: Long Bay College — WordPress/Elementor, ~28 subjects (confidence 0.7, 课程详情在 SchoolBridge 登录后), sports/arts/clubs 需页面内容验证, 费用未公开, NCEA
+- **school_32_northcote.py**: Northcote College — Drupal, ~27 subjects, 25 sports（含 AFL、Underwater Hockey 等特色项目）, 费用未公开, NCEA
+- **school_49_selwyn.py**: Selwyn College — WordPress/Elementor, ~30 subjects（来源于 10 个学科部门页面）, sports 在外部 sporty.co.nz 平台, 费用未公开, NCEA
+
+### How
+- 所有 3 个爬虫继承 `StandardHtmlCrawler`
+- Long Bay: 课程列表在 SchoolBridge 登录后，公开页面信息有限，confidence 设为 0.7；logo 是宽横幅(2280x440) 无正方形替代，留 None + warning
+- Northcote: Drupal 站点，科目从 course-directory + 各部门页面汇总；logo 用 `/sites/default/files/logo.png`；zone map 为 JPG 格式
+- Selwyn: 科目从 10 个 `/our-curriculum/` 子页面逐一提取；logo 用 Selwyn-badge.gif (269x254 接近正方形)；Engineering 映射到 Electronics 需人工确认
+- Subjects 标准化：Fashion and Textiles → Textiles, Carpentry → Construction, Nutrition → Food Technology, Art Design → Design 等
+- 3 所学校费用均未在官网公开显示，留 None 不猜测
+
+---
+
+## 2026-03-25 — 新增 3 所学校爬虫（GDC #65, Lynfield #75, TGS #36）
+
+### Why
+继续扩展学校覆盖范围，新增 3 所不同 CMS 平台的 Auckland 学校。
+
+### What
+- **school_65_glendowie.py**: Glendowie College — SchoolBridge 平台, 22 subjects, 26 sports, 33 clubs, NCEA + IB MYP, 费用未公开
+- **school_75_lynfield.py**: Lynfield College — Zeald CMS, 27 subjects, 32 sports, NCEA, 费用 2026（金额在图片中无法爬取）
+- **school_36_takapuna.py**: Takapuna Grammar School — Next.js, 28 subjects, 10 sports, 48 clubs, NCEA + IB Diploma, 费用未公开
+
+### How
+- 所有 3 个爬虫继承 `StandardHtmlCrawler`，分别设置 `SITE_TYPE` 为 schoolbridge / zeald / nextjs
+- GDC 科目来源于 /international 页面（最完整的列表），IB MYP 为 Years 9-10
+- Lynfield 费用页标注 2026 但金额在图片中，需手动提取 PDF
+- Takapuna 科目通过 11 个学科部门子页面逐一提取，IB Diploma（首个公立学校 2013 年获认证）
+- Subjects 对照 subject_pool 标准化：Spatial Design → DVC, Building and Construction → Construction, Mandarin → Chinese 等
+- 费用未公开的学校留 None + warning，不硬编码猜测值
+
+---
+
+## 2026-03-25 — 新增 3 所学校爬虫（BDSC #6930, MAGS #69, WSC #48）
+
+### Why
+扩展学校覆盖范围，新增 3 所 Auckland 地区的 WordPress 网站学校。
+
+### What
+- **school_6930_botany_downs.py**: Botany Downs Secondary College — 27 subjects, 18 sports, fees $21,000/yr tuition + $400/wk homestay (2026)
+- **school_69_mags.py**: Mt Albert Grammar School — 33 subjects, 33 sports, 50+ clubs, fees $20,000/yr tuition + $420/wk homestay (2026)
+- **school_48_western_springs.py**: Western Springs College — 30 subjects, 29 sports, fees $20,000/yr tuition + $400/wk homestay (2026)
+
+### How
+- 所有 3 个爬虫继承 `StandardHtmlCrawler`，设置 `SITE_TYPE = "wordpress"`
+- 遵循现有爬虫模式（school_53_aggs.py 为模板）
+- Subjects 对照 subject_pool 标准化，使用 SUBJECT_MAPPING 映射别名
+- Fees 从 PDF 提取后硬编码（避免正则匹配年份的陷阱）
+- Logo 优先选择近正方形图片（BDSC 1080×900, MAGS 暂用 banner, WSC 用 favicon）
+- Sports/Arts/Clubs 通过 known_* 列表 + 页面内容匹配
+
+---
+
 ## 2026-03-25 — Logo 自适应宽高比布局修复
 
 ### Why

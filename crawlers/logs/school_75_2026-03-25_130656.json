@@ -1,0 +1,321 @@
+{
+  "school_number": 75,
+  "school_name": "Lynfield College",
+  "subjects": [
+    "Dance",
+    "Drama",
+    "Music",
+    "Painting",
+    "Health",
+    "Physical Education",
+    "English",
+    "ESOL",
+    "Media Studies",
+    "Te Reo Maori",
+    "German",
+    "Japanese",
+    "Chinese",
+    "Spanish",
+    "Mathematics",
+    "Science",
+    "Classical Studies",
+    "Geography",
+    "History",
+    "Tourism",
+    "Social Studies",
+    "Accounting",
+    "Economics",
+    "Materials and Processing Technology",
+    "Wood Technology",
+    "Design & Visual Communication",
+    "Digital Technology",
+    "Early Childhood Education",
+    "Electronics",
+    "Textiles",
+    "Food Technology",
+    "Hospitality"
+  ],
+  "subjects_raw": [
+    {
+      "name": "Dance",
+      "raw_name": "Dance",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "Drama",
+      "raw_name": "Drama",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "Music",
+      "raw_name": "Music and Sound",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "Painting",
+      "raw_name": "Visual Arts",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "Health",
+      "raw_name": "Health Education",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "Physical Education",
+      "raw_name": "Physical Education",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "English",
+      "raw_name": "English",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "ESOL",
+      "raw_name": "ESOL",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "Media Studies",
+      "raw_name": "Media Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "Te Reo Maori",
+      "raw_name": "Te Reo",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "German",
+      "raw_name": "German",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "Japanese",
+      "raw_name": "Japanese",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "Chinese",
+      "raw_name": "Mandarin Chinese",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "Spanish",
+      "raw_name": "Spanish",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "Mathematics",
+      "raw_name": "Mathematics",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "Science",
+      "raw_name": "Science",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "Classical Studies",
+      "raw_name": "Classical Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "Geography",
+      "raw_name": "Geography",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "History",
+      "raw_name": "History",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "Tourism",
+      "raw_name": "Tourism",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "Social Studies",
+      "raw_name": "Social Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "Accounting",
+      "raw_name": "Accounting",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "Economics",
+      "raw_name": "Economics",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "Materials and Processing Technology",
+      "raw_name": "Automotive",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "Wood Technology",
+      "raw_name": "Carpentry",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "Design & Visual Communication",
+      "raw_name": "Design and Visual Communication",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "Digital Technology",
+      "raw_name": "Digital Technologies",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "Early Childhood Education",
+      "raw_name": "Early Childhood Education",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "Electronics",
+      "raw_name": "Electronics",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "Textiles",
+      "raw_name": "Fashion and Design",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "Food Technology",
+      "raw_name": "Home Economics",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    },
+    {
+      "name": "Hospitality",
+      "raw_name": "Hospitality",
+      "confidence": 0.9,
+      "source_url": "https://www.lynfield.school.nz/Curriculum/Courses.html"
+    }
+  ],
+  "subjects_url": "https://www.lynfield.school.nz/Curriculum/Courses.html",
+  "subjects_count": 32,
+  "sports": [
+    "Cricket",
+    "Volleyball",
+    "Softball",
+    "Kilikiti",
+    "Touch",
+    "Tag",
+    "Golf",
+    "Swimming",
+    "Athletics",
+    "Tennis",
+    "Water Polo",
+    "Lawn Bowls",
+    "Dragon Boating",
+    "Cycling",
+    "Ultimate Frisbee",
+    "Basketball",
+    "Cross Country",
+    "Rugby",
+    "Football",
+    "Badminton",
+    "Rugby League",
+    "Gymnastics",
+    "Netball",
+    "Squash",
+    "Hockey",
+    "Wrestling",
+    "Table Tennis",
+    "Curling",
+    "Mountain Biking",
+    "Lacrosse",
+    "8-Ball Pool",
+    "Futsal"
+  ],
+  "sports_url": "https://www.lynfield.school.nz/Extra-Curricular/Sports.html",
+  "sports_count": 32,
+  "arts": [
+    "Concert Band",
+    "Big Band",
+    "Chamber Orchestra",
+    "Jazz Combo",
+    "Premier Jazz Band",
+    "The Flock",
+    "Chamber Groups",
+    "Choir",
+    "Rock Bands",
+    "Polyfest"
+  ],
+  "arts_url": "https://www.lynfield.school.nz/Extra-Curricular/Music.html",
+  "arts_count": 10,
+  "clubs": [
+    "Debating",
+    "Cultural Food and Entertainment Festival",
+    "Robotics"
+  ],
+  "clubs_url": "https://www.lynfield.school.nz/Extra-Curricular/Culture.html",
+  "clubs_count": 3,
+  "intl_tuition_annual": null,
+  "intl_homestay_weekly": null,
+  "intl_fees_url": "https://www.lynfield.school.nz/International/Fees.html",
+  "intl_fees_year": null,
+  "curriculum_systems": [
+    {
+      "system": "NCEA",
+      "status": "offered",
+      "evidence_url": "https://www.lynfield.school.nz/Curriculum/Assessment+and+NCEA.html"
+    }
+  ],
+  "zone_map_url": "",
+  "zone_streets_url": "",
+  "zone_page_url": "https://www.lynfield.school.nz/Enrolment/Enrolment+Zone.html",
+  "logo_url": "https://zdn.nz/site/lynfieldcollege/images/basic_theme/logo1.png",
+  "site_type": "zeald",
+  "pages_crawled": [
+    "http://www.lynfield.school.nz",
+    "https://www.lynfield.school.nz/Curriculum/Courses.html",
+    "https://www.lynfield.school.nz/Extra-Curricular/Sports.html",
+    "https://www.lynfield.school.nz/Extra-Curricular/Performing+Arts.html",
+    "https://www.lynfield.school.nz/Extra-Curricular/Music.html",
+    "https://www.lynfield.school.nz/Extra-Curricular/Culture.html",
+    "https://www.lynfield.school.nz/International/Fees.html",
+    "https://www.lynfield.school.nz/Enrolment/Enrolment+Zone.html"
+  ],
+  "warnings": [
+    "International fees for 2026 exist but amounts are in image — download 'LC International Programme Fees 2026A' PDF for manual entry"
+  ],
+  "crawled_at": "2026-03-25T13:06:32.449290"
+}

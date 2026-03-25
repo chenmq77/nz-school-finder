@@ -638,7 +638,7 @@ body {
   color: var(--text-secondary);
   padding: 8px 4px;
   font-weight: 600;
-  background: #f0ebe0;
+  background: #F5EFE0;
 }
 .band-cell {
   display: flex;
@@ -1902,12 +1902,13 @@ function translateType(t) {
    ══════════════════════════════════════════════════════ */
 
 // 配色方案：每个区域一个色相，内部深→浅渐变（大=深，小=浅）
+// 配色规则：Row1 深色白字，Row2 浅色黑字
 const REGION_COLORS = [
-  '#28558F','#2F63A7','#3671BF','#4C84CD',  // row1: 深→浅蓝
-  '#6C9AD5','#90B2E0','#AFC8E9','#CFDEF2','#E7EFF8'  // row2: 更浅蓝
+  '#28558F','#3468A8','#3E78BE','#4C84CD',  // row1: 深蓝（白字）
+  '#C5D9F0','#CEDEF2','#D8E5F5','#E2ECF8','#EDF3FA'  // row2: 浅蓝（黑字）
 ];
-const AUTH_COLORS = { 'State':'#463187', 'State : Integrated':'#6244BB', 'Private':'#9783D2', 'Charter School':'#D3CBEC' };
-const GENDER_COLORS = { 'Co-Educational':'#7F3965', 'Boys School':'#B04F8C', 'Girls School':'#CB8BB3', 'Primary Co-Ed/Secondary Girls':'#E9CEDF', 'Primary Co-Ed/Secondary Boys':'#E9CEDF', 'Boys/Senior Co-Ed':'#E9CEDF' };
+const AUTH_COLORS = { 'State':'#463187', 'State : Integrated':'#C5B8E8', 'Private':'#D5CCF0', 'Charter School':'#E5DFF5' };
+const GENDER_COLORS = { 'Co-Educational':'#7F3965', 'Boys School':'#E0BDD0', 'Girls School':'#EAD0DE', 'Primary Co-Ed/Secondary Girls':'#F2E4ED', 'Primary Co-Ed/Secondary Boys':'#F2E4ED', 'Boys/Senior Co-Ed':'#F2E4ED' };
 
 async function loadDashboard() {
   if (_statsData) { renderDashboard(_statsData); return; }
@@ -1989,7 +1990,7 @@ function renderDashboard(d) {
   const genderOtherSum = genderOther.reduce((s,g) => s + g.count, 0);
   const genderData = [...genderMain];
   if (genderOtherSum > 0) genderData.push({ name: 'Other', count: genderOtherSum });
-  const genderColors = ['#7F3965','#B04F8C','#CB8BB3','#E9CEDF'];
+  const genderColors = ['#7F3965','#E0BDD0','#EAD0DE','#F2E4ED'];
   const genderClick = (item) => { if (item.name !== 'Other') navigateTo('#/schools?gender=' + encodeURIComponent(item.name)); };
   const genderContainer = document.getElementById('tmGender');
   genderContainer.innerHTML = '';
@@ -2090,13 +2091,16 @@ function renderYearBandMap() {
   }
   // Band definitions: 所有色块用 year range 筛选
   const BANDS = [
-    { label: 'Contributing', sub: 'Y1-6', y1: 1, y2: 6, bg: '#AE8329' },
-    { label: 'Intermediate', sub: 'Y7-8', y1: 7, y2: 8, bg: '#CF9C30' },
-    { label: 'Secondary', sub: 'Y9-13', y1: 9, y2: 13, bg: '#8F6B20' },
-    { label: 'Full Primary', sub: 'Y1-8', y1: 1, y2: 8, bg: '#DFBE77' },
-    { label: 'Junior High', sub: 'Y9-10', y1: 9, y2: 10, bg: '#C4933A' },
-    { label: 'Senior High', sub: 'Y11-13', y1: 11, y2: 13, bg: '#9A7525' },
-    { label: 'Composite', sub: 'Y1-13', y1: 1, y2: 13, bg: '#F1E3C5' },
+    // Row 1: 深金色（白字）
+    { label: 'Contributing', sub: 'Y1-6', y1: 1, y2: 6, bg: '#8F6B20' },
+    { label: 'Intermediate', sub: 'Y7-8', y1: 7, y2: 8, bg: '#A07A28' },
+    { label: 'Secondary', sub: 'Y9-13', y1: 9, y2: 13, bg: '#7A5C1A' },
+    // Row 2: 浅金色（黑字）
+    { label: 'Full Primary', sub: 'Y1-8', y1: 1, y2: 8, bg: '#E8D5A8' },
+    { label: 'Junior High', sub: 'Y9-10', y1: 9, y2: 10, bg: '#DECA98' },
+    { label: 'Senior High', sub: 'Y11-13', y1: 11, y2: 13, bg: '#D4BF88' },
+    // Row 3: 最浅金色（黑字）
+    { label: 'Composite', sub: 'Y1-13', y1: 1, y2: 13, bg: '#F2EAD8' },
   ];
   BANDS.forEach(b => {
     const cell = document.createElement('div');
@@ -2117,7 +2121,7 @@ function renderCurriculumBlock(curriculum) {
     container.innerHTML = '<div style="font-size:13px;color:var(--text-muted);padding:8px">暂无课程体系数据</div>';
     return;
   }
-  const colors = { 'NCEA': '#327285', 'A-Level': '#469EB9', 'IB': '#85BFD1' };
+  const colors = { 'NCEA': '#327285', 'A-Level': '#C0DDE8', 'IB': '#D8ECF2' };
   const sorted = [...curriculum].sort((a,b) => b.count - a.count);
   // Row 1: 最大项（NCEA）
   // Row 2: 其余项并列
@@ -2738,6 +2742,7 @@ window.addEventListener('hashchange', () => handleRoute());
 
 /* ── Init ─────────────────────────────────────────── */
 $input.focus();
+renderFilterBar();
 handleRoute();
 </script>
 </body>

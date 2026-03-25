@@ -1,0 +1,314 @@
+{
+  "school_number": 49,
+  "school_name": "Selwyn College",
+  "subjects": [
+    "English",
+    "Mathematics",
+    "Science",
+    "Biology",
+    "Chemistry",
+    "Physics",
+    "Accounting",
+    "Classical Studies",
+    "Economics",
+    "Geography",
+    "History",
+    "Media Studies",
+    "Social Studies",
+    "Construction",
+    "Design & Visual Communication",
+    "Digital Technology",
+    "Electronics",
+    "Food Technology",
+    "Hospitality",
+    "Materials and Processing Technology",
+    "Textiles",
+    "Chinese",
+    "ESOL",
+    "Spanish",
+    "Te Reo Maori",
+    "Painting",
+    "Photography",
+    "Design",
+    "Art History",
+    "Physical Education",
+    "Health",
+    "Dance",
+    "Drama",
+    "Music"
+  ],
+  "subjects_raw": [
+    {
+      "name": "English",
+      "raw_name": "English",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Mathematics",
+      "raw_name": "Mathematics",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Science",
+      "raw_name": "Science",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Biology",
+      "raw_name": "Biology",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Chemistry",
+      "raw_name": "Chemistry",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Physics",
+      "raw_name": "Physics",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Accounting",
+      "raw_name": "Accounting",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Classical Studies",
+      "raw_name": "Classical Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Economics",
+      "raw_name": "Economics",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Geography",
+      "raw_name": "Geography",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "History",
+      "raw_name": "History",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Media Studies",
+      "raw_name": "Media Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Social Studies",
+      "raw_name": "Senior Social Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Construction",
+      "raw_name": "Construction",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Design & Visual Communication",
+      "raw_name": "Design & Visual Communication",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Digital Technology",
+      "raw_name": "Digital Technology",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Electronics",
+      "raw_name": "Electronics",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Food Technology",
+      "raw_name": "Food Technology",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Hospitality",
+      "raw_name": "Hospitality",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Materials and Processing Technology",
+      "raw_name": "Multi-Materials Technology",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Textiles",
+      "raw_name": "Textiles Technology",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Chinese",
+      "raw_name": "Chinese",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "ESOL",
+      "raw_name": "ESOL",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Spanish",
+      "raw_name": "Spanish",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Te Reo Maori",
+      "raw_name": "Te Reo Maori",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Painting",
+      "raw_name": "Painting",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Photography",
+      "raw_name": "Photography",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Design",
+      "raw_name": "Art Design",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Art History",
+      "raw_name": "Art History",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Physical Education",
+      "raw_name": "Physical Education",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Health",
+      "raw_name": "Health",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Dance",
+      "raw_name": "Dance",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Drama",
+      "raw_name": "Drama",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    },
+    {
+      "name": "Music",
+      "raw_name": "Music",
+      "confidence": 0.9,
+      "source_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    }
+  ],
+  "subjects_url": "https://www.selwyn.school.nz/our-curriculum/english/",
+  "subjects_count": 34,
+  "sports": [
+    "Athletics",
+    "Badminton",
+    "Basketball",
+    "Cricket",
+    "Cross Country",
+    "Football",
+    "Hockey",
+    "Netball",
+    "Rugby",
+    "Softball",
+    "Swimming",
+    "Table Tennis",
+    "Tennis",
+    "Touch",
+    "Volleyball"
+  ],
+  "sports_url": "https://www.sporty.co.nz/selwyncollege",
+  "sports_count": 15,
+  "arts": [
+    "Kapa Haka",
+    "Selwyn Musicals",
+    "Co-Curricular Music Ensembles"
+  ],
+  "arts_url": "https://www.selwyn.school.nz/performing-arts/",
+  "arts_count": 3,
+  "clubs": [],
+  "clubs_url": null,
+  "clubs_count": 0,
+  "intl_tuition_annual": null,
+  "intl_homestay_weekly": null,
+  "intl_fees_url": "https://www.selwyn.school.nz/international/",
+  "intl_fees_year": null,
+  "curriculum_systems": [
+    {
+      "system": "NCEA",
+      "status": "offered",
+      "evidence_url": "https://www.selwyn.school.nz/our-curriculum/english/"
+    }
+  ],
+  "zone_map_url": "https://www.schoolwebsites.school.nz/selwyn/wp-content/uploads/sites/178/2022/09/Selwyn-College-confirmed-Zone-Description-and-Map-August-2021.pdf",
+  "zone_streets_url": "",
+  "zone_page_url": "https://www.selwyn.school.nz/new-students/zone/",
+  "logo_url": "https://selwyn.school.nz/wp-content/uploads/sites/178/2026/03/Selwyn-badge.gif",
+  "site_type": "wordpress",
+  "pages_crawled": [
+    "http://www.selwyn.school.nz",
+    "https://www.selwyn.school.nz/our-curriculum/english/",
+    "https://www.selwyn.school.nz/performing-arts/",
+    "https://www.selwyn.school.nz/international/",
+    "https://www.selwyn.school.nz/new-students/zone/",
+    "https://www.selwyn.school.nz/our-curriculum/mathematics/",
+    "https://www.selwyn.school.nz/our-curriculum/science/",
+    "https://www.selwyn.school.nz/our-curriculum/social-sciences/",
+    "https://www.selwyn.school.nz/our-curriculum/technology/",
+    "https://www.selwyn.school.nz/our-curriculum/languages/",
+    "https://www.selwyn.school.nz/our-curriculum/visual-art/",
+    "https://www.selwyn.school.nz/our-curriculum/pe-health/",
+    "https://www.selwyn.school.nz/our-curriculum/performing-arts-2/"
+  ],
+  "warnings": [
+    "Engineering mapped to Electronics — may need pool review",
+    "Sports data from external sporty.co.nz — not scraped, using known list. Needs manual verification.",
+    "No dedicated clubs page found on Selwyn College website"
+  ],
+  "crawled_at": "2026-03-25T13:08:29.362828"
+}

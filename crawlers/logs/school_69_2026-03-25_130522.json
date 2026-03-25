@@ -1,0 +1,364 @@
+{
+  "school_number": 69,
+  "school_name": "Mt Albert Grammar School",
+  "subjects": [
+    "English",
+    "Mathematics",
+    "Science",
+    "Physical Education",
+    "Health",
+    "Social Studies",
+    "Biology",
+    "Chemistry",
+    "Physics",
+    "Agricultural and Horticultural Science",
+    "Horticulture",
+    "Geography",
+    "History",
+    "Economics",
+    "Classical Studies",
+    "Accounting",
+    "Business Studies",
+    "French",
+    "Japanese",
+    "Gagana Samoa",
+    "Lea Faka-Tonga",
+    "Te Reo Maori",
+    "Chinese",
+    "ESOL",
+    "Music",
+    "Dance",
+    "Drama",
+    "Painting",
+    "Photography",
+    "Design",
+    "Design & Visual Communication",
+    "Digital Technology",
+    "Food Technology",
+    "Textiles",
+    "Media Studies",
+    "Tourism"
+  ],
+  "subjects_raw": [
+    {
+      "name": "English",
+      "raw_name": "English",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Mathematics",
+      "raw_name": "Mathematics",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Science",
+      "raw_name": "Science",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Physical Education",
+      "raw_name": "Physical Education",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Health",
+      "raw_name": "Health",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Social Studies",
+      "raw_name": "Social Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Biology",
+      "raw_name": "Biology",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Chemistry",
+      "raw_name": "Chemistry",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Physics",
+      "raw_name": "Physics",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Agricultural and Horticultural Science",
+      "raw_name": "Agricultural Science",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Horticulture",
+      "raw_name": "Horticulture",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Geography",
+      "raw_name": "Geography",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "History",
+      "raw_name": "History",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Economics",
+      "raw_name": "Economics",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Classical Studies",
+      "raw_name": "Classical Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Accounting",
+      "raw_name": "Accounting",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Business Studies",
+      "raw_name": "Business Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "French",
+      "raw_name": "French",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Japanese",
+      "raw_name": "Japanese",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Gagana Samoa",
+      "raw_name": "Samoan",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Lea Faka-Tonga",
+      "raw_name": "Tongan",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Te Reo Maori",
+      "raw_name": "Te Reo Māori",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Chinese",
+      "raw_name": "Chinese",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "ESOL",
+      "raw_name": "ESOL",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Music",
+      "raw_name": "Music",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Dance",
+      "raw_name": "Dance",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Drama",
+      "raw_name": "Drama",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Painting",
+      "raw_name": "Visual Art",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Photography",
+      "raw_name": "Photography",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Design",
+      "raw_name": "Design",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Design & Visual Communication",
+      "raw_name": "Design and Visual Communication",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Digital Technology",
+      "raw_name": "Digital Technologies",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Food Technology",
+      "raw_name": "Food & Hospitality",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Textiles",
+      "raw_name": "Textiles Technology",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Media Studies",
+      "raw_name": "Media Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    },
+    {
+      "name": "Tourism",
+      "raw_name": "Tourism",
+      "confidence": 0.9,
+      "source_url": "https://www.mags.school.nz/academic/subject-information/"
+    }
+  ],
+  "subjects_url": "https://www.mags.school.nz/academic/subject-information/",
+  "subjects_count": 36,
+  "sports": [
+    "Athletics",
+    "Badminton",
+    "Basketball",
+    "Cricket",
+    "Cross Country",
+    "Cycling",
+    "Fencing",
+    "Football",
+    "Golf",
+    "Hockey",
+    "Lacrosse",
+    "Lawn Bowls",
+    "Mountain Biking",
+    "Netball",
+    "Orienteering",
+    "Rowing",
+    "Rugby",
+    "Rugby League",
+    "Skiing",
+    "Snowboarding",
+    "Softball",
+    "Squash",
+    "Swimming",
+    "Table Tennis",
+    "Tennis",
+    "Touch",
+    "Triathlon",
+    "Volleyball",
+    "Waka Ama",
+    "Water Polo",
+    "Weightlifting",
+    "Wrestling",
+    "Yachting"
+  ],
+  "sports_url": "https://www.mags.school.nz/sport-culture/sport/",
+  "sports_count": 33,
+  "arts": [
+    "String Orchestra",
+    "Jazz Band",
+    "Concert Band",
+    "Chamber Group",
+    "Rock Band",
+    "School Orchestra",
+    "Hip Hop Mega Crew",
+    "Theatresports",
+    "Musical Theatre Group",
+    "Kapa Haka"
+  ],
+  "arts_url": "https://www.mags.school.nz/sport-culture/arts-culture/",
+  "arts_count": 10,
+  "clubs": [
+    "Astronomy Club",
+    "Chess Club",
+    "Debating",
+    "Informatics Olympiad Club",
+    "Programming and Coding",
+    "Robotics",
+    "Science Fair Club",
+    "Creative Writing",
+    "Zine Club",
+    "Indian Club",
+    "Muslim Club",
+    "Sri Lankan Club",
+    "Environment",
+    "Horticultural Club",
+    "TeenAg",
+    "Mooting Club",
+    "MAGS Rainbow Pride Club"
+  ],
+  "clubs_url": "https://www.mags.school.nz/sport-culture/clubs/",
+  "clubs_count": 17,
+  "intl_tuition_annual": 20000.0,
+  "intl_homestay_weekly": 420.0,
+  "intl_fees_url": "https://www.mags.school.nz/international/how-to-apply/",
+  "intl_fees_year": 2026,
+  "curriculum_systems": [
+    {
+      "system": "NCEA",
+      "status": "offered",
+      "evidence_url": "https://www.mags.school.nz/academic/subject-information/"
+    }
+  ],
+  "zone_map_url": "",
+  "zone_streets_url": "https://www.mags.school.nz/in-zone-streets-2024-2/",
+  "zone_page_url": "https://www.mags.school.nz/the-school/enrolment-scheme-zone/",
+  "logo_url": "https://www.mags.school.nz/wp-content/uploads/2016/12/magslogo-140.png",
+  "site_type": "wordpress",
+  "pages_crawled": [
+    "http://www.mags.school.nz",
+    "https://www.mags.school.nz/academic/subject-information/",
+    "https://www.mags.school.nz/sport-culture/sport/",
+    "https://www.mags.school.nz/sport-culture/arts-culture/",
+    "https://www.mags.school.nz/co-curricular/music/",
+    "https://www.mags.school.nz/co-curricular/dance/",
+    "https://www.mags.school.nz/co-curricular/drama/",
+    "https://www.mags.school.nz/sport-culture/clubs/",
+    "https://www.mags.school.nz/international/how-to-apply/",
+    "https://www.mags.school.nz/the-school/enrolment-scheme-zone/"
+  ],
+  "warnings": [],
+  "crawled_at": "2026-03-25T13:04:50.809557"
+}

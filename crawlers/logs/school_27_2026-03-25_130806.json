@@ -1,0 +1,289 @@
+{
+  "school_number": 27,
+  "school_name": "Long Bay College",
+  "subjects": [
+    "English",
+    "Mathematics",
+    "Science",
+    "Social Studies",
+    "Physical Education",
+    "Health",
+    "Biology",
+    "Chemistry",
+    "Physics",
+    "Geography",
+    "History",
+    "Economics",
+    "Business Studies",
+    "Media Studies",
+    "Classical Studies",
+    "French",
+    "Japanese",
+    "Spanish",
+    "Te Reo Maori",
+    "Dance",
+    "Drama",
+    "Music",
+    "Painting",
+    "Photography",
+    "Design & Visual Communication",
+    "Digital Technology",
+    "Food Technology",
+    "Hospitality",
+    "Textiles",
+    "ESOL",
+    "Tourism"
+  ],
+  "subjects_raw": [
+    {
+      "name": "English",
+      "raw_name": "English",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "Mathematics",
+      "raw_name": "Mathematics",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "Science",
+      "raw_name": "Science",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "Social Studies",
+      "raw_name": "Social Studies",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "Physical Education",
+      "raw_name": "Physical Education",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "Health",
+      "raw_name": "Health",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "Biology",
+      "raw_name": "Biology",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "Chemistry",
+      "raw_name": "Chemistry",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "Physics",
+      "raw_name": "Physics",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "Geography",
+      "raw_name": "Geography",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "History",
+      "raw_name": "History",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "Economics",
+      "raw_name": "Economics",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "Business Studies",
+      "raw_name": "Business Studies",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "Media Studies",
+      "raw_name": "Media Studies",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "Classical Studies",
+      "raw_name": "Classical Studies",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "French",
+      "raw_name": "French",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "Japanese",
+      "raw_name": "Japanese",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "Spanish",
+      "raw_name": "Spanish",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "Te Reo Maori",
+      "raw_name": "Te Reo Māori",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "Dance",
+      "raw_name": "Dance",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "Drama",
+      "raw_name": "Drama",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "Music",
+      "raw_name": "Music",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "Painting",
+      "raw_name": "Visual Art",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "Photography",
+      "raw_name": "Photography",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "Design & Visual Communication",
+      "raw_name": "Design & Visual Communication",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "Digital Technology",
+      "raw_name": "Digital Technologies",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "Food Technology",
+      "raw_name": "Food Technology",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "Hospitality",
+      "raw_name": "Hospitality",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "Textiles",
+      "raw_name": "Textiles Technology",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "ESOL",
+      "raw_name": "ESOL",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    },
+    {
+      "name": "Tourism",
+      "raw_name": "Tourism and Travel",
+      "confidence": 0.7,
+      "source_url": "https://www.longbaycollege.com/learning/our-courses/"
+    }
+  ],
+  "subjects_url": "https://www.longbaycollege.com/learning/our-courses/",
+  "subjects_count": 31,
+  "sports": [
+    "Athletics",
+    "Badminton",
+    "Basketball",
+    "Cricket",
+    "Football",
+    "Golf",
+    "Hockey",
+    "Netball",
+    "Orienteering",
+    "Rugby",
+    "Tennis",
+    "Touch",
+    "Volleyball",
+    "Water Polo"
+  ],
+  "sports_url": "https://www.longbaycollege.com/sports/sports-codes/",
+  "sports_count": 14,
+  "arts": [
+    "Concert Band",
+    "Big Band",
+    "Rock Band",
+    "Orchestra",
+    "Drama"
+  ],
+  "arts_url": "https://www.longbaycollege.com/the-arts/performing-arts-groups/",
+  "arts_count": 5,
+  "clubs": [
+    "Duke of Edinburgh",
+    "Chess Club"
+  ],
+  "clubs_url": "https://www.longbaycollege.com/get-involved/clubs-and-activities/",
+  "clubs_count": 2,
+  "intl_tuition_annual": null,
+  "intl_homestay_weekly": null,
+  "intl_fees_url": "https://www.longbaycollege.com/international-students/",
+  "intl_fees_year": null,
+  "curriculum_systems": [
+    {
+      "system": "NCEA",
+      "status": "offered",
+      "evidence_url": "https://www.longbaycollege.com/learning/ncea/"
+    }
+  ],
+  "zone_map_url": "",
+  "zone_streets_url": "",
+  "zone_page_url": "https://www.longbaycollege.com/enrolment1/how-to-apply/",
+  "logo_url": null,
+  "site_type": "wordpress",
+  "pages_crawled": [
+    "http://www.longbaycollege.com",
+    "https://www.longbaycollege.com/learning/our-courses/",
+    "https://www.longbaycollege.com/sports/sports-codes/",
+    "https://www.longbaycollege.com/the-arts/performing-arts-groups/",
+    "https://www.longbaycollege.com/get-involved/clubs-and-activities/",
+    "https://www.longbaycollege.com/international-students/",
+    "https://www.longbaycollege.com/enrolment1/how-to-apply/"
+  ],
+  "warnings": [
+    "Logo: main logo is wide banner (2280x440). No square crest/favicon found — needs manual review."
+  ],
+  "crawled_at": "2026-03-25T13:07:49.928835"
+}

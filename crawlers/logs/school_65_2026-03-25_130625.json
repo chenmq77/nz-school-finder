@@ -1,0 +1,311 @@
+{
+  "school_number": 65,
+  "school_name": "Glendowie College",
+  "subjects": [
+    "English",
+    "Mathematics",
+    "Science",
+    "Physical Education",
+    "Health",
+    "Biology",
+    "Chemistry",
+    "Physics",
+    "Geography",
+    "History",
+    "Economics",
+    "Business Studies",
+    "Classical Studies",
+    "Spanish",
+    "Chinese",
+    "ESOL",
+    "Painting",
+    "Music",
+    "Drama",
+    "Dance",
+    "Design & Visual Communication",
+    "Electronics",
+    "Digital Technology",
+    "Food Technology",
+    "Hospitality",
+    "Accounting"
+  ],
+  "subjects_raw": [
+    {
+      "name": "English",
+      "raw_name": "English",
+      "confidence": 0.9,
+      "source_url": "https://www.gdc.school.nz/international"
+    },
+    {
+      "name": "Mathematics",
+      "raw_name": "Mathematics",
+      "confidence": 0.9,
+      "source_url": "https://www.gdc.school.nz/international"
+    },
+    {
+      "name": "Science",
+      "raw_name": "Science",
+      "confidence": 0.9,
+      "source_url": "https://www.gdc.school.nz/international"
+    },
+    {
+      "name": "Physical Education",
+      "raw_name": "Physical Education",
+      "confidence": 0.9,
+      "source_url": "https://www.gdc.school.nz/international"
+    },
+    {
+      "name": "Health",
+      "raw_name": "Health",
+      "confidence": 0.9,
+      "source_url": "https://www.gdc.school.nz/international"
+    },
+    {
+      "name": "Biology",
+      "raw_name": "Biology",
+      "confidence": 0.9,
+      "source_url": "https://www.gdc.school.nz/international"
+    },
+    {
+      "name": "Chemistry",
+      "raw_name": "Chemistry",
+      "confidence": 0.9,
+      "source_url": "https://www.gdc.school.nz/international"
+    },
+    {
+      "name": "Physics",
+      "raw_name": "Physics",
+      "confidence": 0.9,
+      "source_url": "https://www.gdc.school.nz/international"
+    },
+    {
+      "name": "Geography",
+      "raw_name": "Geography",
+      "confidence": 0.9,
+      "source_url": "https://www.gdc.school.nz/international"
+    },
+    {
+      "name": "History",
+      "raw_name": "History",
+      "confidence": 0.9,
+      "source_url": "https://www.gdc.school.nz/international"
+    },
+    {
+      "name": "Economics",
+      "raw_name": "Economics",
+      "confidence": 0.9,
+      "source_url": "https://www.gdc.school.nz/international"
+    },
+    {
+      "name": "Business Studies",
+      "raw_name": "Business Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.gdc.school.nz/international"
+    },
+    {
+      "name": "Classical Studies",
+      "raw_name": "Classical Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.gdc.school.nz/international"
+    },
+    {
+      "name": "Spanish",
+      "raw_name": "Spanish",
+      "confidence": 0.9,
+      "source_url": "https://www.gdc.school.nz/international"
+    },
+    {
+      "name": "Chinese",
+      "raw_name": "Mandarin",
+      "confidence": 0.9,
+      "source_url": "https://www.gdc.school.nz/international"
+    },
+    {
+      "name": "ESOL",
+      "raw_name": "ESOL",
+      "confidence": 0.9,
+      "source_url": "https://www.gdc.school.nz/international"
+    },
+    {
+      "name": "Painting",
+      "raw_name": "Art",
+      "confidence": 0.9,
+      "source_url": "https://www.gdc.school.nz/international"
+    },
+    {
+      "name": "Music",
+      "raw_name": "Music",
+      "confidence": 0.9,
+      "source_url": "https://www.gdc.school.nz/international"
+    },
+    {
+      "name": "Drama",
+      "raw_name": "Drama",
+      "confidence": 0.9,
+      "source_url": "https://www.gdc.school.nz/international"
+    },
+    {
+      "name": "Dance",
+      "raw_name": "Dance",
+      "confidence": 0.9,
+      "source_url": "https://www.gdc.school.nz/international"
+    },
+    {
+      "name": "Design & Visual Communication",
+      "raw_name": "Design & Visual Communication (Graphics)",
+      "confidence": 0.9,
+      "source_url": "https://www.gdc.school.nz/international"
+    },
+    {
+      "name": "Electronics",
+      "raw_name": "Electronics",
+      "confidence": 0.9,
+      "source_url": "https://www.gdc.school.nz/international"
+    },
+    {
+      "name": "Digital Technology",
+      "raw_name": "Computer courses",
+      "confidence": 0.9,
+      "source_url": "https://www.gdc.school.nz/international"
+    },
+    {
+      "name": "Food Technology",
+      "raw_name": "Food Technology",
+      "confidence": 0.9,
+      "source_url": "https://www.gdc.school.nz/international"
+    },
+    {
+      "name": "Hospitality",
+      "raw_name": "Hospitality",
+      "confidence": 0.9,
+      "source_url": "https://www.gdc.school.nz/international"
+    },
+    {
+      "name": "Accounting",
+      "raw_name": "Accounting",
+      "confidence": 0.9,
+      "source_url": "https://www.gdc.school.nz/international"
+    }
+  ],
+  "subjects_url": "https://www.gdc.school.nz/international",
+  "subjects_count": 26,
+  "sports": [
+    "Athletics",
+    "Climbing",
+    "Cricket",
+    "Lawn Bowls",
+    "Orienteering",
+    "Rowing",
+    "Surfing",
+    "Swimming",
+    "Table Tennis",
+    "Touch Rugby",
+    "Volleyball",
+    "Water Polo",
+    "Yachting",
+    "Badminton",
+    "Basketball",
+    "Cycling",
+    "Distance Running",
+    "Football",
+    "Hockey",
+    "Lacrosse",
+    "Mountain Biking",
+    "Netball",
+    "Rugby Union",
+    "Snow Sports",
+    "Underwater Hockey",
+    "Triathlon"
+  ],
+  "sports_url": "https://www.gdc.school.nz/explore-glendowie-college/sport",
+  "sports_count": 26,
+  "arts": [
+    "Concert Band",
+    "Wind Band",
+    "Jazz Band",
+    "String Ensemble",
+    "Rock Programme",
+    "Chamber Ensembles",
+    "Tira Waiata o Taurere Choir",
+    "Choir",
+    "Theatresports",
+    "Senior Dance Group",
+    "Junior Dance Group",
+    "K-Pop Dance Group",
+    "Asian Fusion Dance Group",
+    "Kapa Haka"
+  ],
+  "arts_url": "https://www.gdc.school.nz/explore-glendowie-college/arts-culture",
+  "arts_count": 14,
+  "clubs": [
+    "Amnesty International",
+    "Arts Club",
+    "Book Club",
+    "Chess Club",
+    "Coding Club",
+    "Craft Club",
+    "Cultural Club",
+    "Debating",
+    "Duke of Edinburgh",
+    "Dungeons and Dragons / Tabletop",
+    "E Pro 8 Club",
+    "Fantasy Football",
+    "Homework Club",
+    "Interact",
+    "Junior Maths Club",
+    "Lighting Crew",
+    "Mahjong Club",
+    "Maker Space / Future Problem Solving Club",
+    "Play Reading Group",
+    "Poetry Writing Club",
+    "Polyfest Speech Group",
+    "Queer Support",
+    "Rangatahi Ora",
+    "Reading Competitions",
+    "Space Club",
+    "Spoken Word Poetry Club",
+    "Student Librarians",
+    "Sustainability Group",
+    "TECHS",
+    "The Fish",
+    "UN Youth",
+    "Writer's Circle",
+    "Young Enterprise Scheme"
+  ],
+  "clubs_url": "https://www.gdc.school.nz/explore-glendowie-college/community/clubs-groups",
+  "clubs_count": 33,
+  "intl_tuition_annual": null,
+  "intl_homestay_weekly": null,
+  "intl_fees_url": "https://www.gdc.school.nz/international",
+  "intl_fees_year": null,
+  "curriculum_systems": [
+    {
+      "system": "NCEA",
+      "status": "offered",
+      "evidence_url": "https://www.gdc.school.nz/explore-glendowie-college/academic/year-11-pathway"
+    },
+    {
+      "system": "IB",
+      "status": "offered",
+      "evidence_url": "https://www.gdc.school.nz/explore-glendowie-college/academic/years-9-10-myp"
+    }
+  ],
+  "zone_map_url": "",
+  "zone_streets_url": "",
+  "zone_page_url": "https://www.gdc.school.nz/enrolment/school-zone",
+  "logo_url": "https://gdc.ibcdn.nz/media/2025_03_11_glendowie-logo-vert.svg",
+  "site_type": "schoolbridge",
+  "pages_crawled": [
+    "http://www.gdc.school.nz",
+    "https://www.gdc.school.nz/explore-glendowie-college/academic/curriculum-pathways",
+    "https://www.gdc.school.nz/international",
+    "https://www.gdc.school.nz/explore-glendowie-college/sport",
+    "https://www.gdc.school.nz/explore-glendowie-college/arts-culture",
+    "https://www.gdc.school.nz/explore-glendowie-college/community/clubs-groups",
+    "https://www.gdc.school.nz/enrolment/school-zone"
+  ],
+  "warnings": [
+    "International fees not publicly listed on website — contact school for amounts"
+  ],
+  "crawled_at": "2026-03-25T13:06:09.473412"
+}
