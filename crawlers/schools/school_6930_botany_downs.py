@@ -24,6 +24,9 @@ class BotanyDownsCrawler(StandardHtmlCrawler):
     SUBJECTS_URL = "https://www.bdsc.school.nz/curriculum/subject-information/"
     SPORTS_URL = "https://www.bdsc.school.nz/co-curricular/sports/"
     ARTS_URL = "https://www.bdsc.school.nz/co-curricular/the-arts/"
+    MUSIC_URL = "https://www.bdsc.school.nz/co-curricular/the-arts/music/"
+    DANCE_URL = "https://www.bdsc.school.nz/co-curricular/the-arts/dance/"
+    DRAMA_URL = "https://www.bdsc.school.nz/co-curricular/the-arts/drama-and-theatre/"
     CLUBS_URL = "https://www.bdsc.school.nz/co-curricular/"
     FEES_URL = "https://www.bdsc.school.nz/international/"
     FEES_PDF_URL = "https://www.bdsc.school.nz/wp-content/uploads/International-Fees-Dates.pdf"
@@ -32,6 +35,7 @@ class BotanyDownsCrawler(StandardHtmlCrawler):
     def discover_pages(self):
         super().discover_pages()
         for url in [self.SUBJECTS_URL, self.SPORTS_URL, self.ARTS_URL,
+                    self.MUSIC_URL, self.DANCE_URL, self.DRAMA_URL,
                     self.CLUBS_URL, self.FEES_URL, self.ZONE_URL]:
             self.fetch_page(url)
 
@@ -129,32 +133,50 @@ class BotanyDownsCrawler(StandardHtmlCrawler):
     # ── Arts / Performing Arts ────────────────────────
 
     def extract_arts(self):
-        """Extract performing arts groups from The Arts page."""
+        """Extract performing arts from 3 sub-pages: music, dance, drama."""
         self.data.arts_url = self.ARTS_URL
-        content = self._pages.get(self.ARTS_URL, "")
-        if not content:
-            self.data.warnings.append("Could not fetch arts page")
-            return
 
-        known_arts = [
-            "Jazz Band", "Orchestra", "Chamber Music",
-            "Theatresports",
-        ]
-        for item in known_arts:
-            if item.lower() in content.lower():
-                self.data.arts.append(item)
+        # Music sub-page: Concert Band, Orchestra, Ukulele Group, Rock Bands, Flute Choir, Chamber Groups
+        music = self._pages.get(self.MUSIC_URL, "")
+        if music:
+            music_groups = [
+                "Concert Band", "Orchestra", "Ukulele Group",
+                "Rock Bands", "Flute Choir", "Chamber Groups",
+                "Jazz Band", "Choir",
+            ]
+            for g in music_groups:
+                if g.lower() in music.lower():
+                    self.data.arts.append(g)
 
-        # Check for choir
-        if re.search(r'choir', content, re.IGNORECASE):
-            self.data.arts.append("Choir")
+        # Dance sub-page: Pulse, Stage Challenge, SDNZ Megacrew, Bring it On, Kapa Haka
+        dance = self._pages.get(self.DANCE_URL, "")
+        if dance:
+            dance_groups = [
+                "SDNZ Megacrew", "Stage Challenge", "Bring it On",
+            ]
+            for g in dance_groups:
+                if g.lower() in dance.lower():
+                    self.data.arts.append(g)
+            if re.search(r'kapa\s*haka', dance, re.IGNORECASE):
+                self.data.arts.append("Kapa Haka")
 
-        # Check for Kapa Haka
-        if re.search(r'kapa\s*haka', content, re.IGNORECASE):
-            self.data.arts.append("Kapa Haka")
+        # Drama sub-page: Sheilah Winn Shakespeare, Theatre Sports, School Production
+        drama = self._pages.get(self.DRAMA_URL, "")
+        if drama:
+            drama_groups = [
+                "Sheilah Winn Shakespeare", "Theatre Sports",
+                "School Production",
+            ]
+            for g in drama_groups:
+                if g.lower() in drama.lower():
+                    self.data.arts.append(g)
 
-        # Wearable Art (performance/exhibition nature)
-        if re.search(r'wearable\s*art', content, re.IGNORECASE):
+        # Wearable Art (from main arts page)
+        main = self._pages.get(self.ARTS_URL, "")
+        if main and re.search(r'wearable\s*art', main, re.IGNORECASE):
             self.data.arts.append("Wearable Art")
+        if main and re.search(r'showquest', main, re.IGNORECASE):
+            self.data.arts.append("Showquest")
 
     # ── Clubs ─────────────────────────────────────────
 
