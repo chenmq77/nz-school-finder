@@ -107,7 +107,7 @@ const TRANSLATIONS = {
     filter_gender:        { en: "Gender", cn: "性别" },
     filter_year_levels:   { en: "Year Levels", cn: "年级" },
     filter_curriculum:    { en: "Curriculum", cn: "课程体系" },
-    filter_eqi:           { en: "EQI", cn: "公平指数" },
+    filter_eqi:           { en: "EQI", cn: "社区条件" },
     clear_all:            { en: "Clear all", cn: "清除筛选" },
     sort_name:            { en: "Name A-Z", cn: "按名称 A-Z" },
     sort_roll_desc:       { en: "Roll (High-Low)", cn: "人数（多-少）" },
@@ -123,9 +123,9 @@ const TRANSLATIONS = {
     eqi_above_avg:        { en: "Above average", cn: "高于平均" },
     eqi_many:             { en: "Many barriers", cn: "较多障碍" },
     eqi_most:             { en: "Most barriers", cn: "最多障碍" },
-    eqi_group_fewer:      { en: "Fewer", cn: "较少" },
+    eqi_group_fewer:      { en: "Fewer barriers", cn: "较好" },
     eqi_group_moderate:   { en: "Moderate", cn: "中等" },
-    eqi_group_more:       { en: "More", cn: "较多" },
+    eqi_group_more:       { en: "More barriers", cn: "较弱" },
 
     // Misc
     no_data:              { en: "No data available", cn: "暂无数据" },
