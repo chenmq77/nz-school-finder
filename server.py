@@ -342,6 +342,63 @@ def filter_schools(params):
         conn.close()
 
 
+def fetch_school_performance(school_number):
+    """Get NCEA performance data for a school: school totals + comparison."""
+    conn = get_connection()
+    try:
+        cur = conn.cursor()
+
+        # School performance (Total group only for main display)
+        cur.execute("""
+            SELECT year, metric, below_count, above_count, percentage
+            FROM school_performance
+            WHERE school_number = ? AND group_name = 'Total'
+            ORDER BY metric, year
+        """, (school_number,))
+        perf = {}
+        for year, metric, below, above, pct in cur.fetchall():
+            if metric not in perf:
+                perf[metric] = {}
+            perf[metric][year] = {
+                "below": below, "above": above, "pct": pct,
+                "leavers": (below or 0) + (above or 0),
+            }
+
+        if not perf:
+            return None
+
+        # Comparison data
+        cur.execute("""
+            SELECT comparison_group, year, metric, percentage
+            FROM school_performance_comparison
+            WHERE school_number = ?
+            ORDER BY comparison_group, metric, year
+        """, (school_number,))
+        comparison = {}
+        for group, year, metric, pct in cur.fetchall():
+            if group not in comparison:
+                comparison[group] = {}
+            if metric not in comparison[group]:
+                comparison[group][metric] = {}
+            comparison[group][metric][year] = pct
+
+        # Get available years
+        cur.execute("""
+            SELECT DISTINCT year FROM school_performance
+            WHERE school_number = ? ORDER BY year
+        """, (school_number,))
+        years = [r[0] for r in cur.fetchall()]
+
+        return {
+            "school_number": int(school_number),
+            "years": years,
+            "performance": perf,
+            "comparison": comparison,
+        }
+    finally:
+        conn.close()
+
+
 def fetch_school_web(school_number):
     """获取学校官网爬取的额外数据，subjects 从标准化表读取，费用从 school_fees 智能查询"""
     conn = get_connection()
@@ -432,6 +489,9 @@ class SchoolFinderHandler(http.server.SimpleHTTPRequestHandler):
             self._handle_schools(params)
         elif path == "/api/search":
             self._handle_search(params)
+        elif path.startswith("/api/school/") and path.endswith("/performance"):
+            school_number = path.split("/")[-2]
+            self._handle_school_performance(school_number)
         elif path.startswith("/api/school/") and path.endswith("/web"):
             school_number = path.split("/")[-2]
             self._handle_school_web(school_number)
@@ -477,6 +537,10 @@ class SchoolFinderHandler(http.server.SimpleHTTPRequestHandler):
             self._json_response(school)
         else:
             self._json_response({"error": "School not found"}, 404)
+
+    def _handle_school_performance(self, school_number):
+        data = fetch_school_performance(school_number)
+        self._json_response(data or {})
 
     def _handle_school_web(self, school_number):
         data = fetch_school_web(school_number)
