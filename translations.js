@@ -22,14 +22,20 @@ const TRANSLATIONS = {
     lang_cn:              { en: "中", cn: "中" },
     lang_both:            { en: "双", cn: "双" },
 
-    // Section Headers (A-E)
+    // Section Headers (A-G)
     section_a:            { en: "School Identity", cn: "学校身份概览" },
     section_b:            { en: "Location & Admissions", cn: "位置与入学" },
     section_c:            { en: "Subjects & Curriculum", cn: "课程与学科" },
     section_d:            { en: "Activities & Co-curricular", cn: "课外活动" },
     section_e:            { en: "International Fees", cn: "国际生费用" },
+    section_f:            { en: "Students", cn: "学生规模与构成" },
+    section_g:            { en: "Other Details", cn: "其他信息" },
 
     // Field Labels — Section A
+    school_type:          { en: "Type", cn: "类型" },
+    year_level:           { en: "Year Levels", cn: "年级" },
+    authority:            { en: "Authority", cn: "性质" },
+    gender:               { en: "Gender", cn: "性别" },
     curriculum:           { en: "Curriculum", cn: "课程体系" },
     boarding:             { en: "Boarding", cn: "寄宿设施" },
     website:              { en: "Website", cn: "学校官网" },
@@ -103,18 +109,32 @@ const TRANSLATIONS = {
   // ── Data Value Translations (CSV enum values) ─────────────────────
 
   data: {
-    school_type: {
-      "Contributing":                    { en: "Contributing", cn: "小学 (1-6年级)" },
-      "Full Primary":                    { en: "Full Primary", cn: "完全小学 (1-8年级)" },
-      "Intermediate":                    { en: "Intermediate", cn: "中间学校 (7-8年级)" },
-      "Composite":                       { en: "Composite", cn: "综合学校 (1-13年级)" },
-      "Composite (Year 1-10)":           { en: "Composite (Year 1-10)", cn: "综合学校 (1-10年级)" },
-      "Restricted Composite (Year 7-10)":{ en: "Restricted Composite (Year 7-10)", cn: "限制综合学校 (7-10年级)" },
-      "Secondary (Year 9-15)":           { en: "Secondary (Year 9-15)", cn: "中学 (9-13年级)" },
-      "Secondary (Year 7-15)":           { en: "Secondary (Year 7-15)", cn: "中学 (7-13年级)" },
-      "Secondary (Year 7-10)":           { en: "Secondary (Year 7-10)", cn: "初中 (7-10年级)" },
-      "Secondary (Year 11-15)":          { en: "Secondary (Year 11-15)", cn: "高中 (11-13年级)" },
+    // school_type split into type_label (school category) and year_range (grade range)
+    school_type_label: {
+      "Contributing":                    { en: "Contributing", cn: "小学" },
+      "Full Primary":                    { en: "Full Primary", cn: "完全小学" },
+      "Intermediate":                    { en: "Intermediate", cn: "中间学校" },
+      "Composite":                       { en: "Composite", cn: "综合学校" },
+      "Composite (Year 1-10)":           { en: "Composite", cn: "综合学校" },
+      "Restricted Composite (Year 7-10)":{ en: "Restricted Composite", cn: "限制综合学校" },
+      "Secondary (Year 9-15)":           { en: "Secondary", cn: "中学" },
+      "Secondary (Year 7-15)":           { en: "Secondary", cn: "中学" },
+      "Secondary (Year 7-10)":           { en: "Secondary", cn: "初中" },
+      "Secondary (Year 11-15)":          { en: "Secondary", cn: "高中" },
       "Correspondence School":           { en: "Correspondence School", cn: "函授学校" },
+    },
+    school_type_years: {
+      "Contributing":                    { en: "Year 1-6", cn: "1-6年级" },
+      "Full Primary":                    { en: "Year 1-8", cn: "1-8年级" },
+      "Intermediate":                    { en: "Year 7-8", cn: "7-8年级" },
+      "Composite":                       { en: "Year 1-13", cn: "1-13年级" },
+      "Composite (Year 1-10)":           { en: "Year 1-10", cn: "1-10年级" },
+      "Restricted Composite (Year 7-10)":{ en: "Year 7-10", cn: "7-10年级" },
+      "Secondary (Year 9-15)":           { en: "Year 9-13", cn: "9-13年级" },
+      "Secondary (Year 7-15)":           { en: "Year 7-13", cn: "7-13年级" },
+      "Secondary (Year 7-10)":           { en: "Year 7-10", cn: "7-10年级" },
+      "Secondary (Year 11-15)":          { en: "Year 11-13", cn: "11-13年级" },
+      "Correspondence School":           { en: "Year 1-13", cn: "1-13年级" },
     },
 
     authority: {

@@ -967,11 +967,6 @@ body {
   <div class="header-inner">
     <div class="header-row">
       <div class="brand" onclick="clearSearch()" style="cursor:pointer" title="返回首页 / Back to home"><span>NZ</span> School Finder</div>
-      <div id="langSwitcher" style="display:flex;gap:2px;margin-left:12px;align-items:center">
-        <button onclick="setLang('en')" class="lang-btn" data-lang="en" style="padding:2px 8px;border:1px solid var(--border);border-radius:4px;background:none;cursor:pointer;font-size:12px;color:var(--text-muted)">EN</button>
-        <button onclick="setLang('cn')" class="lang-btn" data-lang="cn" style="padding:2px 8px;border:1px solid var(--border);border-radius:4px;background:none;cursor:pointer;font-size:12px;color:var(--text-muted)">中</button>
-        <button onclick="setLang('both')" class="lang-btn" data-lang="both" style="padding:2px 8px;border:1px solid var(--border);border-radius:4px;background:none;cursor:pointer;font-size:12px;color:var(--text-muted)">双</button>
-      </div>
       <div class="search-wrap">
         <div class="search-box">
           <div class="search-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></div>
@@ -979,6 +974,11 @@ body {
           <button id="clearBtn" onclick="clearSearch()" title="Clear search" style="display:none;position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:18px;padding:4px 8px;line-height:1">&times;</button>
         </div>
         <div class="search-results" id="searchResults"></div>
+      </div>
+      <div id="langSwitcher" style="display:flex;gap:3px;margin-left:12px;align-items:center;flex-shrink:0">
+        <button onclick="setLang('en')" class="lang-btn" data-lang="en" style="padding:3px 10px;border:1px solid var(--border);border-radius:12px;background:none;cursor:pointer;font-size:12px;color:var(--text-muted);transition:all .2s">EN</button>
+        <button onclick="setLang('cn')" class="lang-btn" data-lang="cn" style="padding:3px 10px;border:1px solid var(--border);border-radius:12px;background:none;cursor:pointer;font-size:12px;color:var(--text-muted);transition:all .2s">中</button>
+        <button onclick="setLang('both')" class="lang-btn" data-lang="both" style="padding:3px 10px;border:1px solid var(--border);border-radius:12px;background:none;cursor:pointer;font-size:12px;color:var(--text-muted);transition:all .2s">双</button>
       </div>
     </div>
     <div class="header-filter-row">
@@ -1066,7 +1066,7 @@ body {
     <!-- A. 学校身份概览 -->
     <div class="section" id="sectionA">
       <div class="section-header collapsible" onclick="toggleSection('A')">
-        <div class="section-title">A. 学校身份概览 / School Identity</div>
+        <div class="section-title" id="titleA">A. School Identity</div>
         <span class="section-toggle open" id="toggleA">&#9660;</span>
       </div>
       <div class="section-body" id="bodyA"></div>
@@ -1075,7 +1075,7 @@ body {
     <!-- B. 位置与入学 -->
     <div class="section" id="sectionB">
       <div class="section-header collapsible" onclick="toggleSection('B')">
-        <div class="section-title">B. 位置与入学 / Location & Admissions</div>
+        <div class="section-title" id="titleB">B. Location & Admissions</div>
         <span class="section-toggle open" id="toggleB">&#9660;</span>
       </div>
       <div class="section-body" id="bodyB"></div>
@@ -1084,7 +1084,7 @@ body {
     <!-- C. 课程 -->
     <div class="section" id="sectionC">
       <div class="section-header collapsible" onclick="toggleSection('C')">
-        <div class="section-title">C. 课程 / Subjects</div>
+        <div class="section-title" id="titleC">C. Subjects & Curriculum</div>
         <span class="section-toggle open" id="toggleC">&#9660;</span>
       </div>
       <div class="section-body" id="bodyC"></div>
@@ -1093,7 +1093,7 @@ body {
     <!-- D. 课外活动 -->
     <div class="section" id="sectionD">
       <div class="section-header collapsible" onclick="toggleSection('D')">
-        <div class="section-title">D. 课外活动 / Extra-curricular</div>
+        <div class="section-title" id="titleD">D. Activities & Co-curricular</div>
         <span class="section-toggle open" id="toggleD">&#9660;</span>
       </div>
       <div class="section-body" id="bodyD"></div>
@@ -1102,7 +1102,7 @@ body {
     <!-- E. 国际生费用 -->
     <div class="section" id="sectionE">
       <div class="section-header collapsible" onclick="toggleSection('E')">
-        <div class="section-title">E. 国际生费用 / International Fees</div>
+        <div class="section-title" id="titleE">E. International Fees</div>
         <span class="section-toggle open" id="toggleE">&#9660;</span>
       </div>
       <div class="section-body" id="bodyE"></div>
@@ -1111,7 +1111,7 @@ body {
     <!-- F. 学生规模与构成 -->
     <div class="section" id="sectionF">
       <div class="section-header collapsible" onclick="toggleSection('F')">
-        <div class="section-title">F. 学生规模与构成 / Students</div>
+        <div class="section-title" id="titleF">F. Students</div>
         <span class="section-toggle open" id="toggleF">&#9660;</span>
       </div>
       <div class="section-body" id="bodyF"></div>
@@ -1120,7 +1120,7 @@ body {
     <!-- G. 其他信息 -->
     <div class="section" id="sectionG">
       <div class="section-header collapsible" onclick="toggleSection('G')">
-        <div class="section-title">G. 其他信息 / Other Details</div>
+        <div class="section-title" id="titleG">G. Other Details</div>
         <span class="section-toggle" id="toggleG">&#9660;</span>
       </div>
       <div class="section-body collapsed" id="bodyG"></div>
@@ -1215,6 +1215,16 @@ function bilingual(en, cn) {
   return `${esc(en)}<div style="font-size:0.85em;color:var(--text-muted);margin-top:2px">${esc(cn)}</div>`;
 }
 
+/** Update section titles based on current language */
+function updateSectionTitles() {
+  const sections = {A:'section_a', B:'section_b', C:'section_c', D:'section_d', E:'section_e', F:'section_f', G:'section_g'};
+  const prefix = {A:'A', B:'B', C:'C', D:'D', E:'E', F:'F', G:'G'};
+  for (const [k, key] of Object.entries(sections)) {
+    const el = document.getElementById('title' + k);
+    if (el) el.textContent = prefix[k] + '. ' + t(key);
+  }
+}
+
 /** Switch language and re-render */
 function setLang(lang) {
   _lang = lang;
@@ -1227,6 +1237,8 @@ function setLang(lang) {
   // Update search placeholder
   const searchInput = document.getElementById('searchInput');
   if (searchInput) searchInput.placeholder = t('search_placeholder');
+  // Update section titles
+  updateSectionTitles();
   // Re-render current view
   handleRoute();
 }
@@ -1239,6 +1251,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   const searchInput = document.getElementById('searchInput');
   if (searchInput) searchInput.placeholder = t('search_placeholder');
+  updateSectionTitles();
 });
 
 /* ── State ────────────────────────────────────────── */
@@ -1469,29 +1482,15 @@ function renderSchool(s) {
 }
 
 function renderSectionA(s) {
-  const typeCn = td('school_type', safe(s.school_type));
-  const authCn = td('authority', safe(s.authority));
-  const genderCn = td('gender', safe(s.gender_of_students));
-  const boardingCn = td('boarding', safe(s.boarding_facilities));
+  const typeLabel = td('school_type_label', safe(s.school_type));
+  const yearLabel = td('school_type_years', safe(s.school_type));
+  const authLabel = td('authority', safe(s.authority));
+  const genderLabel = td('gender', safe(s.gender_of_students));
+  const boardingLabel = td('boarding', safe(s.boarding_facilities));
 
   const website = safe(s.school_website);
   const websiteUrl = ensureHttp(website);
   const websiteLink = website !== '--' && isSafeUrl(websiteUrl) ? `<a href="${esc(websiteUrl)}" target="_blank" rel="noopener">${esc(website)}</a>` : esc(website);
-
-  // Tags: show cn in cn/both mode, en in en mode
-  const typeTag = _lang === 'en' ? esc(safe(s.school_type)) : `<span class="en">${esc(safe(s.school_type))}</span><span class="cn">${esc(typeCn)}</span>`;
-  const authTag = _lang === 'en' ? esc(safe(s.authority)) : `<span class="en">${esc(safe(s.authority))}</span><span class="cn">${esc(authCn)}</span>`;
-  const genderTag = _lang === 'en' ? esc(safe(s.gender_of_students)) : `<span class="en">${esc(safe(s.gender_of_students))}</span><span class="cn">${esc(genderCn)}</span>`;
-
-  // Tags in cn-only mode: show Chinese only
-  const typeDisplay = _lang === 'cn' ? esc(typeCn) : typeTag;
-  const authDisplay = _lang === 'cn' ? esc(authCn) : authTag;
-  const genderDisplay = _lang === 'cn' ? esc(genderCn) : genderTag;
-
-  // Boarding value
-  const boardingDisplay = _lang === 'en' ? esc(safe(s.boarding_facilities))
-    : _lang === 'cn' ? esc(boardingCn)
-    : `${esc(safe(s.boarding_facilities))} (${esc(boardingCn)})`;
 
   document.getElementById('bodyA').innerHTML = `
     <div style="position:relative">
@@ -1501,13 +1500,12 @@ function renderSectionA(s) {
         <span class="school-number">No. ${esc(safe(s.school_number))}</span>
       </div>
     </div>
-    <div class="tag-row">
-      <div class="tag">${typeDisplay}</div>
-      <div class="tag">${authDisplay}</div>
-      <div class="tag">${genderDisplay}</div>
-    </div>
+    <div class="info-row"><span class="info-label">${t('school_type')}</span><span class="info-value">${esc(typeLabel)}</span></div>
+    <div class="info-row"><span class="info-label">${t('year_level')}</span><span class="info-value">${esc(yearLabel)}</span></div>
+    <div class="info-row"><span class="info-label">${t('authority')}</span><span class="info-value">${esc(authLabel)}</span></div>
+    <div class="info-row"><span class="info-label">${t('gender')}</span><span class="info-value">${esc(genderLabel)}</span></div>
     <div id="curriculumBadges"></div>
-    <div class="info-row"><span class="info-label">${t('boarding')}</span><span class="info-value">${boardingDisplay}</span></div>
+    <div class="info-row"><span class="info-label">${t('boarding')}</span><span class="info-value">${esc(boardingLabel)}</span></div>
     <div class="info-row"><span class="info-label">${t('website')}</span><span class="info-value">${websiteLink}</span></div>
   `;
 }
@@ -1680,7 +1678,7 @@ function renderCurriculumBadges(w) {
     return `<a href="${esc(url)}" target="_blank" rel="noopener">${label}</a>`;
   });
   const el = document.getElementById('curriculumBadges');
-  if (el) el.innerHTML = `<div class="info-row"><span class="info-label">Curriculum / 课程体系</span><span class="info-value">${parts.join(', ')}</span></div>`;
+  if (el) el.innerHTML = `<div class="info-row"><span class="info-label">${t('curriculum')}</span><span class="info-value">${parts.join(', ')}</span></div>`;
 }
 
 function renderFees(w) {
