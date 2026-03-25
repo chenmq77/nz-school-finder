@@ -30,18 +30,20 @@ const TRANSLATIONS = {
     section_e:            { en: "International Fees", cn: "国际生费用" },
     section_f:            { en: "Students", cn: "学生规模与构成" },
     section_g:            { en: "Other Details", cn: "其他信息" },
-    section_h:            { en: "Academic Performance", cn: "学术表现" },
+    section_ncea:         { en: "NCEA Results", cn: "NCEA 升学成绩" },
 
-    // Field Labels — Section H
+    // Field Labels — Section NCEA
     ncea_leavers:         { en: "School Leavers", cn: "毕业生" },
-    ncea_distribution:    { en: "NCEA Achievement Distribution", cn: "NCEA 达标分布" },
+    ncea_distribution:    { en: "Achievement Distribution", cn: "达标分布" },
     ncea_below_l1:        { en: "Below Level 1", cn: "未达 Level 1" },
     ncea_l1_only:         { en: "NCEA L1", cn: "NCEA L1" },
     ncea_l2_only:         { en: "NCEA L2", cn: "NCEA L2" },
-    ncea_l3_ue:           { en: "NCEA L3 / UE", cn: "NCEA L3 / UE" },
+    ncea_l3_ue:           { en: "L3 / UE", cn: "L3 / 大学入学" },
     ncea_comparison:      { en: "Comparison", cn: "对比" },
-    ncea_same_type:       { en: "Same Type Schools", cn: "同类型学校" },
+    ncea_same_type:       { en: "Same Type", cn: "同类型学校" },
+    ncea_nz_avg:          { en: "NZ Average", cn: "全国平均" },
     ncea_no_data:         { en: "No NCEA data available", cn: "暂无 NCEA 数据" },
+    ncea_footnote:        { en: "% of leavers achieving this level or above", cn: "达到该等级及以上的毕业生比例" },
 
     // Field Labels — Section A
     school_type:          { en: "Type", cn: "类型" },
@@ -156,6 +158,7 @@ const TRANSLATIONS = {
     col_eth_melaa:        { en: "MELAA%", cn: "MELAA%" },
     col_eth_other:        { en: "Other%", cn: "其他%" },
     col_eth_intl:         { en: "Intl%", cn: "国际生%" },
+    col_intl:             { en: "Intl", cn: "国际生" },
     col_intl_count:       { en: "Intl Students", cn: "国际生人数" },
     col_intl_fee:         { en: "Tuition/Year", cn: "学费/年" },
     col_intl_homestay:    { en: "Homestay/Week", cn: "住宿费/周" },
