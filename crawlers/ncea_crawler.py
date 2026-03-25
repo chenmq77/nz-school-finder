@@ -386,3 +386,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# TODO: add circuit breaker - stop after 2 consecutive 403s
