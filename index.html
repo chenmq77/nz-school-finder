@@ -2782,9 +2782,14 @@ const TABLE_COLUMNS = [
   { key:'eth_asian',    tKey:'col_eth_asian',     fixed:false, default:false, gKey:'col_group_ethnicity',  sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
   { key:'eth_melaa',    tKey:'col_eth_melaa',     fixed:false, default:false, gKey:'col_group_ethnicity',  sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
   { key:'eth_other',    tKey:'col_eth_other',     fixed:false, default:false, gKey:'col_group_ethnicity',  sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
-  { key:'eth_intl',     tKey:'col_eth_intl',      fixed:false, default:false, gKey:'col_group_ethnicity',  sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
+  // International students group
+  { key:'intl_count',   tKey:'col_intl_count',    fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
+  { key:'eth_intl',     tKey:'col_eth_intl',      fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
+  { key:'intl_fee',     tKey:'col_intl_fee',      fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'asc' },
+  { key:'intl_homestay',tKey:'col_intl_homestay', fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'asc' },
+  { key:'intl_total',   tKey:'col_intl_total',    fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'asc' },
+  // Activities group
   { key:'curriculum',   tKey:'col_curriculum',    fixed:false, default:false, gKey:'col_group_activities', sortable:false, align:'left' },
-  { key:'fee',          tKey:'col_fee',           fixed:false, default:false, gKey:'col_group_activities', sortable:true,  sortType:'number', align:'right', firstDir:'asc' },
   { key:'subjects',     tKey:'col_subjects',      fixed:false, default:false, gKey:'col_group_activities', sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
   { key:'sports',       tKey:'col_sports',        fixed:false, default:false, gKey:'col_group_activities', sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
   { key:'arts',         tKey:'col_arts',          fixed:false, default:false, gKey:'col_group_activities', sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
@@ -2792,6 +2797,14 @@ const TABLE_COLUMNS = [
 ];
 
 const DEFAULT_COLS = TABLE_COLUMNS.filter(c => c.fixed || c.default).map(c => c.key);
+
+// Preset column configurations
+const COL_PRESETS = {
+  compact:  ['name', 'suburb', 'tags', 'eqi', 'roll'],
+  intl:     ['name', 'suburb', 'eqi', 'roll', 'intl_fee', 'intl_homestay', 'intl_total', 'eth_intl', 'eth_asian', 'subjects'],
+  local:    ['name', 'suburb', 'tags', 'eqi', 'roll', 'zone', 'ethnicity'],
+  full:     ['name', 'suburb', 'eqi', 'roll', 'intl_fee', 'curriculum', 'subjects', 'sports', 'arts', 'ethnicity'],
+};
 let _visibleCols = [];
 let _tableSort = { key: null, dir: null };
 
@@ -2858,6 +2871,16 @@ function getCellValue(s, key) {
         return systems.map(c => c.system || c).join(', ');
       } catch(e) { return s.curriculum_systems; }
     }
+    case 'intl_count': return parseInt(s.international) || null;
+    case 'intl_fee': return s.intl_tuition_annual || null;
+    case 'intl_homestay': return s.intl_homestay_weekly || null;
+    case 'intl_total': {
+      const tuition = parseFloat(s.intl_tuition_annual);
+      const homestay = parseFloat(s.intl_homestay_weekly);
+      if (!tuition) return null;
+      // Total = tuition + homestay * 40 weeks (school year)
+      return homestay ? Math.round(tuition + homestay * 40) : null;
+    }
     case 'fee': return s.intl_tuition_annual || null;
     case 'subjects': return s.subjects_count || null;
     case 'sports': return s.sports_count || null;
@@ -2884,8 +2907,9 @@ function formatCell(key, val, s) {
     return tags.join(' ');
   }
   if (val === null || val === undefined) return '<span class="td-null">—</span>';
-  if (key === 'roll') return parseInt(val).toLocaleString();
-  if (key === 'fee') return '$' + parseFloat(val).toLocaleString();
+  if (key === 'roll' || key === 'intl_count') return parseInt(val).toLocaleString();
+  if (key === 'fee' || key === 'intl_fee' || key === 'intl_total') return '$' + parseFloat(val).toLocaleString();
+  if (key === 'intl_homestay') return '$' + parseFloat(val).toLocaleString() + '/w';
   if (key === 'ethnicity') {
     // Show largest ethnicity name + %
     const roll = parseInt(s.total_school_roll) || 0;
@@ -2969,9 +2993,43 @@ function toggleColumnChooser() {
     return;
   }
 
-  // Open: render checkboxes into side panel
+  // Open: render preset buttons + checkboxes into side panel
   side.innerHTML = '';
   if (btn) btn.classList.add('active');
+
+  // Preset buttons
+  const presetLabel = document.createElement('div');
+  presetLabel.className = 'group-label';
+  presetLabel.textContent = t('col_preset');
+  side.appendChild(presetLabel);
+
+  const presetRow = document.createElement('div');
+  presetRow.style.cssText = 'display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px';
+  const presetDefs = [
+    { key: 'compact', tKey: 'col_preset_compact' },
+    { key: 'intl',    tKey: 'col_preset_intl' },
+    { key: 'local',   tKey: 'col_preset_local' },
+    { key: 'full',    tKey: 'col_preset_full' },
+  ];
+  presetDefs.forEach(p => {
+    const pb = document.createElement('button');
+    pb.style.cssText = 'padding:3px 8px;font-size:11px;border:1px solid var(--border);border-radius:4px;background:var(--bg);cursor:pointer;color:var(--text-secondary)';
+    pb.textContent = t(p.tKey);
+    pb.onmouseover = () => { pb.style.borderColor = 'var(--primary)'; pb.style.color = 'var(--primary)'; };
+    pb.onmouseout = () => { pb.style.borderColor = 'var(--border)'; pb.style.color = 'var(--text-secondary)'; };
+    pb.onclick = () => {
+      _visibleCols = ['name', ...COL_PRESETS[p.key]].filter((v,i,a) => a.indexOf(v) === i);
+      _tableSort = { key: null, dir: null };
+      saveVisibleCols();
+      // Re-render panel and table
+      side.classList.remove('open');
+      side.innerHTML = '';
+      toggleColumnChooser(); // re-open with updated checks
+      if (_lastListData) renderListCards(_lastListData.results, _lastListData.total, _lastListData.page, _lastListData.pages);
+    };
+    presetRow.appendChild(pb);
+  });
+  side.appendChild(presetRow);
 
   // Group columns by gKey (stable grouping)
   const groupOrder = [];

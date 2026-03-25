@@ -322,7 +322,7 @@ def filter_schools(params):
             f"s.gender_of_students, s.town_city, s.suburb, s.total_school_roll, s.regional_council, "
             f"s.equity_index_eqi, s.enrolment_scheme, "
             f"s.european_pakeha, s.maori, s.pacific, s.asian, s.melaa, s.other, s.international, "
-            f"w.curriculum_systems, w.intl_tuition_annual, "
+            f"w.curriculum_systems, w.intl_tuition_annual, w.intl_homestay_weekly, "
             f"w.subjects_count, w.sports_count, w.music_count, w.activities_count "
             f"FROM schools s "
             f"LEFT JOIN school_web_data w ON CAST(s.school_number AS INTEGER) = w.school_number "
