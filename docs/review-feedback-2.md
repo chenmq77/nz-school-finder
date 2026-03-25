@@ -1,35 +1,29 @@
-# Review Feedback — Round 2 (HTML version)
+# 审查反馈 — 第 2 轮
 
-This document addresses **docs/review-2.md**.
+回应 **docs/review-2.md**。日期: 2026-03-26
 
-**Date**: 2026-03-21
-**Files**: index.html
+## 问题回应
 
----
+### 问题 1: 排序契约不完整 [critical]
+- **处理方式**: ACCEPTED
+- **回应**: 明确排序矩阵。tags/curriculum 不可排序（用户确认）。数字列首次点击降序（高→低，符合"越高越好"直觉，EQI 除外首次升序）。文本列首次点击 A-Z。
 
-## Issues Response
+### 问题 2: 隐藏正在排序的列 [major]
+- **处理方式**: ACCEPTED
+- **回应**: 隐藏排序列时，清除排序状态，回退到默认排序（按名称 A-Z）。
 
-### Issue 1: Async race condition in doSearch() and loadSchool()
-- **GPT said**: Older slower requests can overwrite newer results, showing stale data.
-- **Action**: FIXED
-- **Solution**: Added `AbortController` for both search and detail flows. Each new request aborts the previous one. `AbortError` is caught and silently ignored since it means the request was superseded.
-- **Files changed**: index.html (searchController/detailController state vars, doSearch(), loadSchool())
+### 问题 3: 未筛选时 2577 所全渲染 [major]
+- **处理方式**: ACCEPTED
+- **回应**: 未筛选时限制显示前 100 条 + 提示"显示前 100 所，请使用筛选缩小范围"。用户主动筛选后显示全部结果。
 
-### Issue 2: Switching schools briefly shows old school data
-- **GPT said**: Detail pane shows before clearing previous content.
-- **Action**: FIXED
-- **Solution**: `loadSchool()` now immediately clears all section bodies, shows a loading spinner in section A, and hides sections B-E. Content is only revealed after the new data arrives and `renderSchool()` restores section visibility.
-- **Files changed**: index.html (loadSchool())
+### 问题 4: localStorage 不可用 [minor]
+- **处理方式**: ACCEPTED
+- **回应**: try-catch 包裹所有 localStorage 操作。不可用时静默降级为内存变量，当前会话有效但不持久。
 
-### Issue 3: Total School Roll shows "--" for valid zero-roll schools
-- **GPT said**: Schools with status New/Proposed/Not Yet Open may have 0 students, should show "0" not "--".
-- **Action**: FIXED
-- **Solution**: Changed `total` parsing to distinguish missing/blank values (→ null → "--") from numeric zero (→ 0 → "0"). Uses explicit null check instead of falsy check.
-- **Files changed**: index.html (renderSectionC total display)
+### 问题 5: tags/curriculum 是否排序 [question]
+- **处理方式**: ASKED_USER
+- **用户决策**: 不排序。这两个是复合文本字段，排序无实际意义。
 
-## Summary
-
-- Fixed: 3 issues
-- Rejected: 0 issues
-- Out of scope: 0 issues
-- Confidence: All async safety, loading state, and data accuracy issues resolved.
+## 摘要
+- 已接受: 4 个问题
+- 用户决策: 1 个

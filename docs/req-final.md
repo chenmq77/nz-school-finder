@@ -1,114 +1,132 @@
-# 最终需求规格说明：NZ School Finder 信息增强
+# 最终需求规格 — 可配置列数据表格
 
 **来源**: docs/req.md
-**精炼过程**: 经过 2 轮 Claude + GPT 挑战
-**日期**: 2026-03-22
-**状态**: PARTIALLY_APPROVED（方向认可，细节待收口）
+**精炼**: 5 轮 Claude + GPT 挑战
+**日期**: 2026-03-26
+**状态**: APPROVED (9/10)
 
 ---
 
 ## 1. 需求摘要
+将学校列表从简单列表改为可配置列的数据表格（20 列），用户可自定义显示哪些列，在列表页一行对比多所学校。纯 vanilla JS + Python SimpleHTTPServer + SQLite，无框架。
 
-家长/学生使用 NZ School Finder 查询学校基本信息后，仍需要更多信息辅助选校决策。本需求定义了**在不偏离 CSV 单数据源 MVP 的前提下**，如何通过外链引导和解释层增强，帮助家长获取更全面的信息。
+## 2. 用户场景
 
----
+### 场景 1：默认浏览
+- 默认 5 列：名称(固定)、区域、类型、EQI、人数
+- 未筛选：全量排序 → 显示前 100 条 → 提示"显示排序后的前 100 所，请筛选查看更多"
+- 筛选后：取消 100 条限制，显示全部匹配结果
+- 验收：Chrome latest / macOS / localhost — 加载 <2s，100 行×5 列渲染 <200ms
 
-## 2. Phase 分层
+### 场景 2：自定义列
+- 齿轮按钮 → 分组 checkbox 面板（基础信息 / 族裔构成 / 课外活动）
+- 勾选即时生效；点外部区域关闭面板
+- [恢复默认] 按钮
+- localStorage(key=schoolColumns) 持久化；不可用→内存降级；损坏/无效 key→过滤回退
+- 验收：刷新后恢复列选择；勾选响应 <100ms
 
-### Phase 1：CSV 数据展示完善（当前阶段，大部分已完成）
-- [x] 5 大类（A-E）卡片式展示
-- [x] 模糊搜索
-- [x] EQI 官方 7Band/3Group + 帮助弹窗
-- [x] 族裔分布可视化
-- [ ] **搜索结果消歧**：列表中显示城市 + 学校类型（如 "Auckland Grammar School — Secondary, Auckland"）
-- [ ] **术语解释层**：为非本地家长添加以下术语的解释提示（类似 EQI 的 `?` 按钮）：
-  - Enrolment Scheme（学区限制制度）
-  - State / State:Integrated / Private（管理性质区别）
-  - Cohort Entry（群体入学）
-  - Decile → EQI 的历史背景
+### 场景 3：排序
+| 列 | 可排序 | 首次方向 | 备注 |
+|----|--------|---------|------|
+| name | ✅ | A-Z | school_name_cn → school_name 拼音序 |
+| suburb | ✅ | A-Z | |
+| tags | ❌ | — | 复合字段 |
+| eqi | ✅ | 升序(低→高) | tooltip"越低=社区条件越好" |
+| roll | ✅ | 降序 | |
+| zone | ❌ | — | |
+| ethnicity | ✅ | 降序 | 最大族群% |
+| eth_* (7 列) | ✅ | 降序 | |
+| curriculum | ❌ | — | 复合字段 |
+| fee | ✅ | 升序 | 便宜优先 |
+| subjects/sports/arts/clubs | ✅ | 降序 | |
 
-### Phase 2：低成本外链增强（下一步）
-在学校详情页底部新增 "了解更多 / Learn More" 区域，提供跳转链接：
+行为：
+- 点击循环：首次→默认方向 → 再点→反向 → 三点→清除(回名称 A-Z)
+- null/— 始终排最后（无论升降序）
+- 排序指示器 ▲/▼ 显示在列头
+- 隐藏排序列 → 清除排序 → 回退默认
+- 排序作用于全量 → 未筛选时 cap 100
+- 验收：1000 行排序 <100ms
 
-| 外链 | 目标网站 | 条件显示 | 可行性 |
-|------|---------|---------|--------|
-| ERO 评审报告 | ero.govt.nz | 所有学校 | 需验证 URL 构建规则 |
-| NCEA 成绩 | educationcounts.govt.nz | 仅 School Type 含 Secondary/Composite | 需验证 |
-| 学校官网 | 各学校 | CSV 有 School Website 字段时显示 | ✅ 已有数据 |
+### 场景 4：移动端(<768px)
+- 学校名列 sticky left:0 + box-shadow 分隔
+- overflow-x:auto 横向滚动
+- 列选择器：bottom sheet + backdrop
+- 最小列宽：数字 60px，文本 100px
+- 验收：学校名始终可见；滑动无卡顿
 
-**实现原则**：
-- 仅做外链跳转，不做数据集成
-- 按 School Type 条件显示（小学不显示 NCEA）
-- 链接失效时优雅降级（隐藏而非显示 404）
+### 场景 5：边界与错误
+- 零结果："没有匹配的学校"
+- API 失败："加载失败" + 重试按钮
+- localStorage 不可用/损坏/write 失败：try-catch，降级内存
+- 多 tab：不处理，最后写入胜出
+- 验收：所有错误场景无 JS 控制台报错
 
-### Phase 3：远期探索（不在当前范围内）
-- NCEA 数据集成到学校卡片
-- 学区地图可视化
-- 多语言支持
-- 家长评价系统
+## 3. 数据语义
 
----
+### Web 数据列 null vs 0
+| 数据库值 | 含义 | 显示 | 排序 |
+|----------|------|------|------|
+| NULL (无 web_data 行) | 未爬取 | 灰色 "—" | 排最后 |
+| 0 | 确实为零 | "0" | 正常参与 |
+| >0 | 有数据 | 格式化数值 | 正常参与 |
 
-## 3. 用户场景
+基础数据列：所有 2577 所学校都有，不存在 null。
 
-### 场景 1：本地家长选小学 — WELL_DEFINED
-- **参与者**: 住在新西兰的家长
-- **关注重点**: 学区(Enrolment Scheme)、通勤距离、学生构成、EQI、学校文化
-- **路径**: 搜索学校名 → 看 B 区位置/EQI → 看 C 区学生构成 → 点击官网
-- **验收标准**:
-  - [ ] 搜索结果显示城市和学校类型
-  - [ ] Enrolment Scheme 有中文解释
-  - [ ] EQI 有帮助弹窗 ✅
+## 4. 列定义（20 列）
 
-### 场景 2：留学家庭选高中 — WELL_DEFINED
-- **参与者**: 海外家长/留学中介
-- **关注重点**: 国际生数量/比例、NCEA 成绩、寄宿、教学语言、学费
-- **路径**: 搜索 → 看 C 区国际生 → 看 A 区寄宿 → Phase 2 点 NCEA/ERO 外链
-- **验收标准**:
-  - [ ] 国际生卡片醒目显示 ✅
-  - [ ] Phase 2: Secondary 学校显示 NCEA 外链
-  - [ ] Phase 2: ERO 报告外链
+### 基础列(7)
+| key | label | fixed | default | sortable | render |
+|-----|-------|-------|---------|----------|--------|
+| name | 学校名 | ✅ | ✅ | text | 中文名(行1) + 灰色英文名(行2) |
+| suburb | 区域 | — | ✅ | text | 原值 |
+| tags | 类型 | — | ✅ | — | 年级+性别+公私立标签 |
+| eqi | EQI | — | ✅ | number | 原值 |
+| roll | 人数 | — | ✅ | number | 千分位 |
+| zone | 学区 | — | — | — | ✅/— |
+| ethnicity | 族裔 | — | — | number | "亚裔 54%" 最大族群 |
 
-### 场景 3a：毛利裔家庭 — NEEDS_WORK
-- **参与者**: 重视毛利文化传承的家庭
-- **关注重点**: 教学语言(毛利语/双语)、毛利族裔比例、KME Peak Body
-- **路径**: 搜索 → 看 D 区教学语言 → 看 C 区族裔 → 看 E 区 Takiwā
-- **注意**: CSV 数据可支持，但"文化项目"不在 CSV 中，不承诺展示
+### 族裔子列(7)
+eth_european, eth_maori, eth_pacific, eth_asian, eth_melaa, eth_other, eth_intl — 全部可排序(降序)，默认不显示
 
-### 场景 3b：太平洋岛裔家庭
-- **参与者**: 太平洋岛裔社区家庭
-- **关注重点**: Pacific 族裔比例、社区归属感、通勤
-- **路径**: 搜索 → 看 C 区 Pacific 族裔 → 看 B 区位置
-- **注意**: CSV 数据有限，主要依赖族裔构成数据
+### 爬取数据列(6) — 无数据显示灰色 "—"
+| key | label | sortable |
+|-----|-------|----------|
+| curriculum | 课程 | — |
+| fee | 学费/年 | number |
+| subjects | 科目 | number |
+| sports | 运动 | number |
+| arts | 表演艺术 | number |
+| clubs | 俱乐部 | number |
 
----
+## 5. API 改造
+- `/api/schools`: LEFT JOIN school_web_data ON school_number (PK 一对一)
+- 新增返回：curriculum_systems, intl_tuition_annual, subjects_count, sports_count, music_count, activities_count
 
-## 4. GPT 挑战中的关键洞察
+## 6. 实施计划
+| Phase | 内容 | 文件 |
+|-------|------|------|
+| 1 | API LEFT JOIN | server.py |
+| 2 | COLUMNS 定义 + table 渲染 | index.html |
+| 3 | 列选择器 + localStorage | index.html |
+| 4 | 排序(null/cap) | index.html |
+| 5 | 移动端 CSS | index.html |
 
-| 洞察 | 来源 | 处理方式 |
-|------|------|---------|
-| 不要偏离 CSV 单源 MVP | 第 1 轮 | 严格分 Phase，Phase 1 只做 CSV |
-| 搜索需要消歧 | 第 1+2 轮 | 加入城市+类型到搜索结果 |
-| NCEA 不是所有学校的指标 | 第 1 轮 | Phase 2 按 School Type 条件显示 |
-| 非本地家长需要术语解释 | 第 2 轮 | 添加 `?` 帮助按钮（类似 EQI） |
-| 毛利和太平洋岛裔分开考虑 | 第 2 轮 | 拆分为场景 3a 和 3b |
-| 外链可行性需验证 | 第 2 轮 | Phase 2 实施前先测试 URL 规则 |
+## 7. 用户决策记录
+| 问题 | 决策 | 轮次 |
+|------|------|------|
+| 族裔展示方式 | 默认最大族群聚合列 + 可切换特定族裔列 | R1 |
+| tags/curriculum 排序 | 不排序（复合字段） | R2 |
+| 未筛选时 100 条限制 | 可接受 | R4 |
 
----
+## 8. 不做
+logo 列、分页、服务端筛选、列拖拽、CSV 导出、多 tab 同步
 
-## 5. 已知风险与已接受的权衡
-
-| 风险 | 严重程度 | 缓解措施 |
-|------|----------|----------|
-| ERO/NCEA URL 规则可能变化 | 中 | Phase 2 实施前验证，做优雅降级 |
-| CSV 数据每年更新一次 | 低 | 页面标注数据来源和时间 |
-| EQI 移到 B 区与 V2 分类不完全一致 | 低 | 用户测试后决定是否回调 |
-
----
-
-## 6. 审查记录
-
+## 9. 审查记录
 | 轮次 | 分数 | 结论 | 文件 |
 |------|------|------|------|
-| 1 | 5/10 | CHANGES_REQUESTED | review-1.md, review-feedback-1.md |
-| 2 | 7/10 | CHANGES_REQUESTED（方向认可） | review-2.md |
+| 1 | 6/10 | CHANGES_REQUESTED | review-1.md, review-feedback-1.md |
+| 2 | 7/10 | CHANGES_REQUESTED | review-2.md, review-feedback-2.md |
+| 3 | 7/10 | CHANGES_REQUESTED | review-3.md, review-feedback-3.md |
+| 4 | 7/10 | CHANGES_REQUESTED | review-4.md, review-feedback-4.md |
+| 5 | 9/10 | APPROVED | review-5.md |

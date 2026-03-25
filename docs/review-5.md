@@ -1,8 +1,7 @@
-# Review Round 5 of 20
+# Requirement Challenge — Round 5 of 5
 
 **Model**: gpt-5.4-xhigh-fast
-**Files**: index.html,server.py
-**Date**: 2026-03-21 22:02:24
+**Date**: 2026-03-26 02:26:51
 
 ---
 
@@ -10,18 +9,26 @@
 
 ### SCORE: 9
 
-### REQUIREMENT_COVERAGE
-- Core search-to-detail workflow: MET — the frontend supports searching by school name and loading a full structured detail view from the school dataset through the API.
-- Five-category V2 information architecture and interaction model: MET — the UI is organized into A-E in the required parent/student decision order, with A/B/C visible by default and D/E collapsible.
-- A. School Identity overview (7 fields): MET — name, school number, school type, authority, gender, boarding, and clickable website are all rendered in the identity section.
-- B. Location and contact (10 fields): MET — street/suburb/city and postal address parts are merged correctly, urban/rural is shown, and phone/email are rendered as actionable links.
-- C. Student size and composition (9 fields): MET — total roll is highlighted, all six ethnicity fields are visualized with percentages, international students are emphasized, and enrolment scheme is shown.
-- D. School quality and features (11 fields): MET — EQI and isolation index include interpretation, coordinates are combined with a map link, and language, donations, KME, principal, definition, status, and cohort entry are displayed.
-- E. Administrative and regional ownership (12 fields): MET — all required region, electorate, neighbourhood, ward, and learning-community fields are included in the expandable admin section.
-- V2-specific changes and previous feedback verification: MET — the implementation follows the 5-category V2 split, keeps website in A, moves principal/definition/status/cohort into D, highlights international students, explains EQI, and correctly applies the prior XSS fix for the status badge rendering.
+### COMPLETENESS
+- Core user flow: COVERED — Default comparison, configurable columns, persistence, sorting, and mobile behavior are all explicitly defined.
+- Data semantics: COVERED — The proposal clearly distinguishes `NULL` vs `0` for scraped fields and aligns API behavior with UI behavior.
+- Edge and failure paths: COVERED — Empty results, API failure, storage failure, invalid persisted keys, and hidden-sort-column fallback are all handled.
+- Scope control: COVERED — The design stays within the original requirement and explicitly excludes pagination, export, drag-and-drop, and other non-essential additions.
 
 ### ISSUES
 No issues found.
 
+### SCENARIOS_ASSESSMENT
+- Default browse: WELL_DEFINED — The default 5-column view, unfiltered 100-row cap, filtered full display, and performance targets are concrete.
+- Custom columns: WELL_DEFINED — Fixed name column, grouped selector, immediate apply, restore default, and persistence/fallback behavior are clear.
+- Sorting: WELL_DEFINED — Sortable vs non-sortable columns, default directions, null handling, reset behavior, and cap interaction are defined.
+- Mobile: WELL_DEFINED — Horizontal scroll, sticky name column, bottom-sheet selector, and minimum widths cover the intended mobile behavior.
+- Boundary/error handling: WELL_DEFINED — Zero-state, loading failure, retry, and storage degradation behavior are specified well enough to implement and test.
+
+### ARCHITECTURE_ASSESSMENT
+- Fitness: 9
+- Risks: [minor CSS tuning may still be needed for very small screens with many selected columns; composite-field rendering should remain consistent with its sort logic]
+- Suggestions: [centralize column metadata so rendering, sorting, persistence, and defaults come from one source; keep one explicit implementation note for how composite columns are displayed]
+
 ### SUMMARY
-Based on the provided `index.html` and `server.py` snippets, the implementation satisfies the V2 requirement comprehensively, covers all 49 fields in the required 5-category structure, and matches the intended parent-oriented interaction flow. The previous-round XSS feedback also appears correctly addressed: the status badge path is escaped properly, and the remaining DB-sourced values are either escaped, rendered through DOM APIs, or validated before insertion.
+The proposal is sufficiently complete, internally consistent, and well scoped for implementation on the stated stack. Core scenarios, null semantics, persistence behavior, and boundary conditions are all covered, and the `LEFT JOIN` plus client-side column configuration approach is an appropriate fit for a lightweight vanilla JS application. Remaining concerns are low-risk implementation details rather than requirement or architecture gaps.

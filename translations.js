@@ -23,7 +23,7 @@ const TRANSLATIONS = {
     lang_both:            { en: "双", cn: "双" },
 
     // Section Headers (A-G)
-    section_a:            { en: "School Identity", cn: "学校身份概览" },
+    section_a:            { en: "School Identity", cn: "学校概览" },
     section_b:            { en: "Location & Admissions", cn: "位置与入学" },
     section_c:            { en: "Subjects & Curriculum", cn: "课程与学科" },
     section_d:            { en: "Activities & Co-curricular", cn: "课外活动" },
@@ -112,8 +112,8 @@ const TRANSLATIONS = {
     sort_name:            { en: "Name A-Z", cn: "按名称 A-Z" },
     sort_roll_desc:       { en: "Roll (High-Low)", cn: "人数（多-少）" },
     sort_roll_asc:        { en: "Roll (Low-High)", cn: "人数（少-多）" },
-    sort_eqi_asc:         { en: "EQI (Low-High)", cn: "EQI（低-高）" },
-    sort_eqi_desc:        { en: "EQI (High-Low)", cn: "EQI（高-低）" },
+    sort_eqi_asc:         { en: "EQI (Low-High)", cn: "社区条件（好-弱）" },
+    sort_eqi_desc:        { en: "EQI (High-Low)", cn: "社区条件（弱-好）" },
 
     // EQI bands
     eqi_fewest:           { en: "Fewest barriers", cn: "最少障碍" },

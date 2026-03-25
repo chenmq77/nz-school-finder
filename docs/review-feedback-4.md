@@ -1,23 +1,15 @@
-# Review Feedback — Round 4 (HTML version)
+# 审查反馈 — 第 4 轮
 
-This document addresses **docs/review-4.md**.
+回应 **docs/review-4.md**。日期: 2026-03-26
 
-**Date**: 2026-03-21
-**Files**: index.html
+### 问题 1: "—" vs "0" 数据语义 [critical]
+- ACCEPTED: web 数据列：null(未爬取)显示灰色"—"，0 显示"0"。排序时 null 排最后，0 参与正常排序。
 
----
+### 问题 2: 列数不一致 [major]
+- ACCEPTED: 修正为 20 列（基础7 + 族裔7 + 爬取6）。爬取列去掉多算的一个。
 
-## Issues Response
+### 问题 3: 测试环境 [minor]
+- ACCEPTED: 性能基准定义为 Chrome latest / macOS / localhost。
 
-### Issue 1: Unescaped status fallback value in innerHTML
-- **GPT said**: When status is not in statusMap, the raw API value is injected into innerHTML without escaping, leaving a stored-XSS path.
-- **Action**: FIXED
-- **Solution**: Applied `esc()` to both `statusText` and `statusClass` in the innerHTML template. Any unexpected status value from the DB/API is now HTML-escaped before rendering.
-- **Files changed**: index.html:771
-
-## Summary
-
-- Fixed: 1 issue
-- Rejected: 0 issues
-- Out of scope: 0 issues
-- Confidence: The last XSS vector is now closed. All DB-sourced values in the rendering layer are either escaped via `esc()`, constructed with DOM APIs, or validated before use.
+### 问题 4: 100条限制 [question]
+- 用户确认：100 条可接受，未筛选时无需浏览全部。

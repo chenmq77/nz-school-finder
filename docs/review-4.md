@@ -1,8 +1,7 @@
-# Review Round 4 of 20
+# Requirement Challenge — Round 4 of 5
 
 **Model**: gpt-5.4-xhigh-fast
-**Files**: index.html,server.py
-**Date**: 2026-03-21 21:56:38
+**Date**: 2026-03-26 02:23:16
 
 ---
 
@@ -10,15 +9,30 @@
 
 ### SCORE: 7
 
-### REQUIREMENT_COVERAGE
-- Search by English school name and load a selected school from the CSV-backed dataset: MET — the frontend searches by school name, the backend matches on `school_name`, and detail loading is keyed by `school_number`.
-- Present school data in five parent-oriented categories covering all 49 columns: MET — sections A-E render the required 7 + 10 + 9 + 11 + 12 fields, matching the V2 grouping.
-- Keep A/B/C expanded by default and make D/E click-to-expand: MET — A/B/C render immediately, while D/E start collapsed and are toggled interactively.
-- Emphasize decision-making data for families in the student section: MET — total roll is highlighted, ethnicity is visualized with bars and percentages, international students are called out separately, and enrolment scheme is shown.
-- Provide quality/admin context with interpretation and grouped regional data: MET — EQI includes an interpretation, isolation/status/coordinates are shown, and administrative fields are grouped logically in section E.
+### COMPLETENESS
+- Core configurable table flow: COVERED — default columns, column selection, persistence, sorting, and mobile horizontal scrolling are all specified.
+- Sparse scraped-data behavior: GAP — only 18 schools currently have `school_web_data`, but the spec does not define how the UI distinguishes "data unavailable/not scraped" from a real zero or empty value.
+- Column contract consistency: GAP — the proposal repeatedly says 21 columns / 7 scraped columns, while the actual enumerations define 20 total columns and 6 scraped fields.
+- Unfiltered large-result behavior: PARTIAL — the 100-row cap is technically defined, but it changes browse behavior and is not clearly aligned with the original "no pagination" expectation.
+- Testability: PARTIAL — the performance targets are measurable in principle, but the browser/device/network baseline is not defined.
 
 ### ISSUES
-1. [major] index.html:735,771 — `renderSectionD()` still leaves a stored-XSS path: when `s.status` is not in `statusMap`, it falls back to raw API data and injects `statusText` directly into `innerHTML` without escaping. This means a malicious or corrupted status value from the DB/API can execute script in the detail view, so the previous-round XSS hardening is not actually complete. — Escape `statusText` before interpolation or build the badge with DOM APIs and `textContent`.
+1. [critical] Data semantics — The joined web-data fields exist for only 18 of 2577 schools, but the proposal does not define a distinct user-visible state for "not available yet" versus true zero/none. That can mislead users when comparing curriculum, fees, or activity counts.
+2. [major] Specification consistency — The document says "21 columns" and "7 scraped columns", but the sorting matrix and API section only enumerate 20 total columns and 6 scraped fields. This creates an unstable implementation and QA contract.
+3. [minor] Testability — Acceptance targets such as `<2s`, `<200ms`, and `<100ms` are not tied to a concrete test environment, so pass/fail is not reproducible.
+4. [question] For user — Is showing only the top 100 schools in the unfiltered state acceptable, or must users be able to browse all 2577 rows once the page loads?
+
+### SCENARIOS_ASSESSMENT
+- [scenario 1: first use]: NEEDS_WORK — The default view is clear, but the 100-row cap is still a product decision rather than a fully validated requirement.
+- [scenario 2: customize columns]: WELL_DEFINED — Selector grouping, immediate apply, reset, persistence, and invalid-storage fallback are clearly covered.
+- [scenario 3: sorting]: NEEDS_WORK — Sort behavior itself is defined, but the exact sortable column set is undermined by the unresolved column-count contradiction.
+- [scenario 4: mobile]: WELL_DEFINED — Sticky first column, horizontal scrolling, and the mobile chooser pattern are sufficiently specified.
+- [scenario 5: boundaries/errors]: NEEDS_WORK — API and storage failures are covered, but sparse joined-data nulls are not handled as a separate user-facing state.
+
+### ARCHITECTURE_ASSESSMENT
+- Fitness: 7
+- Risks: [misleading interpretation of missing scraped data, inconsistent column/API contract, product mismatch if the 100-row cap is not accepted]
+- Suggestions: [publish one authoritative column registry with the exact final count, define explicit rendering/sorting semantics for unavailable scraped data and expose that state to users, confirm or remove the unfiltered 100-row cap, pin performance acceptance to a concrete test environment]
 
 ### SUMMARY
-The implementation is very close to the V2 requirement: the five-section information architecture, 49-field coverage, default/collapsible behavior, and family-oriented presentation are all in place, and most of the Round 3 fixes were applied correctly. However, the remaining unescaped status rendering is a blocking security flaw, so this round should not be approved until that XSS sink is removed.
+The proposal is close to convergence and most core interactions are now implementation-ready, but it is not approval-ready yet because it still contains one correctness risk and one internal contradiction: users may misread missing scraped data as real school attributes, and the spec still disagrees with itself on the actual column inventory. Once those are fixed and the 100-row cap is explicitly confirmed as a business decision, the architecture should be solid enough to proceed.
