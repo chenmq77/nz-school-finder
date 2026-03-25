@@ -143,11 +143,11 @@ const TRANSLATIONS = {
     // school_type split into type_label (school category) and year_range (grade range)
     school_type_label: {
       "Contributing":                    { en: "Contributing", cn: "小学" },
-      "Full Primary":                    { en: "Full Primary", cn: "完全小学" },
-      "Intermediate":                    { en: "Intermediate", cn: "中间学校" },
-      "Composite":                       { en: "Composite", cn: "综合学校" },
-      "Composite (Year 1-10)":           { en: "Composite", cn: "综合学校" },
-      "Restricted Composite (Year 7-10)":{ en: "Restricted Composite", cn: "限制综合学校" },
+      "Full Primary":                    { en: "Full Primary", cn: "小学" },
+      "Intermediate":                    { en: "Intermediate", cn: "中小学过渡" },
+      "Composite":                       { en: "Composite", cn: "一贯制学校" },
+      "Composite (Year 1-10)":           { en: "Composite", cn: "一贯制学校" },
+      "Restricted Composite (Year 7-10)":{ en: "Restricted Composite", cn: "部分一贯制学校" },
       "Secondary (Year 9-15)":           { en: "Secondary", cn: "中学" },
       "Secondary (Year 7-15)":           { en: "Secondary", cn: "中学" },
       "Secondary (Year 7-10)":           { en: "Secondary", cn: "初中" },

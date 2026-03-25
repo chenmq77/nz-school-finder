@@ -1057,13 +1057,7 @@ document.body.style.transition = 'opacity 0.15s';
     <div class="list-toolbar">
       <div class="list-meta-row">
         <span class="list-meta" id="listMeta"></span>
-        <select class="list-sort" id="listSort" onchange="onSortChange()">
-          <option value="name">Sort: Name A-Z</option>
-          <option value="roll_desc">Sort: Roll (high-low)</option>
-          <option value="roll_asc">Sort: Roll (low-high)</option>
-          <option value="eqi_asc">Sort: EQI (low-high)</option>
-          <option value="eqi_desc">Sort: EQI (high-low)</option>
-        </select>
+        <select class="list-sort" id="listSort" onchange="onSortChange()"></select>
       </div>
     </div>
     <div id="listCards"></div>
@@ -1225,6 +1219,21 @@ function bilingual(en, cn) {
   return `${esc(en)}<div style="font-size:0.85em;color:var(--text-muted);margin-top:2px">${esc(cn)}</div>`;
 }
 
+/** Update sort dropdown options */
+function updateSortOptions() {
+  const sel = document.getElementById('listSort');
+  if (!sel) return;
+  const val = sel.value || 'name';
+  sel.innerHTML = [
+    ['name', t('sort_name')],
+    ['roll_desc', t('sort_roll_desc')],
+    ['roll_asc', t('sort_roll_asc')],
+    ['eqi_asc', t('sort_eqi_asc')],
+    ['eqi_desc', t('sort_eqi_desc')],
+  ].map(([v, label]) => `<option value="${v}">${esc(label)}</option>`).join('');
+  sel.value = val;
+}
+
 /** Update section titles based on current language */
 function updateSectionTitles() {
   const sections = {A:'section_a', B:'section_b', C:'section_c', D:'section_d', E:'section_e', F:'section_f', G:'section_g'};
@@ -1247,8 +1256,9 @@ function setLang(lang) {
   // Update search placeholder
   const searchInput = document.getElementById('searchInput');
   if (searchInput) searchInput.placeholder = t('search_placeholder');
-  // Update section titles
+  // Update section titles + sort
   updateSectionTitles();
+  updateSortOptions();
 
   // If on school detail page with cached data, re-render from cache (no fetch, no flash)
   if (_cachedSchool && location.hash.startsWith('#/school/')) {
@@ -1285,6 +1295,7 @@ document.querySelectorAll('.lang-btn').forEach(btn => {
 const _searchInput = document.getElementById('searchInput');
 if (_searchInput) _searchInput.placeholder = t('search_placeholder');
 updateSectionTitles();
+updateSortOptions();
 // Reveal body after i18n is applied
 document.body.style.opacity = '1';
 
@@ -2363,12 +2374,12 @@ function toggleFaq(i) {
 
 // Filter dimension definitions
 const FILTER_DIMS = [
-  { key: 'region', label: 'Region', dataKey: 'region', valFn: d => d.map(r => r.name) },
-  { key: 'authority', label: 'Authority', dataKey: 'authority', valFn: d => d.map(r => r.name) },
-  { key: 'gender', label: 'Gender', vals: ['Co-Educational','Girls School','Boys School'] },
-  { key: 'year_level', label: 'Year Levels', isYearLevel: true, vals: [] },
-  { key: 'curriculum', label: 'Curriculum', vals: ['NCEA','A-Level','IB'] },
-  { key: 'eqi_group', label: 'EQI', vals: ['fewer','moderate','more'], displayFn: v => ({fewer:'Fewer',moderate:'Moderate',more:'More'}[v]||v) },
+  { key: 'region', labelKey: 'filter_region', dataKey: 'region', valFn: d => d.map(r => r.name) },
+  { key: 'authority', labelKey: 'filter_authority', dataKey: 'authority', valFn: d => d.map(r => r.name) },
+  { key: 'gender', labelKey: 'filter_gender', vals: ['Co-Educational','Girls School','Boys School'] },
+  { key: 'year_level', labelKey: 'filter_year_levels', isYearLevel: true, vals: [] },
+  { key: 'curriculum', labelKey: 'filter_curriculum', vals: ['NCEA','A-Level','IB'] },
+  { key: 'eqi_group', labelKey: 'filter_eqi', vals: ['fewer','moderate','more'], displayFn: v => ({fewer:'Fewer',moderate:'Moderate',more:'More'}[v]||v) },
 ];
 let _openDropdown = null;
 
@@ -2401,9 +2412,9 @@ function renderFilterBar() {
         display = dim.displayFn ? dim.displayFn(selected[0]) : selected[0];
       }
       const extra = selected.length > 1 ? ` +${selected.length - 1}` : '';
-      pill.innerHTML = `${esc(dim.label)}: ${esc(display)}${extra} <span class="pill-arrow">▼</span>`;
+      pill.innerHTML = `${esc(t(dim.labelKey))}: ${esc(display)}${extra} <span class="pill-arrow">▼</span>`;
     } else {
-      pill.innerHTML = `${esc(dim.label)} <span class="pill-arrow">▼</span>`;
+      pill.innerHTML = `${esc(t(dim.labelKey))} <span class="pill-arrow">▼</span>`;
     }
     pill.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -2415,7 +2426,7 @@ function renderFilterBar() {
   if (hasAny) {
     const clear = document.createElement('span');
     clear.className = 'filter-pill-clear';
-    clear.textContent = 'Clear all';
+    clear.textContent = t('clear_all');
     clear.addEventListener('click', () => navigateTo('#/schools'));
     bar.appendChild(clear);
   }
@@ -2704,12 +2715,12 @@ async function loadListData(page) {
     const data = await res.json();
     renderListCards(data.results, data.total, data.page, data.pages);
   } catch (e) {
-    cards.innerHTML = '<div class="no-results">加载失败，请检查服务器</div>';
+    cards.innerHTML = `<div class="no-results">${t('loading')} Error</div>`;
   }
 }
 
 function renderListCards(results, total, page, pages) {
-  document.getElementById('listMeta').textContent = `${total.toLocaleString()} 所学校`;
+  document.getElementById('listMeta').textContent = `${total.toLocaleString()} ${t('schools_count')}`;
   const cards = document.getElementById('listCards');
   cards.innerHTML = '';
 
@@ -2731,20 +2742,20 @@ function renderListCards(results, total, page, pages) {
 
     const typeBadge = document.createElement('span');
     typeBadge.className = 'sc-badge';
-    typeBadge.textContent = (s.school_type || '').replace(/\s*\(Year.*\)/, '');
+    typeBadge.textContent = td('school_type_label', s.school_type || '');
     badges.appendChild(typeBadge);
 
     if (s.gender_of_students && s.gender_of_students !== 'Co-Educational') {
       const gBadge = document.createElement('span');
       gBadge.className = 'sc-badge';
-      gBadge.textContent = s.gender_of_students;
+      gBadge.textContent = td('gender', s.gender_of_students);
       badges.appendChild(gBadge);
     }
 
     if (s.authority && s.authority !== 'State') {
       const aBadge = document.createElement('span');
       aBadge.className = 'sc-badge';
-      aBadge.textContent = s.authority.replace(' : Fully Registered', '').replace(' : Provisionally Registered', '');
+      aBadge.textContent = td('authority', s.authority);
       badges.appendChild(aBadge);
     }
 
@@ -2753,7 +2764,7 @@ function renderListCards(results, total, page, pages) {
     const roll = document.createElement('div');
     roll.className = 'sc-roll';
     const r = parseInt(s.total_school_roll);
-    roll.textContent = r ? r.toLocaleString() + ' 人' : '--';
+    roll.textContent = r ? r.toLocaleString() + ' ' + t('person') : '--';
 
     card.appendChild(nameDiv);
     card.appendChild(badges);
