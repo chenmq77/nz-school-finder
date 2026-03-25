@@ -136,32 +136,79 @@ class NorthcoteCrawler(StandardHtmlCrawler):
 
     # ── Arts / Performing Arts ────────────────────────
 
+    # Substrings to discard — generic filler, not real activity names
+    _ARTS_NOISE_PHRASES = ["many more", "learn more", "arts showcase"]
+
     def extract_arts(self):
-        """Extract performing arts from performing arts page."""
+        """Extract performing arts by parsing page structure (h2 sections)."""
         self.data.arts_url = self.ARTS_URL
         content = self._pages.get(self.ARTS_URL, "")
         if not content:
             self.data.warnings.append("Could not fetch performing arts page")
             return
 
-        # From performing arts page + extra-curricular cultural section
-        known_arts = [
-            "Kapa Haka", "Jazz Band", "Street Band",
-            "Chamber Music", "Tongan Performance Group",
-        ]
-        for item in known_arts:
-            if item.lower() in content.lower():
-                self.data.arts.append(item)
+        seen = set()
 
-        # Also check clubs page for cultural performance groups
+        # ── Split page into h2 sections ──
+        sections = re.split(r'<h2[^>]*>', content, flags=re.IGNORECASE)
+        for section in sections:
+            # Grab heading text (everything before </h2>, strip inner tags)
+            h2_end = section.find('</h2>')
+            if h2_end == -1:
+                continue
+            heading = re.sub(r'<[^>]+>', '', section[:h2_end]).strip().lower()
+
+            # Get plain text of section body (after </h2>)
+            body_html = section[h2_end + 5:]
+            text = re.sub(r'<[^>]+>', ' ', body_html)
+            text = re.sub(r'&amp;', '&', text)
+            text = re.sub(r'&#039;', "'", text)
+            text = re.sub(r'\s+', ' ', text).strip()
+
+            # ── Music section: comma-separated list after "include:" ──
+            if "music" in heading:
+                m = re.search(r'include[:\s]+(.*)', text, re.IGNORECASE)
+                if m:
+                    items_text = re.sub(r'\.\s*$', '', m.group(1))
+                    # split on commas and "and"
+                    raw_items = re.split(r',\s*|\s+and\s+', items_text)
+                    for item in raw_items:
+                        item = item.strip().rstrip('.')
+                        if item and not any(p in item.lower() for p in self._ARTS_NOISE_PHRASES):
+                            if item.lower() not in seen:
+                                seen.add(item.lower())
+                                self.data.arts.append(item)
+
+            # ── Drama section: add as a performing arts activity ──
+            elif "drama" in heading:
+                if "drama" not in seen:
+                    seen.add("drama")
+                    self.data.arts.append("Drama")
+
+            # ── Dance section: extract named activities ──
+            elif "dance" in heading:
+                # Showquest
+                if re.search(r'showquest', text, re.IGNORECASE) and "showquest" not in seen:
+                    seen.add("showquest")
+                    self.data.arts.append("Showquest")
+                # Tap dance
+                if re.search(r'tap\s+(?:dance)?', text, re.IGNORECASE) and "tap dance" not in seen:
+                    seen.add("tap dance")
+                    self.data.arts.append("Tap Dance")
+                # Lyrical dance
+                if re.search(r'lyrical\s+(?:dance)?', text, re.IGNORECASE) and "lyrical dance" not in seen:
+                    seen.add("lyrical dance")
+                    self.data.arts.append("Lyrical Dance")
+
+        # ── Cultural performance groups from clubs page ──
         clubs_content = self._pages.get(self.CLUBS_URL, "")
         if clubs_content:
-            if "tongan performance" in clubs_content.lower():
-                if "Tongan Performance Group" not in self.data.arts:
-                    self.data.arts.append("Tongan Performance Group")
-
-        if re.search(r'choir', content, re.IGNORECASE):
-            self.data.arts.append("Choir")
+            if re.search(r'kapa\s*haka', clubs_content, re.IGNORECASE) and "kapa haka" not in seen:
+                seen.add("kapa haka")
+                self.data.arts.append("Kapa Haka")
+            if re.search(r'tongan\s+performance', clubs_content, re.IGNORECASE) and "tongan performance group" not in seen:
+                seen.add("tongan performance group")
+                self.data.arts.append("Tongan Performance Group")
 
     # ── Clubs ─────────────────────────────────────────
 

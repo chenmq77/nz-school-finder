@@ -1,0 +1,359 @@
+{
+  "school_number": 36,
+  "school_name": "Takapuna Grammar School",
+  "subjects": [
+    "English",
+    "Media Studies",
+    "Chinese",
+    "Spanish",
+    "Te Reo Maori",
+    "Japanese",
+    "French",
+    "Biology",
+    "Chemistry",
+    "Physics",
+    "Science",
+    "Classical Studies",
+    "History",
+    "Geography",
+    "Tourism",
+    "Construction",
+    "Product Development",
+    "Digital Technology",
+    "Hospitality",
+    "Design & Visual Communication",
+    "Textiles",
+    "Dance",
+    "Drama",
+    "Music",
+    "Physical Education",
+    "Health",
+    "Painting",
+    "Mathematics",
+    "ESOL"
+  ],
+  "subjects_raw": [
+    {
+      "name": "English",
+      "raw_name": "English",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "Media Studies",
+      "raw_name": "Media Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "Chinese",
+      "raw_name": "Chinese",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "Spanish",
+      "raw_name": "Spanish",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "Te Reo Maori",
+      "raw_name": "Te Reo Māori",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "Japanese",
+      "raw_name": "Japanese",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "French",
+      "raw_name": "French",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "Biology",
+      "raw_name": "Biology",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "Chemistry",
+      "raw_name": "Chemistry",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "Physics",
+      "raw_name": "Physics",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "Science",
+      "raw_name": "Science",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "Classical Studies",
+      "raw_name": "Classical Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "History",
+      "raw_name": "History",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "Geography",
+      "raw_name": "Geography",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "Tourism",
+      "raw_name": "Tourism",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "Construction",
+      "raw_name": "Building and Construction",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "Product Development",
+      "raw_name": "Product Design",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "Digital Technology",
+      "raw_name": "Computer Science",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "Hospitality",
+      "raw_name": "Hospitality",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "Design & Visual Communication",
+      "raw_name": "Spatial Design",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "Textiles",
+      "raw_name": "Textile Design",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "Dance",
+      "raw_name": "Dance",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "Drama",
+      "raw_name": "Drama",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "Music",
+      "raw_name": "Music",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "Physical Education",
+      "raw_name": "Physical Education",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "Health",
+      "raw_name": "Health",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "Painting",
+      "raw_name": "Painting",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "Mathematics",
+      "raw_name": "Mathematics",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "name": "ESOL",
+      "raw_name": "ESOL",
+      "confidence": 0.9,
+      "source_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    }
+  ],
+  "subjects_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/",
+  "subjects_count": 29,
+  "sports": [
+    "Athletics",
+    "Badminton",
+    "Basketball",
+    "Chess",
+    "Cricket",
+    "Cross Country",
+    "Cycling",
+    "Equestrian",
+    "Golf",
+    "Judo",
+    "Bowling",
+    "Netball",
+    "Orienteering",
+    "Rock Climbing",
+    "Rowing",
+    "Rugby",
+    "Sailing",
+    "Skiing",
+    "Snowboarding",
+    "Football",
+    "Softball",
+    "Squash",
+    "Surfing",
+    "Swimming",
+    "Table Tennis",
+    "Taekwondo",
+    "Tennis",
+    "Touch",
+    "Triathlon",
+    "Ultimate Frisbee",
+    "Trampoline",
+    "Volleyball",
+    "Yachting"
+  ],
+  "sports_url": "https://www.gotonewzealand.co.nz/takapuna-grammar-school/",
+  "sports_count": 33,
+  "arts": [
+    "Cactus Dance Company",
+    "Tempus Dance Company",
+    "Concert Band",
+    "Jazz Band",
+    "Orchestra",
+    "Rock Bands",
+    "Leonessa Choir",
+    "Chorale Choir",
+    "Theatresports"
+  ],
+  "arts_url": "https://www.takapuna.school.nz/student-life/performing-arts/",
+  "arts_count": 9,
+  "clubs": [
+    "Alchemist Club",
+    "Amnesty International",
+    "Board Games Club",
+    "Book Club",
+    "Carpentry Extension - Boatbuilding",
+    "Chinese Art Club",
+    "Computer Coding Club",
+    "Chess Club",
+    "Classics Club",
+    "Craft Club",
+    "Debate Competition",
+    "Duke of Edinburgh",
+    "Electronics Club",
+    "Enviro Club",
+    "Epro8",
+    "Esports Club",
+    "Feminist Club",
+    "Filipino Club",
+    "Film Club",
+    "Finance & Investment Club",
+    "French Club",
+    "Homework Club",
+    "Japanese Club",
+    "Japanese Cultural Dance Club",
+    "Jesus Hub",
+    "Journalism Club",
+    "Latin Club",
+    "Maths Olympiad & Competitions Club",
+    "Medical Science Club",
+    "Mock Trial Club",
+    "Philosophy Club",
+    "Photography Club",
+    "Psychology Club",
+    "Pottery Club",
+    "Politics & Civics Club",
+    "PureBio Club",
+    "Queer-Straight Alliance",
+    "Robotics Club",
+    "Realism Painting Club",
+    "Science & Engineering Club",
+    "Sewing & Construction Club",
+    "Spanish Club",
+    "STEM Scholars Club",
+    "Science Olympiad Club",
+    "Scrapbooking Club",
+    "Theatre & Literature Club",
+    "UNICEF Club",
+    "Video Games Club"
+  ],
+  "clubs_url": "https://www.takapuna.school.nz/student-life/co-curricular-clubs/",
+  "clubs_count": 48,
+  "intl_tuition_annual": null,
+  "intl_homestay_weekly": null,
+  "intl_fees_url": "https://www.takapuna.school.nz/international/",
+  "intl_fees_year": null,
+  "curriculum_systems": [
+    {
+      "system": "NCEA",
+      "status": "offered",
+      "evidence_url": "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
+    },
+    {
+      "system": "IB",
+      "status": "offered",
+      "evidence_url": "https://www.takapuna.school.nz/curriculum-and-learning/international-baccalaureate/"
+    }
+  ],
+  "zone_map_url": "",
+  "zone_streets_url": "",
+  "zone_page_url": "https://www.takapuna.school.nz/our-school/enrolments/",
+  "logo_url": "https://prodcdn.sporty.co.nz/cms/11754/logo.png",
+  "site_type": "nextjs",
+  "pages_crawled": [
+    "http://www.takapuna.school.nz",
+    "https://www.takapuna.school.nz/curriculum-and-learning/subjects/",
+    "https://www.sporty.co.nz/takapunagrammar/Our-Sports/sports-2",
+    "https://www.gotonewzealand.co.nz/takapuna-grammar-school/",
+    "https://www.takapuna.school.nz/student-life/performing-arts/",
+    "https://www.takapuna.school.nz/student-life/co-curricular-clubs/",
+    "https://www.takapuna.school.nz/international/",
+    "https://www.takapuna.school.nz/curriculum-and-learning/international-baccalaureate/",
+    "https://www.takapuna.school.nz/our-school/enrolments/",
+    "https://www.takapuna.school.nz/curriculum-and-learning/subjects/art/",
+    "https://www.takapuna.school.nz/curriculum-and-learning/subjects/languages/",
+    "https://www.takapuna.school.nz/curriculum-and-learning/subjects/science/",
+    "https://www.takapuna.school.nz/curriculum-and-learning/subjects/social-sciences/",
+    "https://www.takapuna.school.nz/curriculum-and-learning/subjects/technology/",
+    "https://www.takapuna.school.nz/curriculum-and-learning/subjects/english/",
+    "https://www.takapuna.school.nz/curriculum-and-learning/subjects/performing-arts/",
+    "https://www.takapuna.school.nz/curriculum-and-learning/subjects/pe-and-health/"
+  ],
+  "warnings": [
+    "International fees not publicly listed on website — contact school for amounts"
+  ],
+  "crawled_at": "2026-03-25T17:30:05.627931"
+}

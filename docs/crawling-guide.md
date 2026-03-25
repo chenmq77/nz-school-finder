@@ -55,11 +55,22 @@
 
 ## 3. Sports 爬取规则
 
-- 存纯名称 JSON list，不存 terms
+- 存纯名称 JSON list，不存 terms — **先全量抓原始名称，标准化/去重是后面的事**
 - 按运动项目计数（Basketball = 1，不管几支队伍）
 - 去掉非运动项目（如 "Our Facilities", "Sports Team", "Our People"）
 - **多页面合并**：sports 页面可能不完整，international students 页面常有补充（如 WGHS 的 Football、Volleyball 只在 intl 页面提到）
 - 来源页面通常：/sport/, /sports/, /extracurricular-activities/
+
+### 提取策略（优先级从高到低）
+1. **从页面链接结构提取**（最可靠，不会漏）
+   - `/sport/<slug>/` 或 `/sports/<slug>/` → slug 转 Title Case 就是运动名
+   - 如 Long Bay 的 `/sport/curling/` → "Curling"
+2. **从页面卡片/标签提取**
+   - 如有 `cmod-title`、`post-title` 等结构化元素
+3. **known_list 匹配**（仅作 fallback）
+   - 页面没有链接结构时才用
+   - 列表要尽量全，合并所有已爬学校的运动名作为 master list
+4. **过滤非运动项**：跳过导航链接（Register, Draws, Academy, Fitness Hub 等）
 
 ---
 
@@ -83,6 +94,19 @@
 
 来源页面通常：/performing-arts/, /arts/, /extracurricular-activities/, /music/
 
+### 提取策略（优先级从高到低）
+1. **爬子页面**：主页面有 /music/、/dance/、/drama/ 子页面时，逐个爬取合并
+   - 如 BDSC 的 `/the-arts/music/` 有 Concert Band、Ukulele Group 等主页面没列的团体
+2. **从链接结构提取**：`/arts-group/<slug>/` → slug 就是团体名
+3. **从分类标签提取**：如 `cmod-tax` 含 "Performing Arts" → arts，其余 → clubs
+4. **known_list 匹配**：仅作 fallback
+
+### Arts vs Clubs 混合页面处理
+- 有些学校（如 Long Bay）arts 和 clubs 放在同一个页面
+- **用页面的分类标签自动分类**：`Performing Arts*` / `Performing Music*` → arts，其余 → clubs
+- 没有分类标签时按 URL 路径分：`/arts-group/` → arts，`/club/` → clubs
+- 都没有时按名称关键词：含 Band/Choir/Orchestra/Drama/Dance → arts
+
 ---
 
 ## 5. Activities/Clubs 爬取规则
@@ -91,11 +115,15 @@
 - Clubs（Coding Club, Chess Club, Debating...）
 - Cultural clubs（Pasifika, Korean Culture Club...）
 - Service opportunities（如果学校有单独页面）
-- 按 club 名计数
+- **先全量抓原始名称存 JSON list，去重/标准化是后面的事**
 
 来源页面通常：/clubs/, /clubs-activities/, /service-opportunities/
-- **PDF 提取**：部分学校（如 WGHS）clubs 全在 PDF 文档里，页面只有链接。用 PyPDF2 提取 PDF 文本，每页通常是一个 club
-- 提取后需过滤掉已在 arts/sports 中的项目
+
+### 提取策略
+1. **从分类标签提取**：混合页面（如 Long Bay）用 `cmod-tax` 排除 arts 后剩下的就是 clubs
+2. **从链接结构提取**：`/club/<slug>/` 或 `/co-curricular-groups/<slug>/`
+3. **PDF 提取**：部分学校（如 WGHS）clubs 全在 PDF 文档里，用 PyPDF2 提取，每页通常是一个 club
+4. **提取后过滤**：去掉已在 arts/sports 中的项目
 
 ---
 
@@ -177,7 +205,46 @@
 
 ---
 
-## 10. 常见陷阱（经验教训）
+## 10. 核心原则（13 所学校经验总结）
+
+### 原则 1: 看 HTML 结构，从同级元素提取
+- **错误做法**：hardcode 一个 known_list 去匹配页面文本 → 列表不全就漏
+- **正确做法**：先看页面的 HTML 结构，找到数据所在的**同级元素**，全部提取
+  - 链接列表：`/sport/<slug>/` → 提取所有同级链接的文本
+  - 折叠面板：`<h5 class="vc_custom_heading">` → 提取所有同级 h5
+  - 列表：`<ul><li>` → 提取所有 li
+  - 分栏：`<h5>CATEGORY</h5><p>item<br>item</p>` → 按 br 分割
+  - 卡片：`<div class="cmod-tax">` + `<h4>` → 提取所有同级卡片
+- **验证数量**：同区域同类型学校一般 25-35 项 sports，如果你只有 15-20，大概率漏了
+- known_list 只作为无结构页面的最后 fallback
+- **爬完的 py 文件要保留**，以后数据更新时直接 `python3 -m crawlers.crawler --school XXX` 重新执行
+
+### 原则 2: 先全量抓，后标准化
+- Sports/Arts/Clubs 先存原始名称的 JSON list
+- 不需要在爬虫阶段做标准化匹配（Subjects 例外，因为前端展示依赖 subject_pool）
+- 以后建 sport_pool / arts_pool 再统一去重
+
+### 原则 3: 爬子页面
+- 主页面 `/the-arts/` 可能只有概述，具体团体在 `/the-arts/music/`、`/the-arts/dance/` 等子页面
+- 如果主页面有子链接，逐个爬取合并
+
+### 原则 4: 费用找不到要 Google
+- 官网找不到 → Google `"{学校名} international fees PDF"` → 第三方平台
+- 确实搜不到的标记为"需联系学校"，不硬编码猜测值
+- 页面无年份时用爬虫运行年份，不做正则猜测
+
+### 原则 5: Logo 选正方形
+- 优先 apple-touch-icon / android-chrome（192×192）
+- 不用 header 横幅 banner
+- 查找顺序：`<link rel="apple-touch-icon">` > `<link rel="icon">` > Google 搜
+
+### 原则 6: 混合页面用标签分类
+- Arts & Clubs 在同一页面时，用分类标签（如 `Performing Arts*` → arts，其余 → clubs）
+- 没有标签时按 URL 路径或名称关键词判断
+
+---
+
+## 11. 常见陷阱（经验教训）
 
 | 陷阱 | 案例 | 正确做法 |
 |------|------|---------|
@@ -202,7 +269,7 @@
 
 ---
 
-## 11. Wix 网站处理（Avondale 经验）
+## 12. Wix 网站处理（Avondale 经验）
 
 部分学校使用 Wix 建站（JS 渲染），普通 HTTP Fetcher 只能拿到 JS 脚手架代码。
 
@@ -231,7 +298,7 @@ p.stop()
 
 ---
 
-## 12. Subject 别名映射表
+## 13. Subject 别名映射表
 
 爬虫遇到不同学校对同一科目的不同叫法时，用 pool 标准名匹配：
 
@@ -265,7 +332,7 @@ p.stop()
 
 ---
 
-## 13. Subject Pool 管理规则
+## 14. Subject Pool 管理规则
 
 - **新增科目必须经过用户批准**
 - 来源应为 NZQA 官方科目 或 学校 coursebook PDF 确认的课程
@@ -275,7 +342,7 @@ p.stop()
 
 ---
 
-## 14. Curriculum Systems 验证规则
+## 15. Curriculum Systems 验证规则
 
 - **不能用 JS 变量名匹配**：Westlake 的 `var ib = {}` 不是 International Baccalaureate
 - 必须在页面正文（非 JS 代码）中找到 "International Baccalaureate" / "IB Diploma" / "Cambridge" / "A-Level" 等关键词
@@ -284,7 +351,7 @@ p.stop()
 
 ---
 
-## 15. 数据完整性检查清单
+## 16. 数据完整性检查清单
 
 每所学校爬完后，检查以下项目：
 
@@ -300,7 +367,7 @@ p.stop()
 
 ---
 
-## 16. 已爬学校记录
+## 17. 已爬学校记录
 
 | # | 学校 | Subjects | Sports | Arts | Clubs | Fees (年学费) | Fee Year | Curriculum | 网站类型 |
 |---|------|----------|--------|------|-------|-------------|----------|-----------|---------|

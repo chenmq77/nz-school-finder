@@ -144,7 +144,7 @@ class MacleansCrawler(StandardHtmlCrawler):
 
     def extract_logo(self):
         """Macleans logo."""
-        self.data.logo_url = "https://www.macleans.school.nz/img/logo.png"
+        self.data.logo_url = "https://assets.macleans.school.nz/images/logo.png"
 
     def extract_zone(self):
         """Macleans enrolment zone info."""

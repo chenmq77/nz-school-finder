@@ -1,0 +1,313 @@
+{
+  "school_number": 48,
+  "school_name": "Western Springs College-Ngā Puna o Waiōrea",
+  "subjects": [
+    "English",
+    "Mathematics",
+    "Science",
+    "Social Studies",
+    "Physical Education",
+    "Health",
+    "Biology",
+    "Chemistry",
+    "Physics",
+    "Geography",
+    "History",
+    "Economics",
+    "Classical Studies",
+    "Business Studies",
+    "Accounting",
+    "Chinese",
+    "French",
+    "Te Reo Maori",
+    "ESOL",
+    "Music",
+    "Dance",
+    "Drama",
+    "Media Studies",
+    "Painting",
+    "Photography",
+    "Design",
+    "Art History",
+    "Design & Visual Communication",
+    "Digital Technology",
+    "Food Technology",
+    "Textiles"
+  ],
+  "subjects_raw": [
+    {
+      "name": "English",
+      "raw_name": "English",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "Mathematics",
+      "raw_name": "Mathematics",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "Science",
+      "raw_name": "Science",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "Social Studies",
+      "raw_name": "Social Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "Physical Education",
+      "raw_name": "Physical Education",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "Health",
+      "raw_name": "Health",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "Biology",
+      "raw_name": "Biology",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "Chemistry",
+      "raw_name": "Chemistry",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "Physics",
+      "raw_name": "Physics",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "Geography",
+      "raw_name": "Geography",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "History",
+      "raw_name": "History",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "Economics",
+      "raw_name": "Economics",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "Classical Studies",
+      "raw_name": "Classical Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "Business Studies",
+      "raw_name": "Business Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "Accounting",
+      "raw_name": "Accounting",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "Chinese",
+      "raw_name": "Chinese",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "French",
+      "raw_name": "French",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "Te Reo Maori",
+      "raw_name": "Te Reo Māori",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "ESOL",
+      "raw_name": "ESOL",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "Music",
+      "raw_name": "Music",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "Dance",
+      "raw_name": "Dance",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "Drama",
+      "raw_name": "Drama",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "Media Studies",
+      "raw_name": "Media Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "Painting",
+      "raw_name": "Art Painting",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "Photography",
+      "raw_name": "Art Photography",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "Design",
+      "raw_name": "Art Design",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "Art History",
+      "raw_name": "Art History",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "Design & Visual Communication",
+      "raw_name": "Design and Visual Communication",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "Digital Technology",
+      "raw_name": "Digital Technologies",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "Food Technology",
+      "raw_name": "Food & Hospitality",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    },
+    {
+      "name": "Textiles",
+      "raw_name": "Textiles Technology",
+      "confidence": 0.9,
+      "source_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    }
+  ],
+  "subjects_url": "https://www.westernsprings.school.nz/year-11-course-book/",
+  "subjects_count": 31,
+  "sports": [
+    "Athletics",
+    "Badminton",
+    "Basketball",
+    "Cricket",
+    "Cross Country",
+    "Cycling",
+    "Dragon Boating",
+    "Football",
+    "Hockey",
+    "Ki O Rahi",
+    "Lacrosse",
+    "Lawn Bowls",
+    "Mountain Biking",
+    "Netball",
+    "Orienteering",
+    "Rugby",
+    "Rugby League",
+    "Skiing",
+    "Snowboarding",
+    "Softball",
+    "Squash",
+    "Swimming",
+    "Tennis",
+    "Touch",
+    "Triathlon",
+    "Volleyball",
+    "Waka Ama",
+    "Water Polo",
+    "Yachting"
+  ],
+  "sports_url": "https://www.westernsprings.school.nz/western-springs-college-sport/",
+  "sports_count": 29,
+  "arts": [
+    "Chamber Group",
+    "Jazz Band",
+    "Choir",
+    "Musical Theatre Ensemble",
+    "Play it Strange",
+    "Rockquest",
+    "Pasifika Beats",
+    "Stand Up Stand Out",
+    "Talent Quest",
+    "SDNZ – Street Dance New Zealand",
+    "Sheilah Winn Shakespeare",
+    "Senior Productions",
+    "Theatre Sports",
+    "Sound and Lighting"
+  ],
+  "arts_url": "https://www.westernsprings.school.nz/arts/",
+  "arts_count": 14,
+  "clubs": [],
+  "clubs_url": "https://www.westernsprings.school.nz/extra-curricular/",
+  "clubs_count": 0,
+  "intl_tuition_annual": 20000.0,
+  "intl_homestay_weekly": 400.0,
+  "intl_fees_url": "https://www.westernsprings.school.nz/international-enrolment/",
+  "intl_fees_year": 2026,
+  "curriculum_systems": [
+    {
+      "system": "NCEA",
+      "status": "offered",
+      "evidence_url": "https://www.westernsprings.school.nz/year-11-course-book/"
+    }
+  ],
+  "zone_map_url": "",
+  "zone_streets_url": "",
+  "zone_page_url": "https://www.westernsprings.school.nz/enrolment/",
+  "logo_url": "https://westernsprings.school.nz/wp-content/uploads/2017/07/logos_05.png",
+  "site_type": "wordpress",
+  "pages_crawled": [
+    "http://www.westernsprings.school.nz",
+    "https://www.westernsprings.school.nz/year-9-course-selection/",
+    "https://www.westernsprings.school.nz/year-11-course-book/",
+    "https://www.westernsprings.school.nz/year-12-ncea-level-2-course-book/",
+    "https://www.westernsprings.school.nz/year-13-ncea-level-3-course-book/",
+    "https://www.westernsprings.school.nz/western-springs-college-sport/",
+    "https://www.westernsprings.school.nz/arts/",
+    "https://www.westernsprings.school.nz/extra-curricular/",
+    "https://www.westernsprings.school.nz/international-enrolment/",
+    "https://www.westernsprings.school.nz/enrolment/"
+  ],
+  "warnings": [
+    "Could not fetch clubs page (/extra-curricular/ returned 404)"
+  ],
+  "crawled_at": "2026-03-25T16:08:45.448561"
+}

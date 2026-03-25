@@ -1,0 +1,321 @@
+{
+  "school_number": 32,
+  "school_name": "Northcote College",
+  "subjects": [
+    "English",
+    "Mathematics",
+    "Science",
+    "Physical Education",
+    "Health",
+    "Biology",
+    "Chemistry",
+    "Physics",
+    "Business Studies",
+    "Classical Studies",
+    "Economics",
+    "Geography",
+    "History",
+    "Psychology",
+    "Tourism",
+    "French",
+    "Japanese",
+    "Chinese",
+    "Spanish",
+    "Te Reo Maori",
+    "ESOL",
+    "Dance",
+    "Drama",
+    "Music",
+    "Painting",
+    "Design & Visual Communication",
+    "Textiles",
+    "Materials and Processing Technology",
+    "Construction",
+    "Digital Technology",
+    "Food Technology",
+    "Hospitality",
+    "Media Studies"
+  ],
+  "subjects_raw": [
+    {
+      "name": "English",
+      "raw_name": "English",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Mathematics",
+      "raw_name": "Mathematics",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Science",
+      "raw_name": "Science",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Physical Education",
+      "raw_name": "Physical Education",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Health",
+      "raw_name": "Health",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Biology",
+      "raw_name": "Biology",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Chemistry",
+      "raw_name": "Chemistry",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Physics",
+      "raw_name": "Physics",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Business Studies",
+      "raw_name": "Business Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Classical Studies",
+      "raw_name": "Classical Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Economics",
+      "raw_name": "Economics",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Geography",
+      "raw_name": "Geography",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "History",
+      "raw_name": "History",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Psychology",
+      "raw_name": "Psychology",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Tourism",
+      "raw_name": "Tourism",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "French",
+      "raw_name": "French",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Japanese",
+      "raw_name": "Japanese",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Chinese",
+      "raw_name": "Chinese",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Spanish",
+      "raw_name": "Spanish",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Te Reo Maori",
+      "raw_name": "Te Reo Māori",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "ESOL",
+      "raw_name": "English Language",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Dance",
+      "raw_name": "Dance",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Drama",
+      "raw_name": "Drama",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Music",
+      "raw_name": "Music",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Painting",
+      "raw_name": "Visual Art",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Design & Visual Communication",
+      "raw_name": "Design and Visual Communication",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Textiles",
+      "raw_name": "Fashion and Textiles",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Materials and Processing Technology",
+      "raw_name": "Hard Materials Technology",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Construction",
+      "raw_name": "Carpentry",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Digital Technology",
+      "raw_name": "Senior Digital Technology Courses",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Food Technology",
+      "raw_name": "Nutrition",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Hospitality",
+      "raw_name": "Hospitality and Professional Cookery",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    },
+    {
+      "name": "Media Studies",
+      "raw_name": "Media Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    }
+  ],
+  "subjects_url": "https://www.northcote.school.nz/teaching-learning/course-directory",
+  "subjects_count": 33,
+  "sports": [
+    "AFL",
+    "Athletics",
+    "Badminton",
+    "Basketball",
+    "Cricket",
+    "Cross Country",
+    "Cycling",
+    "Dragon Boating",
+    "Equestrian",
+    "Football",
+    "Hockey",
+    "Netball",
+    "Orienteering",
+    "Rugby",
+    "Skiing",
+    "Snowboarding",
+    "Softball",
+    "Swimming",
+    "Table Tennis",
+    "Tag",
+    "Tennis",
+    "Touch",
+    "Underwater Hockey",
+    "Volleyball",
+    "Water Polo"
+  ],
+  "sports_url": "https://www.northcote.school.nz/extra-curricular/sport/sports-offered",
+  "sports_count": 25,
+  "arts": [
+    "Talent Quest",
+    "Choir",
+    "Jazz & RnB Band",
+    "Rockquest",
+    "Stand Up Stand Out",
+    "Street Band",
+    "Chamber Groups",
+    "many more. Learn more",
+    "Drama",
+    "Showquest",
+    "Tap Dance",
+    "Lyrical Dance",
+    "Kapa Haka",
+    "Tongan Performance Group"
+  ],
+  "arts_url": "https://www.northcote.school.nz/extra-curricular/performing-arts/",
+  "arts_count": 14,
+  "clubs": [
+    "Lion Dancers",
+    "K-Pop Dance Crew"
+  ],
+  "clubs_url": "https://www.northcote.school.nz/extra-curricular/",
+  "clubs_count": 2,
+  "intl_tuition_annual": null,
+  "intl_homestay_weekly": null,
+  "intl_fees_url": "https://www.northcote.school.nz/international/",
+  "intl_fees_year": null,
+  "curriculum_systems": [
+    {
+      "system": "NCEA",
+      "status": "offered",
+      "evidence_url": "https://www.northcote.school.nz/teaching-learning/course-directory"
+    }
+  ],
+  "zone_map_url": "https://www.northcote.school.nz/sites/default/files/pdf/NC%20Zone.jpg",
+  "zone_streets_url": "",
+  "zone_page_url": "https://www.northcote.school.nz/enrolments/zone-information",
+  "logo_url": "https://www.northcote.school.nz/sites/default/files/logo.png",
+  "site_type": "drupal",
+  "pages_crawled": [
+    "http://www.northcote.school.nz",
+    "https://www.northcote.school.nz/teaching-learning/course-directory",
+    "https://www.northcote.school.nz/extra-curricular/sport/sports-offered",
+    "https://www.northcote.school.nz/extra-curricular/performing-arts/",
+    "https://www.northcote.school.nz/extra-curricular/",
+    "https://www.northcote.school.nz/international/",
+    "https://www.northcote.school.nz/enrolments/zone-information"
+  ],
+  "warnings": [],
+  "crawled_at": "2026-03-25T15:43:51.239317"
+}

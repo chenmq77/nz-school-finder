@@ -245,12 +245,8 @@ class MagsCrawler(StandardHtmlCrawler):
     # ── Logo ──────────────────────────────────────────
 
     def extract_logo(self):
-        # The banner logo (558x140) is too wide. Use the schema.org logo which
-        # includes the square crest. The 1080x900 white-on-transparent version
-        # is not available for MAGS, so we use the banner logo and note it.
-        # Best available: the logo PNG has a square crest on the left portion.
-        # TODO: find a cropped square crest if one becomes available.
-        self.data.logo_url = "https://www.mags.school.nz/wp-content/uploads/2016/12/magslogo-140.png"
+        # School crest (square, 30 KB JPEG) from WP media library.
+        self.data.logo_url = "https://www.mags.school.nz/wp-content/uploads/2019/02/MAGS-Logo.jpeg"
 
     # ── Zone ──────────────────────────────────────────
 

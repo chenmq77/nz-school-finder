@@ -1,0 +1,340 @@
+{
+  "school_number": 6930,
+  "school_name": "Botany Downs Secondary College",
+  "subjects": [
+    "English",
+    "Mathematics",
+    "Science",
+    "Physical Education",
+    "Health",
+    "Biology",
+    "Chemistry",
+    "Physics",
+    "Geography",
+    "History",
+    "Economics",
+    "Business Studies",
+    "Classical Studies",
+    "Tourism",
+    "French",
+    "Japanese",
+    "Chinese",
+    "Te Reo Maori",
+    "ESOL",
+    "Painting",
+    "Photography",
+    "Design",
+    "Design & Visual Communication",
+    "Music",
+    "Dance",
+    "Drama",
+    "Media Studies",
+    "Digital Technology",
+    "Food Technology",
+    "Hospitality",
+    "Textiles",
+    "Accounting",
+    "Social Studies"
+  ],
+  "subjects_raw": [
+    {
+      "name": "English",
+      "raw_name": "English",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Mathematics",
+      "raw_name": "Mathematics",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Science",
+      "raw_name": "Science",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Physical Education",
+      "raw_name": "Physical Education",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Health",
+      "raw_name": "Health",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Biology",
+      "raw_name": "Biology",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Chemistry",
+      "raw_name": "Chemistry",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Physics",
+      "raw_name": "Physics",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Geography",
+      "raw_name": "Geography",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "History",
+      "raw_name": "History",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Economics",
+      "raw_name": "Economics",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Business Studies",
+      "raw_name": "Business Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Classical Studies",
+      "raw_name": "Classical Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Tourism",
+      "raw_name": "Tourism",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "French",
+      "raw_name": "French",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Japanese",
+      "raw_name": "Japanese",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Chinese",
+      "raw_name": "Chinese",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Te Reo Maori",
+      "raw_name": "Te Reo Māori",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "ESOL",
+      "raw_name": "ESOL",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Painting",
+      "raw_name": "Visual Art",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Photography",
+      "raw_name": "Photography",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Design",
+      "raw_name": "Design",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Design & Visual Communication",
+      "raw_name": "Design and Visual Communication",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Music",
+      "raw_name": "Music",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Dance",
+      "raw_name": "Dance",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Drama",
+      "raw_name": "Drama",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Media Studies",
+      "raw_name": "Media Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Digital Technology",
+      "raw_name": "Digital Technologies",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Food Technology",
+      "raw_name": "Food & Hospitality",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Hospitality",
+      "raw_name": "Hospitality",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Textiles",
+      "raw_name": "Textiles Technology",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Accounting",
+      "raw_name": "Accounting",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    },
+    {
+      "name": "Social Studies",
+      "raw_name": "Social Studies",
+      "confidence": 0.9,
+      "source_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    }
+  ],
+  "subjects_url": "https://www.bdsc.school.nz/curriculum/subject-information/",
+  "subjects_count": 33,
+  "sports": [
+    "Archery",
+    "Athletics",
+    "Cricket",
+    "Equestrian",
+    "Golf",
+    "Lawn Bowls",
+    "Orienteering",
+    "Softball",
+    "Swimming",
+    "Tag Football",
+    "Tennis",
+    "Touch",
+    "Triathlon, Multi-sport",
+    "Ultimate Frisbee",
+    "Volleyball",
+    "Badminton",
+    "Basketball",
+    "Cheerleading",
+    "Cross Country / Road Running",
+    "Football",
+    "Gymsports",
+    "Hockey",
+    "Ki O Rahi",
+    "Mountain Biking",
+    "Netball",
+    "Rugby",
+    "Sevens",
+    "Squash",
+    "Table Tennis"
+  ],
+  "sports_url": "https://www.bdsc.school.nz/co-curricular/sport/",
+  "sports_count": 29,
+  "arts": [
+    "Concert Band",
+    "Orchestra",
+    "Ukulele Group",
+    "Rock Bands",
+    "Flute Choir",
+    "Chamber Groups",
+    "Choir",
+    "Stage Challenge",
+    "Bring it On",
+    "Kapa Haka",
+    "School Production",
+    "Wearable Art"
+  ],
+  "arts_url": "https://www.bdsc.school.nz/co-curricular/the-arts/",
+  "arts_count": 12,
+  "clubs": [
+    "Debating",
+    "Chess",
+    "Robotics",
+    "Science Club",
+    "Digital Technology Club",
+    "Board Game Club",
+    "E-Sports Club",
+    "Spoken Word Poetry",
+    "Writing Club",
+    "Enviroschools",
+    "Amnesty International",
+    "Origami Club",
+    "Crochet Club",
+    "Knitting Club",
+    "Juggling Club",
+    "Media Club"
+  ],
+  "clubs_url": "https://www.bdsc.school.nz/co-curricular/",
+  "clubs_count": 16,
+  "intl_tuition_annual": 21000.0,
+  "intl_homestay_weekly": 400.0,
+  "intl_fees_url": "https://www.bdsc.school.nz/wp-content/uploads/International-Fees-Dates.pdf",
+  "intl_fees_year": 2026,
+  "curriculum_systems": [
+    {
+      "system": "NCEA",
+      "status": "offered",
+      "evidence_url": "https://www.bdsc.school.nz/curriculum/subject-information/"
+    }
+  ],
+  "zone_map_url": "",
+  "zone_streets_url": "https://www.bdsc.school.nz/enrolments-3-2/in-zone-street-addresses/",
+  "zone_page_url": "https://www.bdsc.school.nz/key-information/enrolment/",
+  "logo_url": "https://www.bdsc.school.nz/wp-content/uploads/2017/06/BotanyDownsSecondaryCollege_LogoWhite_1080x900.png",
+  "site_type": "wordpress",
+  "pages_crawled": [
+    "http://www.bdsc.school.nz",
+    "https://www.bdsc.school.nz/curriculum/subject-information/",
+    "https://www.bdsc.school.nz/co-curricular/sport/",
+    "https://www.bdsc.school.nz/co-curricular/the-arts/",
+    "https://www.bdsc.school.nz/co-curricular/the-arts/music/",
+    "https://www.bdsc.school.nz/co-curricular/the-arts/dance/",
+    "https://www.bdsc.school.nz/co-curricular/the-arts/drama-and-theatre/",
+    "https://www.bdsc.school.nz/co-curricular/",
+    "https://www.bdsc.school.nz/international/",
+    "https://www.bdsc.school.nz/key-information/enrolment/"
+  ],
+  "warnings": [],
+  "crawled_at": "2026-03-25T14:55:54.581733"
+}

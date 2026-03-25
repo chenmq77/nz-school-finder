@@ -5,7 +5,8 @@ Website: https://www.takapuna.school.nz
 Site type: Next.js (server-rendered React)
 Sources:
   - Subjects: /curriculum-and-learning/subjects/ (department pages with sub-pages)
-  - Sports: /student-life/sport/
+  - Sports: sporty.co.nz/takapunagrammar/Our-Sports/sports-2 (primary, may 403)
+            gotonewzealand.co.nz/takapuna-grammar-school/ (fallback, comma list)
   - Arts: /student-life/performing-arts/
   - Clubs: /student-life/co-curricular-clubs/
   - Fees: /international/ (fees not publicly listed)
@@ -22,7 +23,7 @@ class TakapunaCrawler(StandardHtmlCrawler):
     SITE_TYPE = "nextjs"
     BASE = "https://www.takapuna.school.nz"
     SUBJECTS_URL = "https://www.takapuna.school.nz/curriculum-and-learning/subjects/"
-    SPORTS_URL = "https://www.takapuna.school.nz/student-life/sport/"
+    SPORTS_URL = "https://www.sporty.co.nz/takapunagrammar/Our-Sports/sports-2"
     ARTS_URL = "https://www.takapuna.school.nz/student-life/performing-arts/"
     CLUBS_URL = "https://www.takapuna.school.nz/student-life/co-curricular-clubs/"
     INTL_URL = "https://www.takapuna.school.nz/international/"
@@ -123,23 +124,34 @@ class TakapunaCrawler(StandardHtmlCrawler):
     # ── Sports ────────────────────────────────────────
 
     def extract_sports(self):
-        """Extract sports from sport page."""
-        self.data.sports_url = self.SPORTS_URL
-        content = self._pages.get(self.SPORTS_URL, "")
-        if not content:
-            self.data.warnings.append("Could not fetch sports page")
-            return
+        """Extract sports from Sporty sports-2 page (icon grid) + Other Sports.
 
-        # From sport page — 10 sports shown prominently
-        # Page mentions Olympians/champions so likely more sports exist
-        known_sports = [
-            "Yachting", "Basketball", "Rowing", "Table Tennis",
-            "Athletics", "Hockey", "Rugby", "Squash",
-            "Kayaking", "Cricket",
+        Pages render sport icons via JS (Cloudflare-protected), not parseable
+        by requests. Lists verified via Playwright screenshots on 2026-03-25.
+        Sources:
+          sporty.co.nz/takapunagrammar/Our-Sports/sports-2  (main grid)
+          sporty.co.nz/additionalsports                     (Other Sports)
+        """
+        self.data.sports_url = self.SPORTS_URL
+
+        # 18 sports from main icon grid
+        sports = [
+            "Athletics", "Badminton", "Basketball", "Cricket",
+            "Cycling", "Football", "Hockey", "Rowing",
+            "Rugby", "Sailing", "Squash", "Swimming",
+            "Table Tennis", "Tennis", "Touch", "Ultimate Frisbee",
+            "Volleyball", "Water Polo",
         ]
-        for sport in known_sports:
-            if sport.lower() in content.lower():
-                self.data.sports.append(sport)
+        # 14 from "Other Sports" page (sporty.co.nz/additionalsports)
+        other_sports = [
+            "Archery", "Cross Country", "Diving", "Equestrian",
+            "Golf", "Gymnastics", "Trampolining", "Karate",
+            "Mountain Biking", "Orienteering", "Rock Climbing",
+            "Snow Sports", "Surfing", "Synchronised Swimming",
+            "Triathlon",
+        ]
+        for sport in sports + other_sports:
+            self.data.sports.append(sport)
 
     # ── Arts / Performing Arts ────────────────────────
 
@@ -282,9 +294,9 @@ class TakapunaCrawler(StandardHtmlCrawler):
     # ── Logo ──────────────────────────────────────────
 
     def extract_logo(self):
-        # favicon.ico — 16x16, very small. No apple-touch-icon found.
-        # Next.js site with inline SVG crest. Use favicon as fallback.
-        self.data.logo_url = "https://www.takapuna.school.nz/favicon.ico"
+        # Next.js site uses inline SVG crest, no standalone image URL.
+        # Sporty CDN hosts the school logo as PNG (15 KB).
+        self.data.logo_url = "https://prodcdn.sporty.co.nz/cms/11754/logo.png"
 
     # ── Zone ──────────────────────────────────────────
 

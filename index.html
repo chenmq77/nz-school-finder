@@ -1591,8 +1591,13 @@ function renderCurriculumBadges(w) {
   if (!offered.length) return;
   const parts = offered.map(s => {
     const url = safeUrl(s.evidence_url);
-    if (s.system === 'NCEA' || !url) return esc(s.system);
-    return `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(s.system)}</a>`;
+    let label = s.system;
+    // Add detail note for IB variants (e.g. MYP only for junior years)
+    if (s.system === 'IB' && s.evidence_url && s.evidence_url.toLowerCase().includes('myp')) {
+      label = 'IB <small style="color:var(--text-muted);font-weight:400">(MYP Years 9-10)</small>';
+    }
+    if (s.system === 'NCEA' || !url) return s.system === 'NCEA' ? esc(label) : label;
+    return `<a href="${esc(url)}" target="_blank" rel="noopener">${label}</a>`;
   });
   const el = document.getElementById('curriculumBadges');
   if (el) el.innerHTML = `<div class="info-row"><span class="info-label">Curriculum / 课程体系</span><span class="info-value">${parts.join(', ')}</span></div>`;

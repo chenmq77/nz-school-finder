@@ -135,36 +135,53 @@ class WesternSpringsCrawler(StandardHtmlCrawler):
     # ── Arts / Performing Arts ────────────────────────
 
     def extract_arts(self):
-        """Extract performing arts groups from arts page."""
+        """Extract performing arts from /arts/ page.
+        Page has 3 columns with <h2> headings: Dance, Music, Drama Productions.
+        Music items: <b>item<br/></b> inside one <p> block after <h2>Music</h2>
+        Drama items: <strong>item</strong> in separate <p> tags after <h2>Drama Productions</h2>
+        Dance items: <b>item</b> after <h2>Dance</h2>"""
         self.data.arts_url = self.ARTS_URL
         content = self._pages.get(self.ARTS_URL, "")
         if not content:
             self.data.warnings.append("Could not fetch arts page")
             return
 
-        known_arts = [
-            "Jazz Band", "Chamber Group",
-            "Theatresports",
-        ]
-        for item in known_arts:
-            if item.lower() in content.lower():
-                self.data.arts.append(item)
+        seen = set()
 
-        # Choir
-        if re.search(r'choir', content, re.IGNORECASE):
-            self.data.arts.append("Choir")
+        # Skip non-group items
+        skip = {"instrumentalvocal lessons", "instrumental/vocal lessons",
+                "sound and lighting", "senior dance showcases"}
+
+        # Music column: <h2>Music</h2> followed by <p><b>item<br/></b><b>item<br/></b>...</p>
+        music_match = re.search(r'<h2>Music</h2>\s*<p>(.*?)</p>', content, re.DOTALL)
+        if music_match:
+            for m in re.finditer(r'<b>([^<]+?)(?:<br\s*/?>|</b>)', music_match.group(1)):
+                name = m.group(1).strip()
+                if name and name.lower() not in seen and name.lower() not in skip and len(name) < 50:
+                    seen.add(name.lower())
+                    self.data.arts.append(name)
+
+        # Dance column: <h2>Dance Productions</h2> then <p><strong>Name</strong></p>
+        dance_match = re.search(r'<h2>Dance Productions</h2>(.*?)</div>', content, re.DOTALL)
+        if dance_match:
+            for m in re.finditer(r'<strong>([^<]+?)</strong>', dance_match.group(1)):
+                name = m.group(1).strip().replace("&#8211;", "–")
+                if name and name.lower() not in seen and len(name) < 50:
+                    seen.add(name.lower())
+                    self.data.arts.append(name)
+
+        # Drama column: <h2>Drama Productions</h2> then multiple <p><strong>Name</strong>...</p>
+        drama_match = re.search(r'<h2>Drama Productions</h2>(.*?)</div>', content, re.DOTALL)
+        if drama_match:
+            for m in re.finditer(r'<strong>([^<]+?)</strong>', drama_match.group(1)):
+                name = m.group(1).strip()
+                if name and name.lower() not in seen and len(name) < 50:
+                    seen.add(name.lower())
+                    self.data.arts.append(name)
 
         # Kapa Haka
-        if re.search(r'kapa\s*haka', content, re.IGNORECASE):
+        if re.search(r'kapa\s*haka', content, re.IGNORECASE) and "kapa haka" not in seen:
             self.data.arts.append("Kapa Haka")
-
-        # Pasifika Beats — performance group
-        if re.search(r'pasifika\s*beats', content, re.IGNORECASE):
-            self.data.arts.append("Pasifika Beats")
-
-        # Musical Theatre
-        if re.search(r'musical\s*theatre', content, re.IGNORECASE):
-            self.data.arts.append("Musical Theatre")
 
     # ── Clubs ─────────────────────────────────────────
 
@@ -214,9 +231,8 @@ class WesternSpringsCrawler(StandardHtmlCrawler):
     # ── Logo ──────────────────────────────────────────
 
     def extract_logo(self):
-        # favicon.ico exists (823 bytes, tiny PNG). No apple-touch-icon found.
-        # Use the favicon as best available; it's square.
-        self.data.logo_url = "https://www.westernsprings.school.nz/favicon.ico"
+        # og:image has the full school logo; apple-touch-icon is a small cropped version.
+        self.data.logo_url = "https://westernsprings.school.nz/wp-content/uploads/2017/07/logos_05.png"
 
     # ── Zone ──────────────────────────────────────────
 
