@@ -1176,15 +1176,6 @@ document.body.style.transition = 'opacity 0.15s';
       <div class="section-body collapsed" id="bodyG"></div>
     </div>
 
-    <!-- H. 学术表现 -->
-    <div class="section" id="sectionH" style="display:none">
-      <div class="section-header collapsible" onclick="toggleSection('H')">
-        <div class="section-title" id="titleH"></div>
-        <span class="section-toggle open" id="toggleH">&#9660;</span>
-      </div>
-      <div class="section-body" id="bodyH"></div>
-    </div>
-
   </div><!-- /school-detail -->
 
   <div class="footer">NZ School Finder &copy; 2026 &mdash; Data from Education Counts, New Zealand</div>
@@ -1291,8 +1282,8 @@ function updateSortOptions() {
 
 /** Update section titles based on current language */
 function updateSectionTitles() {
-  const sections = {A:'section_a', B:'section_b', C:'section_c', D:'section_d', E:'section_e', F:'section_f', G:'section_g', H:'section_h'};
-  const prefix = {A:'A', B:'B', C:'C', D:'D', E:'E', F:'F', G:'G', H:'H'};
+  const sections = {A:'section_a', B:'section_b', C:'section_c', D:'section_d', E:'section_e', F:'section_f', G:'section_g'};
+  const prefix = {A:'A', B:'B', C:'C', D:'D', E:'E', F:'F', G:'G'};
   for (const [k, key] of Object.entries(sections)) {
     const el = document.getElementById('title' + k);
     if (el) el.textContent = prefix[k] + '. ' + t(key);
@@ -1335,9 +1326,6 @@ function setLang(lang) {
       renderActivities(_cachedWebData);
       renderFees(_cachedWebData);
       appendZoneToB(_cachedWebData);
-    }
-    if (_cachedPerformance) {
-      renderPerformance(_cachedPerformance);
     }
     return;
   }
@@ -1586,7 +1574,6 @@ function renderSchool(s) {
 
   // 加载爬取数据（C/D/E 区）
   loadWebData(s.school_number);
-  loadPerformanceData(s.school_number);
 }
 
 function renderSectionA(s) {
@@ -1752,154 +1739,6 @@ async function loadWebData(schoolNum) {
     if (e.name === 'AbortError') return; // 正常取消
     /* silently ignore — web data is optional */
   }
-}
-
-/* ── NCEA Performance (Section H) ───────────────── */
-let _cachedPerformance = null;
-
-async function loadPerformanceData(schoolNum) {
-  document.getElementById('sectionH').style.display = 'none';
-  try {
-    const res = await fetch(`/api/school/${schoolNum}/performance`);
-    if (!res.ok) return;
-    const data = await res.json();
-    if (!data || !data.performance) return;
-    _cachedPerformance = data;
-    renderPerformance(data);
-  } catch (e) { /* silently ignore */ }
-}
-
-function renderPerformance(data) {
-  const section = document.getElementById('sectionH');
-  section.style.display = '';
-
-  const years = data.years || [];
-  const latestYear = years[years.length - 1] || 2024;
-  const perf = data.performance;
-  const comp = data.comparison || {};
-
-  // Calculate stacked bar segments for latest year
-  // Total leavers from ncea1 data
-  const ncea1 = perf.ncea1 && perf.ncea1[latestYear];
-  const ncea2 = perf.ncea2 && perf.ncea2[latestYear];
-  const ncea3 = perf.ncea3 && perf.ncea3[latestYear];
-
-  if (!ncea1) {
-    document.getElementById('bodyH').innerHTML = `<div style="color:var(--text-muted);padding:12px 0">${t('ncea_no_data')}</div>`;
-    return;
-  }
-
-  const totalLeavers = ncea1.leavers;
-  const l1Above = ncea1.above || 0;
-  const l2Above = ncea2 ? (ncea2.above || 0) : 0;
-  const l3Above = ncea3 ? (ncea3.above || 0) : 0;
-
-  // Segments: Below L1, L1 only, L2 only, L3/UE
-  const belowL1 = totalLeavers - l1Above;
-  const l1Only = l1Above - l2Above;
-  const l2Only = l2Above - l3Above;
-  const l3UE = l3Above;
-
-  const pctBelow = totalLeavers > 0 ? (belowL1 / totalLeavers * 100) : 0;
-  const pctL1 = totalLeavers > 0 ? (l1Only / totalLeavers * 100) : 0;
-  const pctL2 = totalLeavers > 0 ? (l2Only / totalLeavers * 100) : 0;
-  const pctL3 = totalLeavers > 0 ? (l3UE / totalLeavers * 100) : 0;
-
-  // Colors matching the reference image
-  const colors = {
-    below: '#b8c9e0',  // light blue-grey
-    l1: '#8b3a5e',     // dark burgundy
-    l2: '#1a1a4e',     // dark navy
-    l3: '#e05858',     // coral red
-    ue: '#f0c850',     // gold/yellow (L3/UE)
-  };
-
-  // Year selector tabs
-  const yearTabs = years.map(y =>
-    `<span onclick="switchPerfYear(${y})" class="perf-year-tab${y === latestYear ? ' active' : ''}" style="padding:3px 10px;cursor:pointer;border-radius:12px;font-size:12px;margin-right:4px;${y === latestYear ? 'background:var(--primary);color:#fff' : 'background:var(--bg-card);color:var(--text-muted);border:1px solid var(--border)'}">${y}</span>`
-  ).join('');
-
-  // Stacked bar
-  const barHtml = `
-    <div style="display:flex;height:32px;border-radius:6px;overflow:hidden;margin:12px 0">
-      ${pctBelow > 0 ? `<div title="${t('ncea_below_l1')}: ${pctBelow.toFixed(1)}%" style="width:${pctBelow}%;background:${colors.below};display:flex;align-items:center;justify-content:center;font-size:10px;color:#555">${pctBelow >= 5 ? pctBelow.toFixed(0) + '%' : ''}</div>` : ''}
-      ${pctL1 > 0 ? `<div title="${t('ncea_l1_only')}: ${pctL1.toFixed(1)}%" style="width:${pctL1}%;background:${colors.l1};display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff">${pctL1 >= 5 ? pctL1.toFixed(0) + '%' : ''}</div>` : ''}
-      ${pctL2 > 0 ? `<div title="${t('ncea_l2_only')}: ${pctL2.toFixed(1)}%" style="width:${pctL2}%;background:${colors.l2};display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff">${pctL2 >= 5 ? pctL2.toFixed(0) + '%' : ''}</div>` : ''}
-      ${pctL3 > 0 ? `<div title="${t('ncea_l3_ue')}: ${pctL3.toFixed(1)}%" style="width:${pctL3}%;background:${colors.ue};display:flex;align-items:center;justify-content:center;font-size:11px;color:#333;font-weight:600">${pctL3.toFixed(0)}%</div>` : ''}
-    </div>
-    <div style="display:flex;gap:12px;font-size:11px;color:var(--text-muted);flex-wrap:wrap">
-      <span><span style="display:inline-block;width:10px;height:10px;background:${colors.below};border-radius:2px;margin-right:3px"></span>${t('ncea_below_l1')}</span>
-      <span><span style="display:inline-block;width:10px;height:10px;background:${colors.l1};border-radius:2px;margin-right:3px"></span>${t('ncea_l1_only')}</span>
-      <span><span style="display:inline-block;width:10px;height:10px;background:${colors.l2};border-radius:2px;margin-right:3px"></span>${t('ncea_l2_only')}</span>
-      <span><span style="display:inline-block;width:10px;height:10px;background:${colors.ue};border-radius:2px;margin-right:3px"></span>${t('ncea_l3_ue')}</span>
-    </div>
-  `;
-
-  // Comparison table
-  // Find school name from comparison (first key that matches school)
-  const schoolKey = Object.keys(comp).find(k => comp[k].ncea1 && comp[k].ncea1[latestYear] !== undefined && !['Auckland Region','New Zealand','Secondary (Year 9-15)'].includes(k) && !k.startsWith('State'));
-  // Find same-type key
-  const sameTypeKey = Object.keys(comp).find(k => k.startsWith('State'));
-
-  const compRows = [
-    { label: schoolKey || `School #${data.school_number}`, key: schoolKey, isSchool: true },
-    { label: 'Auckland Region', key: 'Auckland Region' },
-    { label: sameTypeKey || '', key: sameTypeKey, labelCn: t('ncea_same_type') },
-    { label: 'New Zealand', key: 'New Zealand' },
-  ].filter(r => r.key && comp[r.key]);
-
-  let tableHtml = `
-    <table style="width:100%;border-collapse:collapse;margin-top:16px;font-size:13px">
-      <thead>
-        <tr style="border-bottom:2px solid var(--border)">
-          <th style="text-align:left;padding:8px 12px;font-weight:500">${t('ncea_comparison')}</th>
-          <th style="text-align:right;padding:8px 12px;font-weight:500">NCEA L1</th>
-          <th style="text-align:right;padding:8px 12px;font-weight:500">NCEA L2</th>
-          <th style="text-align:right;padding:8px 12px;font-weight:500">NCEA L3/UE</th>
-        </tr>
-      </thead>
-      <tbody>`;
-
-  for (const row of compRows) {
-    const d = comp[row.key];
-    const l1 = d.ncea1 && d.ncea1[latestYear] != null ? d.ncea1[latestYear].toFixed(1) + '%' : '--';
-    const l2 = d.ncea2 && d.ncea2[latestYear] != null ? d.ncea2[latestYear].toFixed(1) + '%' : '--';
-    const l3 = d.ncea3 && d.ncea3[latestYear] != null ? d.ncea3[latestYear].toFixed(1) + '%' : '--';
-    const style = row.isSchool ? 'font-weight:600;background:var(--primary-light)' : '';
-    const label = row.labelCn && _lang !== 'en' ? row.labelCn : row.label;
-    const prefix = row.isSchool ? '★ ' : '  ';
-    tableHtml += `
-        <tr style="border-bottom:1px solid var(--border);${style}">
-          <td style="padding:8px 12px">${prefix}${esc(label)}</td>
-          <td style="text-align:right;padding:8px 12px">${l1}</td>
-          <td style="text-align:right;padding:8px 12px">${l2}</td>
-          <td style="text-align:right;padding:8px 12px">${l3}</td>
-        </tr>`;
-  }
-  tableHtml += '</tbody></table>';
-
-  document.getElementById('bodyH').innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <div style="font-size:14px;color:var(--text-muted)">${t('ncea_leavers')} <strong style="color:var(--text);font-size:18px">${totalLeavers.toLocaleString()}</strong> ${t('person')} (${latestYear})</div>
-      <div>${yearTabs}</div>
-    </div>
-    <div style="font-size:13px;font-weight:500;margin-top:12px">${t('ncea_distribution')}</div>
-    ${barHtml}
-    ${tableHtml}
-  `;
-}
-
-// Year tab click handler
-function switchPerfYear(year) {
-  if (!_cachedPerformance) return;
-  // Rebuild with different year
-  const data = _cachedPerformance;
-  data._selectedYear = year;
-  // Re-render (hacky but works for MVP - override years to put selected last)
-  const origYears = data.years;
-  data.years = origYears.filter(y => y <= year);
-  renderPerformance(data);
-  data.years = origYears;
 }
 
 function safeUrl(url) {

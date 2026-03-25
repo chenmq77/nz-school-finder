@@ -30,18 +30,6 @@ const TRANSLATIONS = {
     section_e:            { en: "International Fees", cn: "国际生费用" },
     section_f:            { en: "Students", cn: "学生规模与构成" },
     section_g:            { en: "Other Details", cn: "其他信息" },
-    section_h:            { en: "Academic Performance", cn: "学术表现" },
-
-    // Field Labels — Section H
-    ncea_leavers:         { en: "School Leavers", cn: "毕业生" },
-    ncea_distribution:    { en: "NCEA Achievement Distribution", cn: "NCEA 达标分布" },
-    ncea_below_l1:        { en: "Below Level 1", cn: "未达 Level 1" },
-    ncea_l1_only:         { en: "NCEA L1", cn: "NCEA L1" },
-    ncea_l2_only:         { en: "NCEA L2", cn: "NCEA L2" },
-    ncea_l3_ue:           { en: "NCEA L3 / UE", cn: "NCEA L3 / UE" },
-    ncea_comparison:      { en: "Comparison", cn: "对比" },
-    ncea_same_type:       { en: "Same Type Schools", cn: "同类型学校" },
-    ncea_no_data:         { en: "No NCEA data available", cn: "暂无 NCEA 数据" },
 
     // Field Labels — Section A
     school_type:          { en: "Type", cn: "类型" },
