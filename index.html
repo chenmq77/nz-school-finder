@@ -851,6 +851,7 @@ body {
   justify-content: space-between;
   gap: 10px;
 }
+.list-meta-row .list-actions { display: flex; align-items: center; gap: 8px; }
 .list-meta {
   font-size: 13px;
   color: var(--text-secondary);
@@ -864,6 +865,44 @@ body {
   background: var(--card-bg);
   color: var(--text);
   cursor: pointer;
+}
+
+/* ── Configurable Table ── */
+.school-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.school-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.school-table th { position: sticky; top: 0; background: var(--bg); padding: 8px 12px; text-align: left; font-weight: 600; font-size: 12px; color: var(--text-secondary); border-bottom: 2px solid var(--border); white-space: nowrap; cursor: default; user-select: none; }
+.school-table th.sortable { cursor: pointer; }
+.school-table th.sortable:hover { color: var(--primary); }
+.school-table th .sort-icon { margin-left: 4px; font-size: 10px; }
+.school-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-light, #f0f0f0); white-space: nowrap; }
+.school-table tr { transition: background var(--transition); cursor: pointer; }
+.school-table tr:hover { background: var(--bg-hover, #f8f9fa); }
+.school-table .td-name { white-space: normal; min-width: 140px; }
+.school-table .td-name .cn { font-weight: 600; font-size: 14px; }
+.school-table .td-name .en { color: var(--text-muted); font-size: 11px; }
+.school-table .td-null { color: var(--text-muted); }
+.school-table th.num, .school-table td.num { text-align: right; }
+
+/* Column chooser */
+.col-chooser-btn { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 4px; }
+.col-chooser-btn:hover { border-color: var(--primary); color: var(--primary); }
+.col-chooser-btn.active { border-color: var(--primary); color: var(--primary); background: var(--bg-secondary); }
+
+/* Side panel layout */
+.list-body { position: relative; }
+.list-body-main { width: 100%; }
+.col-chooser-side { display: none; }
+.col-chooser-side.open { display: block; position: fixed; right: 20px; top: 140px; width: 200px; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); overflow-y: auto; max-height: calc(100vh - 180px); z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
+.col-chooser-side .group-label { font-size: 11px; font-weight: 600; color: var(--text-muted); margin: 8px 0 4px; text-transform: uppercase; }
+.col-chooser-side .group-label:first-child { margin-top: 0; }
+.col-chooser-side label { display: flex; align-items: center; gap: 6px; padding: 3px 0; font-size: 13px; cursor: pointer; }
+.col-chooser-side label.disabled { opacity: 0.5; cursor: default; }
+.col-chooser-side .reset-btn { display: block; margin-top: 8px; padding: 4px 0; font-size: 12px; color: var(--primary); cursor: pointer; border: none; background: none; }
+
+/* Mobile sticky first column */
+@media (max-width: 767px) {
+  .school-table th:first-child, .school-table td:first-child { position: sticky; left: 0; z-index: 2; background: var(--bg); box-shadow: 2px 0 4px rgba(0,0,0,0.05); }
+  .school-table tr:hover td:first-child { background: var(--bg-hover, #f8f9fa); }
 }
 
 .school-card {
@@ -1057,11 +1096,18 @@ document.body.style.transition = 'opacity 0.15s';
     <div class="list-toolbar">
       <div class="list-meta-row">
         <span class="list-meta" id="listMeta"></span>
-        <select class="list-sort" id="listSort" onchange="onSortChange()"></select>
+        <div class="list-actions">
+          <select class="list-sort" id="listSort" onchange="onSortChange()"></select>
+        </div>
       </div>
     </div>
-    <div id="listCards"></div>
-    <div class="pagination" id="listPagination"></div>
+    <div class="list-body">
+      <div class="list-body-main">
+        <div id="listCards"></div>
+        <div class="pagination" id="listPagination"></div>
+      </div>
+      <div class="col-chooser-side" id="colChooserSide"></div>
+    </div>
   </div><!-- /list-view -->
 
   <!-- School Detail -->
@@ -2721,68 +2767,347 @@ async function loadListData(page) {
   }
 }
 
+/* ── Configurable Table Columns ── */
+const TABLE_COLUMNS = [
+  { key:'name',    label:'学校名 / Name',  fixed:true,  default:true,  group:'基础', sortable:true,  sortType:'text', align:'left' },
+  { key:'suburb',  label:'区域 / Area',    fixed:false, default:true,  group:'基础', sortable:true,  sortType:'text', align:'left' },
+  { key:'tags',    label:'类型 / Type',    fixed:false, default:true,  group:'基础', sortable:false, align:'left' },
+  { key:'eqi',     label:'EQI',            fixed:false, default:true,  group:'基础', sortable:true,  sortType:'number', align:'right', firstDir:'asc', tooltip:'越低=社区条件越好 / Lower=better community' },
+  { key:'roll',    label:'人数 / Roll',    fixed:false, default:true,  group:'基础', sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
+  { key:'zone',    label:'学区 / Zone',    fixed:false, default:false, group:'基础', sortable:false, align:'center' },
+  { key:'ethnicity',label:'族裔 / Ethnicity',fixed:false, default:false, group:'族裔', sortable:true, sortType:'number', align:'right', firstDir:'desc' },
+  { key:'eth_european',label:'欧裔%',      fixed:false, default:false, group:'族裔', sortable:true, sortType:'number', align:'right', firstDir:'desc' },
+  { key:'eth_maori',label:'毛利裔%',       fixed:false, default:false, group:'族裔', sortable:true, sortType:'number', align:'right', firstDir:'desc' },
+  { key:'eth_pacific',label:'太平洋裔%',   fixed:false, default:false, group:'族裔', sortable:true, sortType:'number', align:'right', firstDir:'desc' },
+  { key:'eth_asian',label:'亚裔%',         fixed:false, default:false, group:'族裔', sortable:true, sortType:'number', align:'right', firstDir:'desc' },
+  { key:'eth_melaa',label:'MELAA%',        fixed:false, default:false, group:'族裔', sortable:true, sortType:'number', align:'right', firstDir:'desc' },
+  { key:'eth_other',label:'其他%',         fixed:false, default:false, group:'族裔', sortable:true, sortType:'number', align:'right', firstDir:'desc' },
+  { key:'eth_intl', label:'国际生%',       fixed:false, default:false, group:'族裔', sortable:true, sortType:'number', align:'right', firstDir:'desc' },
+  { key:'curriculum',label:'课程 / Curriculum',fixed:false, default:false, group:'课外', sortable:false, align:'left' },
+  { key:'fee',     label:'学费/年 / Fee',  fixed:false, default:false, group:'课外', sortable:true, sortType:'number', align:'right', firstDir:'asc' },
+  { key:'subjects',label:'科目 / Subjects',fixed:false, default:false, group:'课外', sortable:true, sortType:'number', align:'right', firstDir:'desc' },
+  { key:'sports',  label:'运动 / Sports',  fixed:false, default:false, group:'课外', sortable:true, sortType:'number', align:'right', firstDir:'desc' },
+  { key:'arts',    label:'艺术 / Arts',    fixed:false, default:false, group:'课外', sortable:true, sortType:'number', align:'right', firstDir:'desc' },
+  { key:'clubs',   label:'俱乐部 / Clubs', fixed:false, default:false, group:'课外', sortable:true, sortType:'number', align:'right', firstDir:'desc' },
+];
+
+const DEFAULT_COLS = TABLE_COLUMNS.filter(c => c.fixed || c.default).map(c => c.key);
+let _visibleCols = [];
+let _tableSort = { key: null, dir: null };
+
+function loadVisibleCols() {
+  try {
+    const saved = localStorage.getItem('schoolColumns');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Filter out invalid keys
+      const validKeys = new Set(TABLE_COLUMNS.map(c => c.key));
+      const filtered = parsed.filter(k => validKeys.has(k));
+      // Ensure fixed columns are always included
+      TABLE_COLUMNS.filter(c => c.fixed).forEach(c => {
+        if (!filtered.includes(c.key)) filtered.unshift(c.key);
+      });
+      _visibleCols = filtered.length > 0 ? filtered : [...DEFAULT_COLS];
+      return;
+    }
+  } catch(e) {}
+  _visibleCols = [...DEFAULT_COLS];
+}
+
+function saveVisibleCols() {
+  try { localStorage.setItem('schoolColumns', JSON.stringify(_visibleCols)); } catch(e) {}
+}
+
+function getCellValue(s, key) {
+  const roll = parseInt(s.total_school_roll) || 0;
+  switch(key) {
+    case 'name': return null; // special rendering
+    case 'suburb': return s.suburb || s.town_city || '';
+    case 'tags': return null; // special rendering
+    case 'eqi': {
+      const v = parseFloat(s.equity_index_eqi);
+      return isNaN(v) ? null : v;
+    }
+    case 'roll': return roll || null;
+    case 'zone': return s.enrolment_scheme === 'Yes' ? '✅' : '—';
+    case 'ethnicity': {
+      // Find largest ethnicity
+      const eths = [
+        { name: '欧裔', val: parseInt(s.european_pakeha) || 0 },
+        { name: '毛利裔', val: parseInt(s.maori) || 0 },
+        { name: '太平洋裔', val: parseInt(s.pacific) || 0 },
+        { name: '亚裔', val: parseInt(s.asian) || 0 },
+        { name: 'MELAA', val: parseInt(s.melaa) || 0 },
+        { name: '其他', val: parseInt(s.other) || 0 },
+      ];
+      const max = eths.reduce((a, b) => a.val > b.val ? a : b);
+      const pct = roll > 0 ? Math.round(max.val / roll * 100) : 0;
+      return pct > 0 ? pct : null;
+    }
+    case 'eth_european': return roll > 0 ? Math.round((parseInt(s.european_pakeha) || 0) / roll * 100) : null;
+    case 'eth_maori': return roll > 0 ? Math.round((parseInt(s.maori) || 0) / roll * 100) : null;
+    case 'eth_pacific': return roll > 0 ? Math.round((parseInt(s.pacific) || 0) / roll * 100) : null;
+    case 'eth_asian': return roll > 0 ? Math.round((parseInt(s.asian) || 0) / roll * 100) : null;
+    case 'eth_melaa': return roll > 0 ? Math.round((parseInt(s.melaa) || 0) / roll * 100) : null;
+    case 'eth_other': return roll > 0 ? Math.round((parseInt(s.other) || 0) / roll * 100) : null;
+    case 'eth_intl': return roll > 0 ? Math.round((parseInt(s.international) || 0) / roll * 100) : null;
+    case 'curriculum': {
+      if (!s.curriculum_systems) return null;
+      try {
+        const systems = JSON.parse(s.curriculum_systems);
+        return systems.map(c => c.system || c).join(', ');
+      } catch(e) { return s.curriculum_systems; }
+    }
+    case 'fee': return s.intl_tuition_annual || null;
+    case 'subjects': return s.subjects_count || null;
+    case 'sports': return s.sports_count || null;
+    case 'arts': return s.music_count || null;
+    case 'clubs': return s.activities_count || null;
+    default: return null;
+  }
+}
+
+function formatCell(key, val, s) {
+  if (key === 'name') {
+    const cn = s.school_name_cn;
+    const en = s.school_name || '';
+    if (cn) return `<div class="td-name"><div class="cn">${esc(cn)}</div><div class="en">${esc(en)}</div></div>`;
+    return `<div class="td-name"><div class="cn">${esc(en)}</div></div>`;
+  }
+  if (key === 'tags') {
+    let tags = [];
+    if (s.school_type) tags.push(`<span class="sc-badge">${esc(td('school_type_label', s.school_type))}</span>`);
+    if (s.gender_of_students && s.gender_of_students !== 'Co-Educational')
+      tags.push(`<span class="sc-badge">${esc(td('gender', s.gender_of_students))}</span>`);
+    if (s.authority && s.authority !== 'State')
+      tags.push(`<span class="sc-badge">${esc(td('authority', s.authority))}</span>`);
+    return tags.join(' ');
+  }
+  if (val === null || val === undefined) return '<span class="td-null">—</span>';
+  if (key === 'roll') return parseInt(val).toLocaleString();
+  if (key === 'fee') return '$' + parseFloat(val).toLocaleString();
+  if (key === 'ethnicity') {
+    // Show largest ethnicity name + %
+    const roll = parseInt(s.total_school_roll) || 0;
+    const eths = [
+      { name: '欧裔', val: parseInt(s.european_pakeha) || 0 },
+      { name: '毛利裔', val: parseInt(s.maori) || 0 },
+      { name: '太平洋裔', val: parseInt(s.pacific) || 0 },
+      { name: '亚裔', val: parseInt(s.asian) || 0 },
+      { name: 'MELAA', val: parseInt(s.melaa) || 0 },
+      { name: '其他', val: parseInt(s.other) || 0 },
+    ];
+    const max = eths.reduce((a, b) => a.val > b.val ? a : b);
+    const pct = roll > 0 ? Math.round(max.val / roll * 100) : 0;
+    return pct > 0 ? `${max.name} ${pct}%` : '<span class="td-null">—</span>';
+  }
+  if (key.startsWith('eth_')) return val + '%';
+  if (key === 'curriculum') return esc(String(val));
+  return esc(String(val));
+}
+
+function sortTableData(results) {
+  if (!_tableSort.key) return results;
+  const col = TABLE_COLUMNS.find(c => c.key === _tableSort.key);
+  if (!col || !col.sortable) return results;
+
+  const sorted = [...results];
+  sorted.sort((a, b) => {
+    let va = getCellValue(a, _tableSort.key);
+    let vb = getCellValue(b, _tableSort.key);
+    // null always last
+    if (va === null && vb === null) return 0;
+    if (va === null) return 1;
+    if (vb === null) return -1;
+    // Name special: sort by cn name then en name
+    if (_tableSort.key === 'name') {
+      va = (a.school_name_cn || a.school_name || '').toLowerCase();
+      vb = (b.school_name_cn || b.school_name || '').toLowerCase();
+    }
+    let cmp = 0;
+    if (col.sortType === 'number') {
+      cmp = parseFloat(va) - parseFloat(vb);
+    } else {
+      cmp = String(va).localeCompare(String(vb), 'zh');
+    }
+    return _tableSort.dir === 'desc' ? -cmp : cmp;
+  });
+  return sorted;
+}
+
+function onTableHeaderClick(key) {
+  const col = TABLE_COLUMNS.find(c => c.key === key);
+  if (!col || !col.sortable) return;
+
+  if (_tableSort.key === key) {
+    // Cycle: default dir -> reverse -> clear
+    if (_tableSort.dir === (col.firstDir || 'desc')) {
+      _tableSort.dir = _tableSort.dir === 'asc' ? 'desc' : 'asc';
+    } else {
+      _tableSort = { key: null, dir: null };
+    }
+  } else {
+    _tableSort = { key: key, dir: col.firstDir || 'desc' };
+  }
+  // Re-render with current data
+  if (_lastListData) renderListCards(_lastListData.results, _lastListData.total, _lastListData.page, _lastListData.pages);
+}
+
+let _lastListData = null;
+
+function toggleColumnChooser() {
+  const side = document.getElementById('colChooserSide');
+  if (!side) return;
+
+  const btn = document.querySelector('.col-chooser-btn');
+
+  // Toggle: if open, close
+  if (side.classList.contains('open')) {
+    side.classList.remove('open');
+    side.innerHTML = '';
+    if (btn) btn.classList.remove('active');
+    return;
+  }
+
+  // Open: render checkboxes into side panel
+  side.innerHTML = '';
+  if (btn) btn.classList.add('active');
+
+  const groups = {};
+  TABLE_COLUMNS.forEach(c => {
+    if (!groups[c.group]) groups[c.group] = [];
+    groups[c.group].push(c);
+  });
+
+  for (const [groupName, cols] of Object.entries(groups)) {
+    const groupLabel = document.createElement('div');
+    groupLabel.className = 'group-label';
+    groupLabel.textContent = groupName;
+    side.appendChild(groupLabel);
+
+    cols.forEach(col => {
+      const label = document.createElement('label');
+      if (col.fixed) label.className = 'disabled';
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = _visibleCols.includes(col.key);
+      cb.disabled = col.fixed;
+      cb.onchange = () => {
+        if (cb.checked) {
+          if (!_visibleCols.includes(col.key)) _visibleCols.push(col.key);
+        } else {
+          _visibleCols = _visibleCols.filter(k => k !== col.key);
+          if (_tableSort.key === col.key) _tableSort = { key: null, dir: null };
+        }
+        saveVisibleCols();
+        if (_lastListData) renderListCards(_lastListData.results, _lastListData.total, _lastListData.page, _lastListData.pages);
+      };
+      label.appendChild(cb);
+      label.appendChild(document.createTextNode(' ' + col.label));
+      side.appendChild(label);
+    });
+  }
+
+  const resetBtn = document.createElement('button');
+  resetBtn.className = 'reset-btn';
+  resetBtn.textContent = '恢复默认 / Reset';
+  resetBtn.onclick = () => {
+    _visibleCols = [...DEFAULT_COLS];
+    _tableSort = { key: null, dir: null };
+    saveVisibleCols();
+    if (_lastListData) renderListCards(_lastListData.results, _lastListData.total, _lastListData.page, _lastListData.pages);
+  };
+  side.appendChild(resetBtn);
+
+  side.classList.add('open');
+}
+
+// Initialize columns
+loadVisibleCols();
+
 function renderListCards(results, total, page, pages) {
-  document.getElementById('listMeta').textContent = `${total.toLocaleString()} ${t('schools_count')}`;
-  const cards = document.getElementById('listCards');
-  cards.innerHTML = '';
+  _lastListData = { results, total, page, pages };
+
+  // Update meta with column chooser
+  const metaRow = document.querySelector('.list-meta-row');
+  if (metaRow) {
+    const meta = document.getElementById('listMeta');
+    if (meta) meta.textContent = `${total.toLocaleString()} ${t('schools_count')}`;
+    // Add column chooser button if not exists (after sort select in .list-actions)
+    const actions = metaRow.querySelector('.list-actions');
+    if (actions && !actions.querySelector('.col-chooser-btn')) {
+      const btn = document.createElement('button');
+      btn.className = 'col-chooser-btn';
+      btn.innerHTML = '⚙️ 自定义列';
+      btn.onclick = (e) => { e.stopPropagation(); toggleColumnChooser(); };
+      actions.appendChild(btn);
+    }
+  }
+
+  const container = document.getElementById('listCards');
+  container.innerHTML = '';
 
   if (!results.length) {
-    cards.innerHTML = '<div class="no-results" style="padding:40px">没有找到匹配的学校</div>';
+    container.innerHTML = '<div class="no-results" style="padding:40px;text-align:center;color:var(--text-muted)">没有匹配的学校 / No matching schools</div>';
     document.getElementById('listPagination').innerHTML = '';
     return;
   }
 
-  results.forEach(s => {
-    const card = document.createElement('div');
-    card.className = 'school-card';
-    const nameDiv = document.createElement('div');
-    nameDiv.className = 'sc-name';
-    const cnName = s.school_name_cn;
-    if (_lang === 'cn' && cnName) {
-      nameDiv.textContent = cnName;
-    } else if (_lang === 'both' && cnName) {
-      nameDiv.innerHTML = esc(s.school_name) + ` <span style="color:var(--text-muted);font-size:0.85em">${esc(cnName)}</span>`;
-    } else {
-      nameDiv.textContent = s.school_name || '';
+  // Client-side sort
+  const sorted = sortTableData(results);
+
+  // Get visible column definitions
+  const visCols = _visibleCols.map(k => TABLE_COLUMNS.find(c => c.key === k)).filter(Boolean);
+
+  // Build table
+  const tableWrap = document.createElement('div');
+  tableWrap.className = 'school-table-wrap';
+  const table = document.createElement('table');
+  table.className = 'school-table';
+
+  // Header
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+  visCols.forEach(col => {
+    const th = document.createElement('th');
+    th.className = (col.sortable ? 'sortable ' : '') + (col.align === 'right' ? 'num' : '');
+
+    let labelText = col.label;
+    if (col.tooltip) th.title = col.tooltip;
+
+    // Sort indicator
+    let sortIcon = '';
+    if (col.sortable) {
+      if (_tableSort.key === col.key) {
+        sortIcon = _tableSort.dir === 'asc' ? ' ▲' : ' ▼';
+      }
+      th.onclick = () => onTableHeaderClick(col.key);
     }
-
-    const badges = document.createElement('div');
-    badges.className = 'sc-badges';
-
-    const typeBadge = document.createElement('span');
-    typeBadge.className = 'sc-badge';
-    typeBadge.textContent = td('school_type_label', s.school_type || '');
-    badges.appendChild(typeBadge);
-
-    if (s.gender_of_students && s.gender_of_students !== 'Co-Educational') {
-      const gBadge = document.createElement('span');
-      gBadge.className = 'sc-badge';
-      gBadge.textContent = td('gender', s.gender_of_students);
-      badges.appendChild(gBadge);
-    }
-
-    if (s.authority && s.authority !== 'State') {
-      const aBadge = document.createElement('span');
-      aBadge.className = 'sc-badge';
-      aBadge.textContent = td('authority', s.authority);
-      badges.appendChild(aBadge);
-    }
-
-    // Full profile badge removed — too noisy in list view
-
-    const roll = document.createElement('div');
-    roll.className = 'sc-roll';
-    const r = parseInt(s.total_school_roll);
-    roll.textContent = r ? r.toLocaleString() + ' ' + t('person') : '--';
-
-    card.appendChild(nameDiv);
-    card.appendChild(badges);
-    card.appendChild(roll);
-
-    const num = String(s.school_number).replace(/[^0-9]/g, '');
-    card.addEventListener('click', () => navigateTo('#/school/' + num));
-    cards.appendChild(card);
+    th.innerHTML = esc(labelText) + (sortIcon ? `<span class="sort-icon">${sortIcon}</span>` : '');
+    headerRow.appendChild(th);
   });
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+
+  // Body
+  const tbody = document.createElement('tbody');
+  sorted.forEach(s => {
+    const tr = document.createElement('tr');
+    const num = String(s.school_number).replace(/[^0-9]/g, '');
+    tr.onclick = () => navigateTo('#/school/' + num);
+
+    visCols.forEach(col => {
+      const td = document.createElement('td');
+      td.className = col.align === 'right' ? 'num' : '';
+      const val = getCellValue(s, col.key);
+      td.innerHTML = formatCell(col.key, val, s);
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  tableWrap.appendChild(table);
+  container.appendChild(tableWrap);
 
   // Pagination
   renderPagination(page, pages);

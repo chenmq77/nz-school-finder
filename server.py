@@ -188,7 +188,7 @@ def filter_schools(params):
         regions = multi_val("region")
         if regions:
             placeholders = ",".join("?" * len(regions))
-            conditions.append(f"regional_council IN ({placeholders})")
+            conditions.append(f"s.regional_council IN ({placeholders})")
             values.extend(regions)
 
         # authority 筛选（支持多选 + 合并 Private）
@@ -197,9 +197,9 @@ def filter_schools(params):
             auth_parts = []
             for a in authorities:
                 if a == "Private":
-                    auth_parts.append("authority LIKE '%Private%'")
+                    auth_parts.append("s.authority LIKE '%Private%'")
                 else:
-                    auth_parts.append("authority = ?")
+                    auth_parts.append("s.authority = ?")
                     values.append(a)
             conditions.append("(" + " OR ".join(auth_parts) + ")")
 
@@ -217,14 +217,14 @@ def filter_schools(params):
                     expanded.update(['Boys/Senior Co-Ed', 'Primary Co-Ed/Secondary Girls', 'Primary Co-Ed/Secondary Boys'])
             all_g = list(expanded)
             placeholders = ",".join("?" * len(all_g))
-            conditions.append(f"gender_of_students IN ({placeholders})")
+            conditions.append(f"s.gender_of_students IN ({placeholders})")
             values.extend(all_g)
 
         # school_type 筛选（支持多选）
         school_types = multi_val("school_type")
         if school_types:
             placeholders = ",".join("?" * len(school_types))
-            conditions.append(f"school_type IN ({placeholders})")
+            conditions.append(f"s.school_type IN ({placeholders})")
             values.extend(school_types)
 
         # curriculum 筛选：通过 school_web_data 的 curriculum_systems 匹配
@@ -232,7 +232,7 @@ def filter_schools(params):
         if curricula:
             cur_parts = []
             for c in curricula:
-                cur_parts.append("school_number IN (SELECT school_number FROM school_web_data WHERE curriculum_systems LIKE ?)")
+                cur_parts.append("s.school_number IN (SELECT school_number FROM school_web_data WHERE curriculum_systems LIKE ?)")
                 values.append(f'%"{c}"%')
             conditions.append("(" + " OR ".join(cur_parts) + ")")
 
@@ -260,7 +260,7 @@ def filter_schools(params):
                 matching_types = [t for t, (lo, hi) in type_ranges.items() if lo <= ymin and hi >= ymax]
                 if matching_types:
                     placeholders = ",".join("?" * len(matching_types))
-                    conditions.append(f"school_type IN ({placeholders})")
+                    conditions.append(f"s.school_type IN ({placeholders})")
                     values.extend(matching_types)
                 else:
                     conditions.append("1=0")  # 没有匹配的类型
@@ -277,7 +277,7 @@ def filter_schools(params):
             }
             if eqi_band in band_ranges:
                 lo, hi = band_ranges[eqi_band]
-                conditions.append("CAST(equity_index_eqi AS REAL) BETWEEN ? AND ?")
+                conditions.append("CAST(s.equity_index_eqi AS REAL) BETWEEN ? AND ?")
                 values.extend([lo, hi])
 
         # EQI group 筛选（支持多选）
@@ -290,7 +290,7 @@ def filter_schools(params):
             for g in eqi_groups:
                 if g in group_ranges:
                     lo, hi = group_ranges[g]
-                    eqi_parts.append("CAST(equity_index_eqi AS REAL) BETWEEN ? AND ?")
+                    eqi_parts.append("CAST(s.equity_index_eqi AS REAL) BETWEEN ? AND ?")
                     values.extend([lo, hi])
             if eqi_parts:
                 conditions.append("(" + " OR ".join(eqi_parts) + ")")
@@ -298,19 +298,19 @@ def filter_schools(params):
         where = " AND ".join(conditions) if conditions else "1=1"
 
         # 总数
-        cur.execute(f"SELECT COUNT(*) FROM schools WHERE {where}", values)
+        cur.execute(f"SELECT COUNT(*) FROM schools s WHERE {where}", values)
         total = cur.fetchone()[0]
 
         # 排序
         sort = params.get("sort", ["name"])[0].strip()
         sort_map = {
-            "name": "school_name ASC",
-            "roll_desc": "CAST(total_school_roll AS INTEGER) DESC",
-            "roll_asc": "CAST(total_school_roll AS INTEGER) ASC",
-            "eqi_asc": "CAST(equity_index_eqi AS REAL) ASC",
-            "eqi_desc": "CAST(equity_index_eqi AS REAL) DESC",
+            "name": "s.school_name ASC",
+            "roll_desc": "CAST(s.total_school_roll AS INTEGER) DESC",
+            "roll_asc": "CAST(s.total_school_roll AS INTEGER) ASC",
+            "eqi_asc": "CAST(s.equity_index_eqi AS REAL) ASC",
+            "eqi_desc": "CAST(s.equity_index_eqi AS REAL) DESC",
         }
-        order_by = sort_map.get(sort, "school_name ASC")
+        order_by = sort_map.get(sort, "s.school_name ASC")
 
         # 分页
         page = max(1, int(params.get("page", ["1"])[0]))
@@ -318,10 +318,15 @@ def filter_schools(params):
         offset = (page - 1) * limit
 
         cur.execute(
-            f"SELECT school_number, school_name, school_name_cn, school_type, authority, "
-            f"gender_of_students, town_city, total_school_roll, regional_council, "
-            f"equity_index_eqi "
-            f"FROM schools WHERE {where} ORDER BY {order_by} LIMIT ? OFFSET ?",
+            f"SELECT s.school_number, s.school_name, s.school_name_cn, s.school_type, s.authority, "
+            f"s.gender_of_students, s.town_city, s.suburb, s.total_school_roll, s.regional_council, "
+            f"s.equity_index_eqi, s.enrolment_scheme, "
+            f"s.european_pakeha, s.maori, s.pacific, s.asian, s.melaa, s.other, s.international, "
+            f"w.curriculum_systems, w.intl_tuition_annual, "
+            f"w.subjects_count, w.sports_count, w.music_count, w.activities_count "
+            f"FROM schools s "
+            f"LEFT JOIN school_web_data w ON CAST(s.school_number AS INTEGER) = w.school_number "
+            f"WHERE {where} ORDER BY {order_by} LIMIT ? OFFSET ?",
             values + [limit, offset],
         )
         results = [dict(row) for row in cur.fetchall()]
