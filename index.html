@@ -2899,6 +2899,10 @@ function formatCell(key, val, s) {
   if (key === 'name') {
     const cn = s.school_name_cn;
     const en = s.school_name || '';
+    if (_lang === 'en') {
+      return `<div class="td-name"><div class="cn">${esc(en)}</div></div>`;
+    }
+    // cn / both: Chinese primary + English secondary
     if (cn) return `<div class="td-name"><div class="cn">${esc(cn)}</div><div class="en">${esc(en)}</div></div>`;
     return `<div class="td-name"><div class="cn">${esc(en)}</div></div>`;
   }
