@@ -2616,12 +2616,7 @@ function renderListCards(results, total, page, pages) {
       badges.appendChild(aBadge);
     }
 
-    if (_webSchoolSet.has(String(s.school_number))) {
-      const fpBadge = document.createElement('span');
-      fpBadge.className = 'sc-badge full-profile';
-      fpBadge.textContent = '\u2605 Full profile';
-      badges.appendChild(fpBadge);
-    }
+    // Full profile badge removed — too noisy in list view
 
     const roll = document.createElement('div');
     roll.className = 'sc-roll';
