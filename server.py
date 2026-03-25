@@ -435,8 +435,17 @@ class SchoolFinderHandler(http.server.SimpleHTTPRequestHandler):
             self._handle_school(school_number)
         elif path == "/" or path == "/index.html":
             self._serve_file("index.html", "text/html; charset=utf-8")
+        elif path == "/translations.js":
+            self._serve_file("translations.js", "application/javascript; charset=utf-8")
         elif path.endswith(".png") and "/" not in path[1:]:
             self._serve_file(path[1:], "image/png")
+        elif path.startswith("/logos/"):
+            # Serve school logos from logos/ directory
+            filename = path[1:]  # strip leading /
+            ext = os.path.splitext(filename)[1].lower()
+            content_types = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".svg": "image/svg+xml"}
+            ct = content_types.get(ext, "application/octet-stream")
+            self._serve_file(filename, ct)
         else:
             # 不暴露任意文件，未知路由返回 404
             self.send_error(404, "Not Found")

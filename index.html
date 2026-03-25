@@ -958,6 +958,7 @@ body {
   .band-cell { grid-column: 1 / -1 !important; padding: 10px 12px; }
 }
 </style>
+<script src="translations.js"></script>
 </head>
 <body>
 
@@ -966,6 +967,11 @@ body {
   <div class="header-inner">
     <div class="header-row">
       <div class="brand" onclick="clearSearch()" style="cursor:pointer" title="返回首页 / Back to home"><span>NZ</span> School Finder</div>
+      <div id="langSwitcher" style="display:flex;gap:2px;margin-left:12px;align-items:center">
+        <button onclick="setLang('en')" class="lang-btn" data-lang="en" style="padding:2px 8px;border:1px solid var(--border);border-radius:4px;background:none;cursor:pointer;font-size:12px;color:var(--text-muted)">EN</button>
+        <button onclick="setLang('cn')" class="lang-btn" data-lang="cn" style="padding:2px 8px;border:1px solid var(--border);border-radius:4px;background:none;cursor:pointer;font-size:12px;color:var(--text-muted)">中</button>
+        <button onclick="setLang('both')" class="lang-btn" data-lang="both" style="padding:2px 8px;border:1px solid var(--border);border-radius:4px;background:none;cursor:pointer;font-size:12px;color:var(--text-muted)">双</button>
+      </div>
       <div class="search-wrap">
         <div class="search-box">
           <div class="search-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></div>
@@ -1175,6 +1181,66 @@ body {
 </div>
 
 <script>
+/* ── i18n Core ───────────────────────────────────── */
+let _lang = localStorage.getItem('lang')
+  || (navigator.language.startsWith('zh') ? 'cn' : 'en');
+
+/** Get translation for a UI key */
+function t(key) {
+  const item = TRANSLATIONS.ui[key];
+  if (!item) return key;
+  if (_lang === 'en') return item.en;
+  if (_lang === 'cn') return item.cn || item.en;
+  return item.cn ? `${item.en} / ${item.cn}` : item.en; // both
+}
+
+/** Get translation for a data enum value (school_type, authority, etc.) */
+function td(category, value) {
+  if (!value) return '--';
+  const cat = TRANSLATIONS.data[category];
+  if (!cat) return value;
+  const item = cat[value];
+  if (!item) return value;
+  if (_lang === 'en') return item.en;
+  if (_lang === 'cn') return item.cn || item.en;
+  return item.cn ? `${item.cn}` : item.en; // both: show cn for data values (en is in the tag already)
+}
+
+/** Render bilingual HTML — en primary, cn subtitle */
+function bilingual(en, cn) {
+  if (!cn) return esc(en || '--');
+  if (_lang === 'en') return esc(en);
+  if (_lang === 'cn') return esc(cn);
+  // both mode
+  return `${esc(en)}<div style="font-size:0.85em;color:var(--text-muted);margin-top:2px">${esc(cn)}</div>`;
+}
+
+/** Switch language and re-render */
+function setLang(lang) {
+  _lang = lang;
+  localStorage.setItem('lang', lang);
+  // Update button styles
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.style.background = btn.dataset.lang === lang ? 'var(--primary)' : 'none';
+    btn.style.color = btn.dataset.lang === lang ? '#fff' : 'var(--text-muted)';
+  });
+  // Update search placeholder
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) searchInput.placeholder = t('search_placeholder');
+  // Re-render current view
+  handleRoute();
+}
+
+// Initialize lang button styles on load
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.style.background = btn.dataset.lang === _lang ? 'var(--primary)' : 'none';
+    btn.style.color = btn.dataset.lang === _lang ? '#fff' : 'var(--text-muted)';
+  });
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) searchInput.placeholder = t('search_placeholder');
+});
+
 /* ── State ────────────────────────────────────────── */
 let searchTimer = null;
 let searchController = null;  // AbortController for search requests
@@ -1403,15 +1469,29 @@ function renderSchool(s) {
 }
 
 function renderSectionA(s) {
-  const typeCn = translateType(safe(s.school_type));
-  const authCn = { 'State': '公立学校', 'State: Integrated': '公立整合', 'Private': '私立学校' }[safe(s.authority)] || safe(s.authority);
-  const genderCn = { 'Boys School': '男校', 'Girls School': '女校', 'Co-Ed': '混校' }[safe(s.gender_of_students)] || safe(s.gender_of_students);
-  const boardingVal = safe(s.boarding_facilities).toLowerCase();
-  const boardingCn = boardingVal === 'yes' ? '提供寄宿' : boardingVal === 'no' ? '不提供寄宿' : '--';
+  const typeCn = td('school_type', safe(s.school_type));
+  const authCn = td('authority', safe(s.authority));
+  const genderCn = td('gender', safe(s.gender_of_students));
+  const boardingCn = td('boarding', safe(s.boarding_facilities));
 
   const website = safe(s.school_website);
   const websiteUrl = ensureHttp(website);
   const websiteLink = website !== '--' && isSafeUrl(websiteUrl) ? `<a href="${esc(websiteUrl)}" target="_blank" rel="noopener">${esc(website)}</a>` : esc(website);
+
+  // Tags: show cn in cn/both mode, en in en mode
+  const typeTag = _lang === 'en' ? esc(safe(s.school_type)) : `<span class="en">${esc(safe(s.school_type))}</span><span class="cn">${esc(typeCn)}</span>`;
+  const authTag = _lang === 'en' ? esc(safe(s.authority)) : `<span class="en">${esc(safe(s.authority))}</span><span class="cn">${esc(authCn)}</span>`;
+  const genderTag = _lang === 'en' ? esc(safe(s.gender_of_students)) : `<span class="en">${esc(safe(s.gender_of_students))}</span><span class="cn">${esc(genderCn)}</span>`;
+
+  // Tags in cn-only mode: show Chinese only
+  const typeDisplay = _lang === 'cn' ? esc(typeCn) : typeTag;
+  const authDisplay = _lang === 'cn' ? esc(authCn) : authTag;
+  const genderDisplay = _lang === 'cn' ? esc(genderCn) : genderTag;
+
+  // Boarding value
+  const boardingDisplay = _lang === 'en' ? esc(safe(s.boarding_facilities))
+    : _lang === 'cn' ? esc(boardingCn)
+    : `${esc(safe(s.boarding_facilities))} (${esc(boardingCn)})`;
 
   document.getElementById('bodyA').innerHTML = `
     <div style="position:relative">
@@ -1422,13 +1502,13 @@ function renderSectionA(s) {
       </div>
     </div>
     <div class="tag-row">
-      <div class="tag"><span class="en">${esc(safe(s.school_type))}</span><span class="cn">${esc(typeCn)}</span></div>
-      <div class="tag"><span class="en">${esc(safe(s.authority))}</span><span class="cn">${esc(authCn)}</span></div>
-      <div class="tag"><span class="en">${esc(safe(s.gender_of_students))}</span><span class="cn">${esc(genderCn)}</span></div>
+      <div class="tag">${typeDisplay}</div>
+      <div class="tag">${authDisplay}</div>
+      <div class="tag">${genderDisplay}</div>
     </div>
     <div id="curriculumBadges"></div>
-    <div class="info-row"><span class="info-label">Boarding / 寄宿设施</span><span class="info-value">${esc(safe(s.boarding_facilities))} (${esc(boardingCn)})</span></div>
-    <div class="info-row"><span class="info-label">Website / 学校官网</span><span class="info-value">${websiteLink}</span></div>
+    <div class="info-row"><span class="info-label">${t('boarding')}</span><span class="info-value">${boardingDisplay}</span></div>
+    <div class="info-row"><span class="info-label">${t('website')}</span><span class="info-value">${websiteLink}</span></div>
   `;
 }
 
