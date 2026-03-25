@@ -41,10 +41,10 @@ def search_schools(keyword, limit=50):
         total = cur.fetchone()[0]
         # 再查数据（限制返回数量）
         cur.execute(
-            "SELECT school_number, school_name, school_type, authority, "
+            "SELECT school_number, school_name, school_name_cn, school_type, authority, "
             "gender_of_students, town_city, total_school_roll "
-            "FROM schools WHERE school_name LIKE ? ORDER BY school_name LIMIT ?",
-            (f"%{keyword}%", limit),
+            "FROM schools WHERE school_name LIKE ? OR school_name_cn LIKE ? ORDER BY school_name LIMIT ?",
+            (f"%{keyword}%", f"%{keyword}%", limit),
         )
         return [dict(row) for row in cur.fetchall()], total
     finally:
@@ -318,7 +318,7 @@ def filter_schools(params):
         offset = (page - 1) * limit
 
         cur.execute(
-            f"SELECT school_number, school_name, school_type, authority, "
+            f"SELECT school_number, school_name, school_name_cn, school_type, authority, "
             f"gender_of_students, town_city, total_school_roll, regional_council, "
             f"equity_index_eqi "
             f"FROM schools WHERE {where} ORDER BY {order_by} LIMIT ? OFFSET ?",

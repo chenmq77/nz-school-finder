@@ -1545,9 +1545,11 @@ function renderSectionA(s) {
     <div style="position:relative">
       <img id="schoolLogo" src="" alt="" referrerPolicy="no-referrer" style="display:none;position:absolute;right:8px;top:8px;max-width:160px;max-height:160px;object-fit:contain;opacity:0.6">
       <div class="school-name-row">
-        <span class="school-main-name">${esc(safe(s.school_name))}</span>
+        <span class="school-main-name">${_lang === 'cn' && s.school_name_cn ? esc(s.school_name_cn) : esc(safe(s.school_name))}</span>
         <span class="school-number">No. ${esc(safe(s.school_number))}</span>
       </div>
+      ${_lang === 'both' && s.school_name_cn ? `<div style="font-size:16px;color:var(--text-muted);margin-top:-4px;margin-bottom:8px">${esc(s.school_name_cn)}</div>` : ''}
+      ${_lang === 'cn' && s.school_name_cn ? `<div style="font-size:13px;color:var(--text-muted);margin-top:-4px;margin-bottom:8px">${esc(safe(s.school_name))}</div>` : ''}
     </div>
     <div class="info-row"><span class="info-label">${t('school_type')}</span><span class="info-value">${esc(typeLabel)}</span></div>
     <div class="info-row"><span class="info-label">${t('year_level')}</span><span class="info-value">${esc(yearLabel)}</span></div>
@@ -2375,11 +2377,11 @@ function toggleFaq(i) {
 // Filter dimension definitions
 const FILTER_DIMS = [
   { key: 'region', labelKey: 'filter_region', dataKey: 'region', valFn: d => d.map(r => r.name) },
-  { key: 'authority', labelKey: 'filter_authority', dataKey: 'authority', valFn: d => d.map(r => r.name) },
-  { key: 'gender', labelKey: 'filter_gender', vals: ['Co-Educational','Girls School','Boys School'] },
+  { key: 'authority', labelKey: 'filter_authority', dataKey: 'authority', valFn: d => d.map(r => r.name), tdCat: 'authority' },
+  { key: 'gender', labelKey: 'filter_gender', vals: ['Co-Educational','Girls School','Boys School'], tdCat: 'gender' },
   { key: 'year_level', labelKey: 'filter_year_levels', isYearLevel: true, vals: [] },
   { key: 'curriculum', labelKey: 'filter_curriculum', vals: ['NCEA','A-Level','IB'] },
-  { key: 'eqi_group', labelKey: 'filter_eqi', vals: ['fewer','moderate','more'], displayFn: v => ({fewer:'Fewer',moderate:'Moderate',more:'More'}[v]||v) },
+  { key: 'eqi_group', labelKey: 'filter_eqi', vals: ['fewer','moderate','more'], displayFn: v => t('eqi_group_'+v) },
 ];
 let _openDropdown = null;
 
@@ -2409,7 +2411,7 @@ function renderFilterBar() {
         const m = selected[0].match(/(\d+)-(\d+)/);
         display = m ? `Y${m[1]}-Y${m[2]}` : selected[0];
       } else {
-        display = dim.displayFn ? dim.displayFn(selected[0]) : selected[0];
+        display = dim.displayFn ? dim.displayFn(selected[0]) : dim.tdCat ? td(dim.tdCat, selected[0]) : selected[0];
       }
       const extra = selected.length > 1 ? ` +${selected.length - 1}` : '';
       pill.innerHTML = `${esc(t(dim.labelKey))}: ${esc(display)}${extra} <span class="pill-arrow">▼</span>`;
@@ -2735,7 +2737,14 @@ function renderListCards(results, total, page, pages) {
     card.className = 'school-card';
     const nameDiv = document.createElement('div');
     nameDiv.className = 'sc-name';
-    nameDiv.textContent = s.school_name || '';
+    const cnName = s.school_name_cn;
+    if (_lang === 'cn' && cnName) {
+      nameDiv.textContent = cnName;
+    } else if (_lang === 'both' && cnName) {
+      nameDiv.innerHTML = esc(s.school_name) + ` <span style="color:var(--text-muted);font-size:0.85em">${esc(cnName)}</span>`;
+    } else {
+      nameDiv.textContent = s.school_name || '';
+    }
 
     const badges = document.createElement('div');
     badges.className = 'sc-badges';
