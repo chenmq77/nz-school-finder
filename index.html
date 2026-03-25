@@ -2769,26 +2769,26 @@ async function loadListData(page) {
 
 /* ── Configurable Table Columns ── */
 const TABLE_COLUMNS = [
-  { key:'name',    label:'学校名 / Name',  fixed:true,  default:true,  group:'基础', sortable:true,  sortType:'text', align:'left' },
-  { key:'suburb',  label:'区域 / Area',    fixed:false, default:true,  group:'基础', sortable:true,  sortType:'text', align:'left' },
-  { key:'tags',    label:'类型 / Type',    fixed:false, default:true,  group:'基础', sortable:false, align:'left' },
-  { key:'eqi',     label:'EQI',            fixed:false, default:true,  group:'基础', sortable:true,  sortType:'number', align:'right', firstDir:'asc', tooltip:'越低=社区条件越好 / Lower=better community' },
-  { key:'roll',    label:'人数 / Roll',    fixed:false, default:true,  group:'基础', sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
-  { key:'zone',    label:'学区 / Zone',    fixed:false, default:false, group:'基础', sortable:false, align:'center' },
-  { key:'ethnicity',label:'族裔 / Ethnicity',fixed:false, default:false, group:'族裔', sortable:true, sortType:'number', align:'right', firstDir:'desc' },
-  { key:'eth_european',label:'欧裔%',      fixed:false, default:false, group:'族裔', sortable:true, sortType:'number', align:'right', firstDir:'desc' },
-  { key:'eth_maori',label:'毛利裔%',       fixed:false, default:false, group:'族裔', sortable:true, sortType:'number', align:'right', firstDir:'desc' },
-  { key:'eth_pacific',label:'太平洋裔%',   fixed:false, default:false, group:'族裔', sortable:true, sortType:'number', align:'right', firstDir:'desc' },
-  { key:'eth_asian',label:'亚裔%',         fixed:false, default:false, group:'族裔', sortable:true, sortType:'number', align:'right', firstDir:'desc' },
-  { key:'eth_melaa',label:'MELAA%',        fixed:false, default:false, group:'族裔', sortable:true, sortType:'number', align:'right', firstDir:'desc' },
-  { key:'eth_other',label:'其他%',         fixed:false, default:false, group:'族裔', sortable:true, sortType:'number', align:'right', firstDir:'desc' },
-  { key:'eth_intl', label:'国际生%',       fixed:false, default:false, group:'族裔', sortable:true, sortType:'number', align:'right', firstDir:'desc' },
-  { key:'curriculum',label:'课程 / Curriculum',fixed:false, default:false, group:'课外', sortable:false, align:'left' },
-  { key:'fee',     label:'学费/年 / Fee',  fixed:false, default:false, group:'课外', sortable:true, sortType:'number', align:'right', firstDir:'asc' },
-  { key:'subjects',label:'科目 / Subjects',fixed:false, default:false, group:'课外', sortable:true, sortType:'number', align:'right', firstDir:'desc' },
-  { key:'sports',  label:'运动 / Sports',  fixed:false, default:false, group:'课外', sortable:true, sortType:'number', align:'right', firstDir:'desc' },
-  { key:'arts',    label:'艺术 / Arts',    fixed:false, default:false, group:'课外', sortable:true, sortType:'number', align:'right', firstDir:'desc' },
-  { key:'clubs',   label:'俱乐部 / Clubs', fixed:false, default:false, group:'课外', sortable:true, sortType:'number', align:'right', firstDir:'desc' },
+  { key:'name',         tKey:'col_name',         fixed:true,  default:true,  gKey:'col_group_basic',      sortable:true,  sortType:'text',   align:'left' },
+  { key:'suburb',       tKey:'col_suburb',        fixed:false, default:true,  gKey:'col_group_basic',      sortable:true,  sortType:'text',   align:'left' },
+  { key:'tags',         tKey:'col_tags',          fixed:false, default:true,  gKey:'col_group_basic',      sortable:false, align:'left' },
+  { key:'eqi',          tKey:'col_eqi',           fixed:false, default:true,  gKey:'col_group_basic',      sortable:true,  sortType:'number', align:'right', firstDir:'asc', tipKey:'col_eqi_tip' },
+  { key:'roll',         tKey:'col_roll',          fixed:false, default:true,  gKey:'col_group_basic',      sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
+  { key:'zone',         tKey:'col_zone',          fixed:false, default:false, gKey:'col_group_basic',      sortable:false, align:'center' },
+  { key:'ethnicity',    tKey:'col_ethnicity',     fixed:false, default:false, gKey:'col_group_ethnicity',  sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
+  { key:'eth_european', tKey:'col_eth_european',  fixed:false, default:false, gKey:'col_group_ethnicity',  sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
+  { key:'eth_maori',    tKey:'col_eth_maori',     fixed:false, default:false, gKey:'col_group_ethnicity',  sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
+  { key:'eth_pacific',  tKey:'col_eth_pacific',   fixed:false, default:false, gKey:'col_group_ethnicity',  sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
+  { key:'eth_asian',    tKey:'col_eth_asian',     fixed:false, default:false, gKey:'col_group_ethnicity',  sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
+  { key:'eth_melaa',    tKey:'col_eth_melaa',     fixed:false, default:false, gKey:'col_group_ethnicity',  sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
+  { key:'eth_other',    tKey:'col_eth_other',     fixed:false, default:false, gKey:'col_group_ethnicity',  sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
+  { key:'eth_intl',     tKey:'col_eth_intl',      fixed:false, default:false, gKey:'col_group_ethnicity',  sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
+  { key:'curriculum',   tKey:'col_curriculum',    fixed:false, default:false, gKey:'col_group_activities', sortable:false, align:'left' },
+  { key:'fee',          tKey:'col_fee',           fixed:false, default:false, gKey:'col_group_activities', sortable:true,  sortType:'number', align:'right', firstDir:'asc' },
+  { key:'subjects',     tKey:'col_subjects',      fixed:false, default:false, gKey:'col_group_activities', sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
+  { key:'sports',       tKey:'col_sports',        fixed:false, default:false, gKey:'col_group_activities', sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
+  { key:'arts',         tKey:'col_arts',          fixed:false, default:false, gKey:'col_group_activities', sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
+  { key:'clubs',        tKey:'col_clubs',         fixed:false, default:false, gKey:'col_group_activities', sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
 ];
 
 const DEFAULT_COLS = TABLE_COLUMNS.filter(c => c.fixed || c.default).map(c => c.key);
@@ -2829,7 +2829,7 @@ function getCellValue(s, key) {
       return isNaN(v) ? null : v;
     }
     case 'roll': return roll || null;
-    case 'zone': return s.enrolment_scheme === 'Yes' ? '✅' : '—';
+    case 'zone': return s.enrolment_scheme === 'Yes' ? t('col_zone_yes') : '—';
     case 'ethnicity': {
       // Find largest ethnicity
       const eths = [
@@ -2973,16 +2973,19 @@ function toggleColumnChooser() {
   side.innerHTML = '';
   if (btn) btn.classList.add('active');
 
+  // Group columns by gKey (stable grouping)
+  const groupOrder = [];
   const groups = {};
   TABLE_COLUMNS.forEach(c => {
-    if (!groups[c.group]) groups[c.group] = [];
-    groups[c.group].push(c);
+    if (!groups[c.gKey]) { groups[c.gKey] = []; groupOrder.push(c.gKey); }
+    groups[c.gKey].push(c);
   });
 
-  for (const [groupName, cols] of Object.entries(groups)) {
+  for (const gKey of groupOrder) {
+    const cols = groups[gKey];
     const groupLabel = document.createElement('div');
     groupLabel.className = 'group-label';
-    groupLabel.textContent = groupName;
+    groupLabel.textContent = t(gKey);
     side.appendChild(groupLabel);
 
     cols.forEach(col => {
@@ -3003,14 +3006,14 @@ function toggleColumnChooser() {
         if (_lastListData) renderListCards(_lastListData.results, _lastListData.total, _lastListData.page, _lastListData.pages);
       };
       label.appendChild(cb);
-      label.appendChild(document.createTextNode(' ' + col.label));
+      label.appendChild(document.createTextNode(' ' + t(col.tKey)));
       side.appendChild(label);
     });
   }
 
   const resetBtn = document.createElement('button');
   resetBtn.className = 'reset-btn';
-  resetBtn.textContent = '恢复默认 / Reset';
+  resetBtn.textContent = t('col_reset');
   resetBtn.onclick = () => {
     _visibleCols = [...DEFAULT_COLS];
     _tableSort = { key: null, dir: null };
@@ -3038,7 +3041,7 @@ function renderListCards(results, total, page, pages) {
     if (actions && !actions.querySelector('.col-chooser-btn')) {
       const btn = document.createElement('button');
       btn.className = 'col-chooser-btn';
-      btn.innerHTML = '⚙️ 自定义列';
+      btn.textContent = t('col_columns');
       btn.onclick = (e) => { e.stopPropagation(); toggleColumnChooser(); };
       actions.appendChild(btn);
     }
@@ -3048,7 +3051,7 @@ function renderListCards(results, total, page, pages) {
   container.innerHTML = '';
 
   if (!results.length) {
-    container.innerHTML = '<div class="no-results" style="padding:40px;text-align:center;color:var(--text-muted)">没有匹配的学校 / No matching schools</div>';
+    container.innerHTML = `<div class="no-results" style="padding:40px;text-align:center;color:var(--text-muted)">${esc(t('col_no_match'))}</div>`;
     document.getElementById('listPagination').innerHTML = '';
     return;
   }
@@ -3072,8 +3075,8 @@ function renderListCards(results, total, page, pages) {
     const th = document.createElement('th');
     th.className = (col.sortable ? 'sortable ' : '') + (col.align === 'right' ? 'num' : '');
 
-    let labelText = col.label;
-    if (col.tooltip) th.title = col.tooltip;
+    let labelText = t(col.tKey);
+    if (col.tipKey) th.title = t(col.tipKey);
 
     // Sort indicator
     let sortIcon = '';
