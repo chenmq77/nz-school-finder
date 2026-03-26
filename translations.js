@@ -166,15 +166,15 @@ const TRANSLATIONS = {
     col_intl_total:       { en: "Total/Year", cn: "总费用/年" },
     col_group_intl:       { en: "International", cn: "国际生" },
     col_ncea_l3:          { en: "NCEA L3", cn: "NCEA L3" },
-    col_curriculum:       { en: "Curriculum", cn: "课程" },
+    col_curriculum:       { en: "Curriculum", cn: "课程体系" },
     col_fee:              { en: "Fee/Year", cn: "学费/年" },
-    col_subjects:         { en: "Subjects", cn: "科目" },
+    col_subjects:         { en: "Subjects", cn: "学科" },
     col_sports:           { en: "Sports", cn: "运动" },
     col_arts:             { en: "Arts", cn: "艺术" },
-    col_clubs:            { en: "Clubs", cn: "俱乐部" },
+    col_clubs:            { en: "Clubs", cn: "社团" },
     col_group_basic:      { en: "Basic", cn: "基础" },
     col_group_ethnicity:  { en: "Ethnicity", cn: "族裔" },
-    col_group_activities: { en: "Activities", cn: "课外" },
+    col_group_activities: { en: "Activities", cn: "学科与课外" },
     col_columns:          { en: "Columns", cn: "自定义列" },
     col_reset:            { en: "Reset", cn: "恢复默认" },
     col_preset:           { en: "Presets", cn: "快捷方案" },
@@ -185,6 +185,17 @@ const TRANSLATIONS = {
     col_eqi_tip:          { en: "Lower = better community", cn: "越低=社区条件越好" },
     col_zone_yes:         { en: "Yes", cn: "有" },
     col_no_match:         { en: "No matching schools", cn: "没有匹配的学校" },
+    col_export:           { en: "Export", cn: "导出图片" },
+    col_export_loading:   { en: "Generating...", cn: "生成中..." },
+    col_export_fail:      { en: "Export failed, please retry", cn: "导出失败，请重试" },
+    col_export_no_lib:    { en: "Export component not loaded", cn: "导出组件未加载" },
+    col_export_too_cols:  { en: "Max 6 columns for export", cn: "导出最多显示 6 列" },
+    col_export_truncated: { en: "Showing {n} of {total}", cn: "共 {total} 所，显示前 {n} 所" },
+    col_export_all:       { en: "All schools", cn: "全部学校" },
+    col_export_brand:     { en: "NZ School Finder", cn: "NZ School Finder" },
+    col_export_sort_asc:  { en: "Low-High", cn: "低→高" },
+    col_export_sort_desc: { en: "High-Low", cn: "高→低" },
+    col_export_sort_by:   { en: "by ", cn: "按" },
 
     // Misc
     no_data:              { en: "No data available", cn: "暂无数据" },
@@ -199,6 +210,26 @@ const TRANSLATIONS = {
   // ── Data Value Translations (CSV enum values) ─────────────────────
 
   data: {
+    // region names
+    region: {
+      "Auckland Region":                   { en: "Auckland", cn: "奥克兰地区" },
+      "Waikato Region":                    { en: "Waikato", cn: "怀卡托地区" },
+      "Canterbury Region":                 { en: "Canterbury", cn: "坎特伯雷地区" },
+      "Wellington Region":                 { en: "Wellington", cn: "惠灵顿地区" },
+      "Bay of Plenty Region":              { en: "Bay of Plenty", cn: "丰盛湾地区" },
+      "Manawatū-Whanganui Region":         { en: "Manawatū-Whanganui", cn: "马纳瓦图地区" },
+      "Northland Region":                  { en: "Northland", cn: "北地地区" },
+      "Otago Region":                      { en: "Otago", cn: "奥塔哥地区" },
+      "Hawke's Bay Region":                { en: "Hawke's Bay", cn: "霍克斯湾地区" },
+      "Taranaki Region":                   { en: "Taranaki", cn: "塔拉纳基地区" },
+      "Southland Region":                  { en: "Southland", cn: "南地地区" },
+      "Gisborne Region":                   { en: "Gisborne", cn: "吉斯伯恩地区" },
+      "Tasman Region":                     { en: "Tasman", cn: "塔斯曼地区" },
+      "Nelson Region":                     { en: "Nelson", cn: "尼尔森地区" },
+      "Marlborough Region":                { en: "Marlborough", cn: "马尔堡地区" },
+      "West Coast Region":                 { en: "West Coast", cn: "西海岸地区" },
+    },
+
     // school_type split into type_label (school category) and year_range (grade range)
     school_type_label: {
       "Contributing":                    { en: "Contributing", cn: "小学" },

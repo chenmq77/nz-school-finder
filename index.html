@@ -886,6 +886,7 @@ body {
 /* Column chooser */
 .col-chooser-btn { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 4px; }
 .col-chooser-btn:hover { border-color: var(--primary); color: var(--primary); }
+.col-chooser-btn:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: auto; }
 .col-chooser-btn.active { border-color: var(--primary); color: var(--primary); background: var(--bg-secondary); }
 
 /* Side panel layout */
@@ -1003,6 +1004,7 @@ body {
 }
 </style>
 <script src="translations.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" defer></script>
 </head>
 <body>
 <script>
@@ -2657,9 +2659,38 @@ function renderEqiBlock(bands) {
   container.appendChild(grid);
 }
 
+function buildEqiBandBar(fontSize) {
+  const sz = fontSize || 9;
+  const bands = [
+    { flex:59, bg:'#6ee7b7', fg:'#064e3b', en:'Fewest', cn:'最少' },
+    { flex:27, bg:'#a7f3d0', fg:'#064e3b', en:'Few', cn:'较少' },
+    { flex:19, bg:'#fde68a', fg:'#78350f', en:'B.Avg', cn:'低于均' },
+    { flex:21, bg:'#fcd34d', fg:'#78350f', en:'Avg', cn:'平均' },
+    { flex:24, bg:'#fbbf24', fg:'#78350f', en:'A.Avg', cn:'高于均' },
+    { flex:28, bg:'#fca5a5', fg:'#7f1d1d', en:'Many', cn:'较多' },
+    { flex:48, bg:'#f87171', fg:'#7f1d1d', en:'Most', cn:'最多' },
+  ];
+  return '<div style="display:flex;gap:2px;height:28px;border-radius:4px;overflow:hidden;margin:8px 0">' +
+    bands.map(b => {
+      const label = _lang === 'cn' ? b.cn : _lang === 'en' ? b.en : `${b.en}/${b.cn}`;
+      return `<div style="flex:${b.flex};background:${b.bg};display:flex;align-items:center;justify-content:center;font-size:${sz}px;color:${b.fg};font-weight:500">${label}</div>`;
+    }).join('') + '</div>';
+}
+
+function buildEqiFaqHtml() {
+  return `EQI (Equity Index) 是新西兰教育部对每所学校所在社区经济条件的评估指数，2023 年起替代了旧的 Decile 评分系统。<br><br>` +
+    `<b>简单理解：EQI 数值越低，说明学校周边社区越富裕。</b><br><br>` +
+    `教育部综合考虑学生家庭收入、住房条件、家长教育背景、职业类型等因素，计算出每所学校的 EQI 分数（范围 344-569），并划分为 3 个组 (Group)、7 个段 (Band)，每段内的学校数量大致均等：<br><br>` +
+    buildEqiBandBar(9) +
+    `<span style="color:#16a34a;font-weight:600">Fewer / 较好</span> <span style="color:#888">344-429</span> — 社区条件优越<br>` +
+    `<span style="color:#d97706;font-weight:600">Moderate / 中等</span> <span style="color:#888">430-493</span> — 社区条件中等<br>` +
+    `<span style="color:#dc2626;font-weight:600">More / 较弱</span> <span style="color:#888">494-569</span> — 社区条件相对薄弱<br><br>` +
+    `<b>EQI 不等于教学质量。</b>一些 EQI 较高的学校可能有非常优秀的教学团队和升学率。家长选校时应结合 NCEA 通过率、课程体系、课外活动等综合考量。`;
+}
+
 function renderFAQ() {
   const faqs = [
-    { q: 'EQI 公平指数是什么？和 Decile 有什么不同？', a: 'EQI (Equity Index) 于 2023 年替代了 Decile 制度。EQI 综合考虑学生家庭的社会经济因素（如家庭收入、住房、教育背景等），数值范围 344-569。数值越低表示学生面临的社会经济障碍越少，越高表示越多。EQI 不是学校质量评分，而是社区经济条件的反映。' },
+    { q: 'EQI 公平指数是什么？数值怎么看？', html: true, buildAnswer: true },
     { q: 'State, State Integrated 和 Private 学校有什么区别？', a: 'State（公立）学校由政府全额资助，免学费；State Integrated（公立整合）学校曾是私立学校，后纳入公立体系，仍保留特殊办学理念（如宗教），需缴纳少量 attendance dues；Private（私立）学校需缴纳全额学费，不受政府课程标准约束。' },
     { q: '新西兰的学制是怎样的？', a: 'Y1-Y6 为 Contributing (小学)，Y1-Y8 为 Full Primary (全小学)，Y7-Y8 为 Intermediate (初中)，Y9-Y13 为 Secondary (中学)，Y1-Y13 为 Composite (综合学校)。大多数学生 5 岁入学 (Y1)，13 岁进入 Y9。' },
     { q: 'NCEA, A-Level, IB 分别是什么课程体系？', a: 'NCEA (National Certificate of Educational Achievement) 是新西兰国家课程评估体系，几乎所有中学都提供。A-Level (Cambridge) 和 IB (International Baccalaureate) 是国际课程体系，少数学校额外提供。选择哪种取决于升学目标。' },
@@ -2669,12 +2700,18 @@ function renderFAQ() {
   faqs.forEach((f, i) => {
     const item = document.createElement('div');
     item.className = 'faq-item';
+    const answerHtml = f.buildAnswer ? buildEqiFaqHtml() : f.html ? f.a.replace(/\n/g, '<br>') : esc(f.a).replace(/\n/g, '<br>');
     item.innerHTML = `
       <div class="faq-q" onclick="toggleFaq(${i})">
         <span>${esc(f.q)}</span>
         <span class="faq-arrow" id="faqArrow${i}">&#9660;</span>
       </div>
-      <div class="faq-a" id="faqA${i}">${esc(f.a)}</div>
+      <div class="faq-a" id="faqA${i}">
+        ${answerHtml}
+        <div style="margin-top:12px;text-align:right">
+          <button class="col-chooser-btn" onclick="event.stopPropagation();exportFaqAsImage(${i})" style="font-size:11px">${t('col_export')}</button>
+        </div>
+      </div>
     `;
     list.appendChild(item);
   });
@@ -3056,8 +3093,7 @@ const TABLE_COLUMNS = [
   { key:'eth_melaa',    tKey:'col_eth_melaa',     fixed:false, default:false, gKey:'col_group_ethnicity',  sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
   { key:'eth_other',    tKey:'col_eth_other',     fixed:false, default:false, gKey:'col_group_ethnicity',  sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
   // International students group
-  { key:'intl_count',   tKey:'col_intl_count',    fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
-  { key:'eth_intl',     tKey:'col_eth_intl',      fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
+  { key:'intl',         tKey:'col_intl',          fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
   { key:'intl_fee',     tKey:'col_intl_fee',      fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'asc' },
   { key:'intl_homestay',tKey:'col_intl_homestay', fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'asc' },
   { key:'intl_total',   tKey:'col_intl_total',    fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'asc' },
@@ -3075,7 +3111,7 @@ const DEFAULT_COLS = TABLE_COLUMNS.filter(c => c.fixed || c.default).map(c => c.
 // Preset column configurations
 const COL_PRESETS = {
   compact:  ['name', 'suburb', 'school_level', 'gender', 'eqi', 'roll'],
-  intl:     ['name', 'eqi', 'roll', 'intl_count', 'eth_intl', 'intl_fee', 'intl_homestay', 'intl_total', 'ncea_l3'],
+  intl:     ['name', 'eqi', 'roll', 'intl', 'eth_asian', 'intl_fee', 'intl_total', 'ncea_l3'],
   local:    ['name', 'suburb', 'school_level', 'gender', 'eqi', 'roll', 'zone', 'ethnicity'],
   full:     ['name', 'suburb', 'eqi', 'roll', 'intl_fee', 'curriculum', 'subjects', 'sports', 'arts', 'ethnicity'],
 };
@@ -3147,6 +3183,7 @@ function getCellValue(s, key) {
         return systems.map(c => c.system || c).join(', ');
       } catch(e) { return s.curriculum_systems; }
     }
+    case 'intl': return parseInt(s.international) || null; // sort by count
     case 'intl_count': return parseInt(s.international) || null;
     case 'intl_fee': return s.intl_tuition_annual || null;
     case 'intl_homestay': return s.intl_homestay_weekly || null;
@@ -3157,7 +3194,7 @@ function getCellValue(s, key) {
       // Total = tuition + homestay * 40 weeks (school year)
       return homestay ? Math.round(tuition + homestay * 40) : null;
     }
-    case 'ncea_l3': return null; // TODO: data not yet crawled
+    case 'ncea_l3': return s.ncea_l3 != null ? parseFloat(s.ncea_l3) : null;
     case 'fee': return s.intl_tuition_annual || null;
     case 'subjects': return s.subjects_count || null;
     case 'sports': return s.sports_count || null;
@@ -3205,9 +3242,17 @@ function formatCell(key, val, s) {
     const color = v <= 429 ? '#16a34a' : v <= 493 ? '#d97706' : '#dc2626';
     return `<span style="color:${color};font-weight:600">${Math.round(v)}</span>`;
   }
+  if (key === 'intl') {
+    const count = parseInt(s.international) || 0;
+    const roll = parseInt(s.total_school_roll) || 0;
+    if (!count) return '<span class="td-null">—</span>';
+    const pct = roll > 0 ? Math.round(count / roll * 100) : 0;
+    return `${count.toLocaleString()} (${pct}%)`;
+  }
   if (key === 'roll' || key === 'intl_count') return parseInt(val).toLocaleString();
   if (key === 'fee' || key === 'intl_fee' || key === 'intl_total') return '$' + parseFloat(val).toLocaleString();
   if (key === 'intl_homestay') return '$' + parseFloat(val).toLocaleString() + '/w';
+  if (key === 'ncea_l3') return parseFloat(val).toFixed(1) + '%';
   if (key === 'ethnicity') {
     // Show largest ethnicity name + %
     const roll = parseInt(s.total_school_roll) || 0;
@@ -3384,6 +3429,252 @@ function toggleColumnChooser() {
 // Initialize columns
 loadVisibleCols();
 
+/* ── Export as Image ── */
+function buildFilterSummary() {
+  const parts = [];
+  if (_currentFilters['region'] && _currentFilters['region'].length)
+    parts.push(td('region', _currentFilters['region'][0]));
+  if (_currentFilters['authority'] && _currentFilters['authority'].length)
+    parts.push(_currentFilters['authority'].map(a => td('authority', a)).join(', '));
+  if (_currentFilters['gender'] && _currentFilters['gender'].length)
+    parts.push(_currentFilters['gender'].map(g => td('gender', g)).join(', '));
+  if (_currentFilters['year_min'] && _currentFilters['year_min'].length)
+    parts.push('Y' + _currentFilters['year_min'][0] + '-' + (_currentFilters['year_max'] || _currentFilters['year_min'])[0]);
+  if (_currentFilters['eqi_group'] && _currentFilters['eqi_group'].length) {
+    const eqiRanges = { fewer: '344-429', moderate: '430-493', more: '494-569' };
+    const labels = _currentFilters['eqi_group'].map(g => {
+      const label = t('eqi_group_' + g);
+      const range = eqiRanges[g] || '';
+      return _lang === 'en' ? `${label} (EQI ${range})` : `${t('filter_eqi')}${label} (EQI ${range})`;
+    });
+    parts.push(labels.join(', '));
+  }
+  if (_currentFilters['curriculum'] && _currentFilters['curriculum'].length)
+    parts.push(_currentFilters['curriculum'].join(', '));
+  // Add sort info
+  if (_tableSort.key) {
+    const sortCol = TABLE_COLUMNS.find(c => c.key === _tableSort.key);
+    if (sortCol) {
+      const colName = t(sortCol.tKey);
+      const dir = _tableSort.dir === 'asc' ? t('col_export_sort_asc') : t('col_export_sort_desc');
+      parts.push(`${t('col_export_sort_by')}${colName} ${dir}`);
+    }
+  }
+  const text = parts.length ? parts.join(' / ') : t('col_export_all');
+  return text.length > 65 ? text.substring(0, 62) + '...' : text;
+}
+
+function buildExportTemplate(results, visCols) {
+  const maxRows = 20;
+  const rows = results.slice(0, maxRows);
+  const total = results.length;
+  const truncated = total > maxRows;
+
+  const div = document.createElement('div');
+  div.style.cssText = 'position:fixed;left:-9999px;top:0;width:621px;height:830px;background:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:24px 28px;box-sizing:border-box;color:#1a1a1a;';
+
+  // Header
+  const header = document.createElement('div');
+  header.style.cssText = 'margin-bottom:16px;';
+  header.innerHTML = `
+    <div style="font-size:18px;font-weight:700;color:#2563eb;margin-bottom:4px;">${esc(t('col_export_brand'))}</div>
+    <div style="font-size:12px;color:#888;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(buildFilterSummary())}</div>
+    <div style="font-size:10px;color:#aaa;margin-top:2px;">${new Date().toISOString().split('T')[0]}</div>
+  `;
+  div.appendChild(header);
+
+  // Table
+  const table = document.createElement('table');
+  const fontSize = visCols.length > 6 ? '12px' : '14px';
+  table.style.cssText = `width:100%;border-collapse:collapse;font-size:${fontSize};`;
+
+  // Table header
+  const thead = document.createElement('thead');
+  const htr = document.createElement('tr');
+  htr.style.cssText = 'border-bottom:2px solid #e5e7eb;';
+  visCols.forEach(col => {
+    const th = document.createElement('th');
+    th.style.cssText = `padding:6px 4px;text-align:${col.align === 'right' ? 'right' : 'left'};font-size:12px;font-weight:600;color:#666;white-space:nowrap;`;
+    th.textContent = t(col.tKey);
+    htr.appendChild(th);
+  });
+  thead.appendChild(htr);
+  table.appendChild(thead);
+
+  // Table body
+  const tbody = document.createElement('tbody');
+  rows.forEach((s, i) => {
+    const tr = document.createElement('tr');
+    const hasEnSub = s.school_name && s.school_name_cn;
+    tr.style.cssText = `border-bottom:1px solid ${!hasEnSub && i < rows.length - 1 ? '#f0f0f0' : 'transparent'};`;
+    visCols.forEach(col => {
+      const td_el = document.createElement('td');
+      td_el.style.cssText = `padding:6px 4px 2px;text-align:${col.align === 'right' ? 'right' : 'left'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;font-size:${fontSize};`;
+
+      // Export-safe formatting (plain text, no HTML badges)
+      const val = getCellValue(s, col.key);
+      if (col.key === 'name') {
+        td_el.textContent = s.school_name_cn || s.school_name || '';
+        td_el.style.fontWeight = '600';
+        td_el.style.whiteSpace = 'nowrap';
+      } else if (col.key === 'eqi' && val !== null) {
+        const v = parseFloat(val);
+        td_el.textContent = Math.round(v);
+        td_el.style.color = v <= 429 ? '#16a34a' : v <= 493 ? '#d97706' : '#dc2626';
+        td_el.style.fontWeight = '600';
+      } else if (col.key === 'intl' && val !== null) {
+        const count = parseInt(s.international) || 0;
+        const roll = parseInt(s.total_school_roll) || 0;
+        const pct = roll > 0 ? Math.round(count / roll * 100) : 0;
+        td_el.textContent = `${count} (${pct}%)`;
+      } else if ((col.key === 'fee' || col.key === 'intl_fee' || col.key === 'intl_total') && val !== null) {
+        td_el.textContent = '$' + parseFloat(val).toLocaleString();
+      } else if (col.key === 'intl_homestay' && val !== null) {
+        td_el.textContent = '$' + parseFloat(val).toLocaleString() + '/w';
+      } else if (col.key === 'ncea_l3' && val !== null) {
+        td_el.textContent = parseFloat(val).toFixed(1) + '%';
+      } else if (col.key.startsWith('eth_') && val !== null) {
+        td_el.textContent = val + '%';
+      } else if (col.key === 'roll' && val !== null) {
+        td_el.textContent = parseInt(val).toLocaleString();
+      } else if (col.key === 'ethnicity' && val !== null) {
+        td_el.textContent = formatCell('ethnicity', val, s).replace(/<[^>]+>/g, '');
+      } else if (val === null || val === undefined) {
+        td_el.textContent = '—';
+        td_el.style.color = '#ccc';
+      } else {
+        td_el.textContent = String(val);
+      }
+      tr.appendChild(td_el);
+    });
+    tbody.appendChild(tr);
+
+    // English name sub-row (full width)
+    const en = s.school_name || '';
+    if (en && s.school_name_cn) {
+      const enRow = document.createElement('tr');
+      const enTd = document.createElement('td');
+      enTd.colSpan = visCols.length;
+      enTd.style.cssText = `padding:0 4px 5px;font-size:10px;color:#aaa;line-height:1.2;border:none;border-bottom:1px solid ${i < rows.length - 1 ? '#f0f0f0' : 'transparent'};`;
+      enTd.textContent = en;
+      enRow.appendChild(enTd);
+      tbody.appendChild(enRow);
+    }
+  });
+  table.appendChild(tbody);
+  div.appendChild(table);
+
+  // Footer (reuse shared builder with custom right text)
+  const countText = truncated
+    ? t('col_export_truncated').replace('{n}', maxRows).replace('{total}', total)
+    : `${total} ${t('schools_count')}`;
+  const footer = buildExportFooter();
+  footer.style.cssText = 'position:absolute;bottom:20px;left:28px;right:28px;font-size:10px;color:#bbb;display:flex;justify-content:space-between;';
+  footer.querySelector('span:last-child').textContent = countText;
+  div.appendChild(footer);
+
+  return div;
+}
+
+function showToast(msg, duration) {
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:8px;font-size:14px;z-index:9999;transition:opacity 0.3s;';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, duration || 3000);
+}
+
+/* ── Shared Export Utility ── */
+async function exportDivAsImage(div, filename, loadingBtn) {
+  if (!window.html2canvas) { showToast(t('col_export_no_lib')); return; }
+  if (loadingBtn) { loadingBtn.textContent = t('col_export_loading'); loadingBtn.disabled = true; }
+
+  document.body.appendChild(div);
+  try {
+    const canvas = await html2canvas(div, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+    await new Promise((resolve, reject) => {
+      canvas.toBlob(blob => {
+        if (!blob) { showToast(t('col_export_fail')); resolve(); return; }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) { window.open(url); }
+        else { a.click(); }
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        resolve();
+      }, 'image/png');
+    });
+  } catch (e) {
+    showToast(t('col_export_fail'));
+  } finally {
+    if (div.parentNode) div.parentNode.removeChild(div);
+    if (loadingBtn) { loadingBtn.textContent = t('col_export'); loadingBtn.disabled = false; }
+  }
+}
+
+function buildExportFooter() {
+  const footer = document.createElement('div');
+  footer.style.cssText = 'margin-top:auto;padding-top:12px;border-top:1px solid #eee;font-size:10px;color:#bbb;display:flex;justify-content:space-between;';
+  footer.innerHTML = `<span>nzschoolfinder.com</span><span>${new Date().toISOString().split('T')[0]}</span>`;
+  return footer;
+}
+
+/* ── Export Table as Image ── */
+async function exportAsImage() {
+  if (!window.html2canvas) { showToast(t('col_export_no_lib')); return; }
+  if (!_lastListData || !_lastListData.results.length) return;
+
+  const visCols = _visibleCols.map(k => TABLE_COLUMNS.find(c => c.key === k)).filter(Boolean);
+  if (visCols.length > 9) { showToast(t('col_export_too_cols')); return; }
+
+  const results = sortTableData([..._lastListData.results]);
+  if (results.length > 20) {
+    showToast(t('col_export_truncated').replace('{n}', '20').replace('{total}', results.length));
+  }
+
+  const div = buildExportTemplate(results, visCols);
+  await exportDivAsImage(div, `nz-schools-${new Date().toISOString().split('T')[0]}.png`, document.querySelector('.col-export-btn'));
+}
+
+/* ── Export FAQ as Image ── */
+async function exportFaqAsImage(faqIndex) {
+  const faqItems = document.querySelectorAll('.faq-item');
+  if (!faqItems[faqIndex]) return;
+  const qSpan = faqItems[faqIndex].querySelector('.faq-q span');
+  if (!qSpan) return;
+  const qText = qSpan.textContent;
+
+  const faqEl = faqItems[faqIndex].querySelector('.faq-a');
+  if (!faqEl) return;
+  const answerClone = faqEl.cloneNode(true);
+  const btnInClone = answerClone.querySelector('.col-chooser-btn');
+  if (btnInClone) btnInClone.parentElement.remove();
+
+  const div = document.createElement('div');
+  div.style.cssText = 'position:fixed;left:-9999px;top:0;width:621px;min-height:830px;background:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:48px 44px;box-sizing:border-box;color:#1a1a1a;display:flex;flex-direction:column;';
+
+  const header = document.createElement('div');
+  header.style.cssText = 'text-align:center;margin-bottom:32px;';
+  header.innerHTML = `<div style="font-size:20px;font-weight:700;color:#2563eb;">${esc(t('col_export_brand'))}</div>`;
+  div.appendChild(header);
+
+  const qDiv = document.createElement('div');
+  qDiv.style.cssText = 'font-size:18px;font-weight:700;margin-bottom:24px;text-align:center;line-height:1.4;';
+  qDiv.textContent = qText;
+  div.appendChild(qDiv);
+
+  answerClone.style.cssText = 'font-size:14px;line-height:2;color:#333;flex:1;';
+  answerClone.className = '';
+  const bandBar = answerClone.querySelector('div[style*="display:flex"][style*="height:"]');
+  if (bandBar) bandBar.style.height = '32px';
+  div.appendChild(answerClone);
+
+  div.appendChild(buildExportFooter());
+  const faqBtn = faqEl.querySelector('.col-chooser-btn');
+  await exportDivAsImage(div, `nz-school-faq-${faqIndex + 1}.png`, faqBtn);
+}
+
 function renderListCards(results, total, page, pages) {
   _lastListData = { results, total, page, pages };
 
@@ -3413,6 +3704,23 @@ function renderListCards(results, total, page, pages) {
       btn.textContent = t('col_columns');
       btn.onclick = (e) => { e.stopPropagation(); toggleColumnChooser(); };
       actions.appendChild(btn);
+    }
+    // Export button
+    if (actions && !actions.querySelector('.col-export-btn')) {
+      const ebtn = document.createElement('button');
+      ebtn.className = 'col-chooser-btn col-export-btn';
+      ebtn.textContent = t('col_export');
+      ebtn.onclick = () => exportAsImage();
+      actions.appendChild(ebtn);
+    }
+    // Update export button state
+    const ebtn = actions && actions.querySelector('.col-export-btn');
+    if (ebtn) {
+      const tooManyCols = _visibleCols.length > 9;
+      const noData = !results || !results.length;
+      ebtn.disabled = tooManyCols || noData;
+      if (tooManyCols) ebtn.title = t('col_export_too_cols');
+      else ebtn.title = '';
     }
   }
 

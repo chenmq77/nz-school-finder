@@ -314,7 +314,7 @@ def filter_schools(params):
 
         # 分页
         page = max(1, int(params.get("page", ["1"])[0]))
-        limit = min(100, max(1, int(params.get("limit", ["20"])[0])))
+        limit = min(3000, max(1, int(params.get("limit", ["20"])[0])))
         offset = (page - 1) * limit
 
         cur.execute(
@@ -322,8 +322,18 @@ def filter_schools(params):
             f"s.gender_of_students, s.town_city, s.suburb, s.total_school_roll, s.regional_council, "
             f"s.equity_index_eqi, s.enrolment_scheme, "
             f"s.european_pakeha, s.maori, s.pacific, s.asian, s.melaa, s.other, s.international, "
-            f"w.curriculum_systems, w.intl_tuition_annual, w.intl_homestay_weekly, "
-            f"w.subjects_count, w.sports_count, w.music_count, w.activities_count "
+            f"w.curriculum_systems, "
+            f"(SELECT f.tuition_annual FROM school_fees f "
+            f" WHERE f.school_number = CAST(s.school_number AS INTEGER) "
+            f" ORDER BY f.year DESC LIMIT 1) AS intl_tuition_annual, "
+            f"(SELECT f.homestay_weekly FROM school_fees f "
+            f" WHERE f.school_number = CAST(s.school_number AS INTEGER) "
+            f" ORDER BY f.year DESC LIMIT 1) AS intl_homestay_weekly, "
+            f"w.subjects_count, w.sports_count, w.music_count, w.activities_count, "
+            f"(SELECT percentage FROM school_performance p "
+            f" WHERE p.school_number = CAST(s.school_number AS INTEGER) "
+            f" AND p.metric = 'ncea3' AND p.group_name = 'Total' "
+            f" ORDER BY p.year DESC LIMIT 1) AS ncea_l3 "
             f"FROM schools s "
             f"LEFT JOIN school_web_data w ON CAST(s.school_number AS INTEGER) = w.school_number "
             f"WHERE {where} ORDER BY {order_by} LIMIT ? OFFSET ?",
