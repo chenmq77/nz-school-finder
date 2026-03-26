@@ -1113,7 +1113,7 @@ document.body.style.transition = 'opacity 0.15s';
   <!-- School Detail -->
   <div class="school-detail" id="schoolDetail">
 
-    <!-- A. 学校身份概览 -->
+    <!-- 学校概览 -->
     <div class="section" id="sectionA">
       <div class="section-header collapsible" onclick="toggleSection('A')">
         <div class="section-title" id="titleA"></div>
@@ -1122,16 +1122,7 @@ document.body.style.transition = 'opacity 0.15s';
       <div class="section-body" id="bodyA"></div>
     </div>
 
-    <!-- B. 位置与入学 -->
-    <div class="section" id="sectionB">
-      <div class="section-header collapsible" onclick="toggleSection('B')">
-        <div class="section-title" id="titleB"></div>
-        <span class="section-toggle open" id="toggleB">&#9660;</span>
-      </div>
-      <div class="section-body" id="bodyB"></div>
-    </div>
-
-    <!-- NCEA Results (positioned after B, before C) -->
+    <!-- NCEA 升学成绩 -->
     <div class="section" id="sectionH" style="display:none">
       <div class="section-header collapsible" onclick="toggleSection('H')">
         <div class="section-title" id="titleH"></div>
@@ -1140,7 +1131,16 @@ document.body.style.transition = 'opacity 0.15s';
       <div class="section-body" id="bodyH"></div>
     </div>
 
-    <!-- C. 课程 -->
+    <!-- 位置与学区 -->
+    <div class="section" id="sectionB">
+      <div class="section-header collapsible" onclick="toggleSection('B')">
+        <div class="section-title" id="titleB"></div>
+        <span class="section-toggle open" id="toggleB">&#9660;</span>
+      </div>
+      <div class="section-body" id="bodyB"></div>
+    </div>
+
+    <!-- 课程与学科 -->
     <div class="section" id="sectionC">
       <div class="section-header collapsible" onclick="toggleSection('C')">
         <div class="section-title" id="titleC"></div>
@@ -1149,25 +1149,7 @@ document.body.style.transition = 'opacity 0.15s';
       <div class="section-body" id="bodyC"></div>
     </div>
 
-    <!-- D. 课外活动 -->
-    <div class="section" id="sectionD">
-      <div class="section-header collapsible" onclick="toggleSection('D')">
-        <div class="section-title" id="titleD"></div>
-        <span class="section-toggle open" id="toggleD">&#9660;</span>
-      </div>
-      <div class="section-body" id="bodyD"></div>
-    </div>
-
-    <!-- E. 国际生费用 -->
-    <div class="section" id="sectionE">
-      <div class="section-header collapsible" onclick="toggleSection('E')">
-        <div class="section-title" id="titleE"></div>
-        <span class="section-toggle open" id="toggleE">&#9660;</span>
-      </div>
-      <div class="section-body" id="bodyE"></div>
-    </div>
-
-    <!-- F. 学生规模与构成 -->
+    <!-- 学生构成 -->
     <div class="section" id="sectionF">
       <div class="section-header collapsible" onclick="toggleSection('F')">
         <div class="section-title" id="titleF"></div>
@@ -1176,7 +1158,25 @@ document.body.style.transition = 'opacity 0.15s';
       <div class="section-body" id="bodyF"></div>
     </div>
 
-    <!-- G. 其他信息 -->
+    <!-- 课外活动 -->
+    <div class="section" id="sectionD">
+      <div class="section-header collapsible" onclick="toggleSection('D')">
+        <div class="section-title" id="titleD"></div>
+        <span class="section-toggle open" id="toggleD">&#9660;</span>
+      </div>
+      <div class="section-body" id="bodyD"></div>
+    </div>
+
+    <!-- 国际生费用 -->
+    <div class="section" id="sectionE">
+      <div class="section-header collapsible" onclick="toggleSection('E')">
+        <div class="section-title" id="titleE"></div>
+        <span class="section-toggle open" id="toggleE">&#9660;</span>
+      </div>
+      <div class="section-body" id="bodyE"></div>
+    </div>
+
+    <!-- 联络信息 -->
     <div class="section" id="sectionG">
       <div class="section-header collapsible" onclick="toggleSection('G')">
         <div class="section-title" id="titleG"></div>
@@ -1291,15 +1291,12 @@ function updateSortOptions() {
 
 /** Update section titles based on current language */
 function updateSectionTitles() {
-  const sections = {A:'section_a', B:'section_b', C:'section_c', D:'section_d', E:'section_e', F:'section_f', G:'section_g'};
-  const prefix = {A:'A', B:'B', C:'C', D:'D', E:'E', F:'F', G:'G'};
+  // No letter prefixes — just descriptive titles
+  const sections = {A:'section_a', H:'section_ncea', B:'section_b', C:'section_c', F:'section_f', D:'section_d', E:'section_e', G:'section_g'};
   for (const [k, key] of Object.entries(sections)) {
     const el = document.getElementById('title' + k);
-    if (el) el.textContent = prefix[k] + '. ' + t(key);
+    if (el) el.textContent = t(key);
   }
-  // NCEA section: no letter prefix
-  const nceaTitle = document.getElementById('titleH');
-  if (nceaTitle) nceaTitle.textContent = t('section_ncea');
 }
 
 /** Switch language and re-render */
@@ -1585,11 +1582,30 @@ function renderSchool(s) {
   renderSectionA(s);
   renderSectionB(s);
   renderSectionF(s);  // 学生构成
-  renderSectionG(s);  // 其他信息（合并原 G+H）
+  renderSectionG(s);
+  renderSectionG_contact(s);  // prepend phone/email to G
 
   // 加载爬取数据（C/D/E 区）
   loadWebData(s.school_number);
   loadPerformanceData(s.school_number);
+}
+
+function renderEqiCompact(s) {
+  const eqi = parseFloat(s.equity_index_eqi) || 0;
+  if (!eqi) return '';
+  const band = getEqiBand(eqi);
+  const group = band ? EQI_GROUPS[band.group] : null;
+  const label = band ? (_lang === 'en' ? band.name : _lang === 'cn' ? band.cn : `${band.name}`) : '';
+  const color = group ? group.color : 'var(--text-muted)';
+  const pct = Math.min(100, Math.max(0, (eqi - 344) / (569 - 344) * 100));
+  return `<div class="info-row">
+    <span class="info-label">${t('eqi')} <button class="eqi-help-btn" onclick="openEqiModal(event)" style="font-size:11px;border:none;background:none;cursor:pointer;color:var(--primary)">ⓘ</button></span>
+    <span class="info-value" style="display:flex;align-items:center;gap:8px">
+      <strong>${eqi}</strong>
+      <span style="color:${color};font-size:12px">${esc(label)}</span>
+      <span style="width:80px;height:6px;background:var(--border);display:inline-block;position:relative"><span style="position:absolute;left:0;top:0;height:100%;width:${pct}%;background:${color}"></span></span>
+    </span>
+  </div>`;
 }
 
 function renderSectionA(s) {
@@ -1619,6 +1635,9 @@ function renderSectionA(s) {
     <div class="info-row"><span class="info-label">${t('gender')}</span><span class="info-value">${esc(genderLabel)}</span></div>
     <div id="curriculumBadges"></div>
     <div class="info-row"><span class="info-label">${t('boarding')}</span><span class="info-value">${esc(boardingLabel)}</span></div>
+    <div class="info-row"><span class="info-label">${t('enrolment')}</span><span class="info-value">${esc(td('enrolment_scheme', safe(s.enrolment_scheme)))}</span></div>
+    <div class="info-row"><span class="info-label">${t('total_students')}</span><span class="info-value">${s.total_school_roll ? parseInt(s.total_school_roll).toLocaleString() + ' ' + t('person') : '--'}</span></div>
+    ${renderEqiCompact(s)}
     <div class="info-row"><span class="info-label">${t('website')}</span><span class="info-value">${websiteLink}</span></div>
   `;
 }
@@ -1647,68 +1666,46 @@ function getEqiBand(eqi) {
 }
 
 function renderSectionB(s) {
+  // Streamlined: address + map link + zone links only
   const parts = [s.street, s.suburb, s.town_city].filter(v => hasValue(v));
   const address = parts.length ? parts.map(v => String(v).trim()).join(', ') : '--';
 
-  const pparts = [s.postal_address, s.postal_address_suburb, s.postal_address_city].filter(v => hasValue(v));
-  if (hasValue(s.postal_code)) pparts.push(String(s.postal_code).trim());
-  const postal = pparts.length ? pparts.map(v => String(v).trim()).join(', ') : '--';
+  const lat = safe(s.latitude);
+  const lng = safe(s.longitude);
+  const latNum = parseFloat(lat);
+  const lngNum = parseFloat(lng);
+  const hasCoords = !isNaN(latNum) && !isNaN(lngNum);
+  const mapLink = hasCoords ? ` <a href="https://www.google.com/maps?q=${latNum},${lngNum}" target="_blank" rel="noopener" style="font-size:12px">[${t('open_map')}]</a>` : '';
 
+  const areaDisplay = td('urban_rural', safe(s.urban_rural));
+
+  document.getElementById('bodyB').innerHTML = `
+    <div class="info-row"><span class="info-label">${t('address')}</span><span class="info-value">${esc(address)}${mapLink}</span></div>
+    <div class="info-row"><span class="info-label">${t('area')}</span><span class="info-value">${esc(areaDisplay)}</span></div>
+    <div id="zoneRow"></div>
+  `;
+}
+
+function renderSectionG_contact(s) {
+  // Contact & admin info (collapsed by default)
   const tel = safe(s.telephone);
   const telLink = tel !== '--' ? `<a href="tel:${esc(tel)}">${esc(tel)}</a>` : '--';
   const email = safe(s.email);
   const emailLink = email !== '--' ? `<a href="mailto:${esc(email)}">${esc(email)}</a>` : '--';
 
-  // Location (coordinates + map link) — moved from D
-  const lat = safe(s.latitude);
-  const lng = safe(s.longitude);
-  const coordParts = [lat, lng].filter(p => p !== '--');
-  const coord = coordParts.length ? coordParts.join(', ') : '--';
-  const latNum = parseFloat(lat);
-  const lngNum = parseFloat(lng);
-  const hasCoords = coordParts.length === 2 && !isNaN(latNum) && !isNaN(lngNum);
-  const mapLink = hasCoords ? `<a href="https://www.google.com/maps?q=${latNum},${lngNum}" target="_blank" rel="noopener">[${t('open_map')}]</a>` : '';
+  const pparts = [s.postal_address, s.postal_address_suburb, s.postal_address_city].filter(v => hasValue(v));
+  if (hasValue(s.postal_code)) pparts.push(String(s.postal_code).trim());
+  const postal = pparts.length ? pparts.map(v => String(v).trim()).join(', ') : '--';
 
-  // EQI
-  const eqi = parseFloat(s.equity_index_eqi) || 0;
-  _currentEqi = eqi;
-  const eqiDisplay = eqi > 0 ? eqi : '--';
-  const eqiPct = eqi > 0 ? Math.min(100, Math.max(0, (eqi - 344) / (569 - 344) * 100)) : 0;
-  const band = eqi > 0 ? getEqiBand(eqi) : null;
-  const group = band ? EQI_GROUPS[band.group] : null;
-  const bandName = band ? (_lang === 'en' ? band.name : _lang === 'cn' ? band.cn : `${band.name} / ${band.cn}`) : '';
-  const bandTag = band ? `<span class="eqi-band-tag ${band.group}">${esc(bandName)}</span>` : '';
-  const eqiInterpret = group ? (_lang === 'en' ? group.name : _lang === 'cn' ? group.cn : `${group.cn} / ${group.name}`) : '--';
-
-  // Enrolment Scheme
-  const enrol = safe(s.enrolment_scheme);
-  const enrolDisplay = td('enrolment_scheme', enrol);
-
-  // Area
-  const areaDisplay = td('urban_rural', safe(s.urban_rural));
-
-  document.getElementById('bodyB').innerHTML = `
-    <div class="info-row"><span class="info-label">${t('address')}</span><span class="info-value">${esc(address)}</span></div>
-    <div class="info-row"><span class="info-label">${t('post')}</span><span class="info-value">${esc(postal)}</span></div>
-    <div class="info-row"><span class="info-label">${t('area')}</span><span class="info-value">${esc(areaDisplay)}</span></div>
-    <div class="info-row"><span class="info-label">${t('location')}</span><span class="info-value">${esc(coord)} ${mapLink}</span></div>
-    <div class="divider"></div>
+  // Prepend contact info to existing G content
+  const existingG = document.getElementById('bodyG').innerHTML;
+  const contactHtml = `
     <div class="info-row"><span class="info-label">${t('tel')}</span><span class="info-value">${telLink}</span></div>
     <div class="info-row"><span class="info-label">${t('email')}</span><span class="info-value">${emailLink}</span></div>
+    <div class="info-row"><span class="info-label">${t('post')}</span><span class="info-value">${esc(postal)}</span></div>
     <div class="divider"></div>
-    <div class="info-row"><span class="info-label">${t('enrolment')}</span><span class="info-value">${esc(enrolDisplay)}</span></div>
-    <div id="zoneRow"></div>
-    <div class="divider"></div>
-    <div class="gauge-row">
-      <div class="gauge-card">
-        <div class="gauge-label">${t('eqi')}</div>
-        <button class="eqi-help-btn" onclick="openEqiModal(event)" title="${t('eqi')}">?</button>
-        <div class="gauge-value">${eqiDisplay} ${bandTag}</div>
-        <div class="gauge-bar-wrap"><div class="gauge-bar eqi" style="width:${eqiPct}%"></div></div>
-        <div class="gauge-interpret">${eqiInterpret}</div>
-      </div>
-    </div>
   `;
+  document.getElementById('bodyG').innerHTML = contactHtml + existingG;
 }
 
 /* ── Web Data (C/D/E) ────────────────────────────── */
@@ -1814,7 +1811,7 @@ function renderPerformance(data) {
     return `
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;opacity:${opacity}">
         <div style="width:80px;text-align:right;font-size:12px;color:var(--text-muted);flex-shrink:0">${label} <span style="font-size:10px">(n=${total})</span></div>
-        <div style="flex:1;display:flex;height:26px;border-radius:4px;overflow:hidden">
+        <div style="flex:1;display:flex;height:26px;border-radius:0;overflow:hidden">
           ${pBelow > 0 ? `<div title="${t('ncea_below_l1')}: ${pBelow.toFixed(1)}%" style="width:${pBelow}%;background:${colors.below};display:flex;align-items:center;justify-content:center;font-size:9px;color:#555">${pBelow >= 4 ? pBelow.toFixed(0)+'%' : ''}</div>` : ''}
           ${pL1 > 0 ? `<div title="${t('ncea_l1_only')}: ${pL1.toFixed(1)}%" style="width:${pL1}%;background:${colors.l1};display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff">${pL1 >= 4 ? pL1.toFixed(0)+'%' : ''}</div>` : ''}
           ${pL2 > 0 ? `<div title="${t('ncea_l2_only')}: ${pL2.toFixed(1)}%" style="width:${pL2}%;background:${colors.l2};display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff">${pL2 >= 4 ? pL2.toFixed(0)+'%' : ''}</div>` : ''}
@@ -1840,7 +1837,7 @@ function renderPerformance(data) {
     barsHtml += `
       <div style="display:flex;align-items:center;gap:8px;margin-top:4px;opacity:0.5">
         <div style="width:80px;text-align:right;font-size:11px;color:var(--text-muted);flex-shrink:0">${t('ncea_nz_avg')}</div>
-        <div style="flex:1;display:flex;height:16px;border-radius:3px;overflow:hidden">
+        <div style="flex:1;display:flex;height:16px;border-radius:0;overflow:hidden">
           ${nzL1 > 0 ? `<div style="width:${nzL1}%;background:${colors.below}"></div>` : ''}
           ${nzL1only > 0 ? `<div style="width:${nzL1only}%;background:${colors.l1}"></div>` : ''}
           ${nzL2only > 0 ? `<div style="width:${nzL2only}%;background:${colors.l2}"></div>` : ''}
@@ -1864,9 +1861,9 @@ function renderPerformance(data) {
 
   const compRows = [
     { label: schoolKey || `School`, key: schoolKey, isSchool: true },
-    { label: 'Auckland Region', key: 'Auckland Region' },
-    { label: sameTypeKey || '', key: sameTypeKey, labelOverride: _lang === 'en' ? sameTypeKey : t('ncea_same_type'), tooltip: sameTypeKey },
-    { label: 'New Zealand', key: 'New Zealand', labelOverride: _lang !== 'en' ? t('ncea_nz_avg') : 'New Zealand' },
+    { label: 'Auckland Region', key: 'Auckland Region', labelOverride: t('ncea_auckland') },
+    { label: sameTypeKey || '', key: sameTypeKey, labelOverride: _lang === 'en' ? sameTypeKey : ({'State: Not integrated':'公立学校','State: Integrated':'公立整合学校','Private: Fully Registered':'私立学校','Private: Provisionally Registered':'私立学校'}[sameTypeKey] || sameTypeKey), tooltip: sameTypeKey },
+    { label: 'New Zealand', key: 'New Zealand', labelOverride: t('ncea_nz_avg') },
   ].filter(r => r.key && comp[r.key]);
 
   let tableHtml = `

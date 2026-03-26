@@ -23,14 +23,14 @@ const TRANSLATIONS = {
     lang_both:            { en: "双", cn: "双" },
 
     // Section Headers (A-G)
-    section_a:            { en: "School Identity", cn: "学校概览" },
-    section_b:            { en: "Location & Admissions", cn: "位置与入学" },
-    section_c:            { en: "Subjects & Curriculum", cn: "课程与学科" },
-    section_d:            { en: "Activities & Co-curricular", cn: "课外活动" },
-    section_e:            { en: "International Fees", cn: "国际生费用" },
-    section_f:            { en: "Students", cn: "学生规模与构成" },
-    section_g:            { en: "Other Details", cn: "其他信息" },
+    section_a:            { en: "School Overview", cn: "学校概览" },
     section_ncea:         { en: "NCEA Results", cn: "NCEA 升学成绩" },
+    section_b:            { en: "Location & Zone", cn: "位置与学区" },
+    section_c:            { en: "Subjects", cn: "课程与学科" },
+    section_f:            { en: "Student Profile", cn: "学生构成" },
+    section_d:            { en: "Co-curricular", cn: "课外活动" },
+    section_e:            { en: "International Fees", cn: "国际生费用" },
+    section_g:            { en: "Contact & Admin", cn: "联络信息" },
 
     // Field Labels — Section NCEA
     ncea_leavers:         { en: "School Leavers", cn: "毕业生" },
@@ -40,7 +40,8 @@ const TRANSLATIONS = {
     ncea_l2_only:         { en: "NCEA L2", cn: "NCEA L2" },
     ncea_l3_ue:           { en: "L3 / UE", cn: "L3 / 大学入学" },
     ncea_comparison:      { en: "Comparison", cn: "对比" },
-    ncea_same_type:       { en: "Same Type", cn: "同类型学校" },
+    // ncea_same_type is dynamic — see renderPerformance for label logic
+    ncea_auckland:        { en: "Auckland Region", cn: "奥克兰地区" },
     ncea_nz_avg:          { en: "NZ Average", cn: "全国平均" },
     ncea_no_data:         { en: "No NCEA data available", cn: "暂无 NCEA 数据" },
     ncea_footnote:        { en: "% of leavers achieving this level or above", cn: "达到该等级及以上的毕业生比例" },
