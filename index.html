@@ -2563,11 +2563,18 @@ function renderYearBandMap() {
   container.innerHTML = '';
   const grid = document.createElement('div');
   grid.className = 'band-map';
-  // Row 0: Year ticks (Y1-Y13) — 每个数字可点击，筛选单年级
+  // Row 0: Year ticks (Y1-Y13) — 每个数字可点击，筛选单年级，渐变金→绿→蓝
+  const tickColors = [
+    '#EDE4C8','#E8DEBB','#E3D8AE','#DED2A2',
+    '#D8CCA0','#D0C490','#C8BB85','#C0B27A',
+    '#B8AA70','#B0A268','#A89A60','#A09258','#988A50'
+  ];
   for (let y = 1; y <= 13; y++) {
     const tick = document.createElement('div');
     tick.className = 'band-tick';
     tick.style.cursor = 'pointer';
+    tick.style.background = tickColors[y - 1];
+    tick.style.color = y >= 9 ? '#fff' : '#555';
     tick.textContent = y;
     tick.title = `查看包含 Y${y} 的学校`;
     tick.addEventListener('click', () => navigateTo(`#/schools?year_level=${y}-${y}&year_min=${y}&year_max=${y}`));
@@ -2578,18 +2585,20 @@ function renderYearBandMap() {
     // Row 1: 棕金系 — 左浅右深
     { label: 'Contributing', sub: 'Y1-6', y1: 1, y2: 6, bg: '#E0D0A0' },
     { label: 'Intermediate', sub: 'Y7-8', y1: 7, y2: 8, bg: '#C8B888' },
-    { label: 'Secondary', sub: 'Y9-13', y1: 9, y2: 13, bg: '#9A8455' },
+    { label: 'Secondary', sub: 'Y9-13', y1: 9, y2: 13, bg: '#9A8455', fg: '#fff' },
     // Row 2: 青绿系 — 左浅右深
     { label: 'Full Primary', sub: 'Y1-8', y1: 1, y2: 8, bg: '#b0d0cc' },
-    { label: 'Junior High', sub: 'Y9-10', y1: 9, y2: 10, bg: '#88bfb8' },
-    { label: 'Senior High', sub: 'Y11-13', y1: 11, y2: 13, bg: '#3d8e86' },
-    // Row 3: 蓝色系
-    { label: 'Composite', sub: 'Y1-13', y1: 1, y2: 13, bg: '#28558F' },
+    { label: 'Junior High', sub: 'Y9-10', y1: 9, y2: 10, bg: '#5da39d', fg: '#fff' },
+    { label: 'Senior High', sub: 'Y11-13', y1: 11, y2: 13, bg: '#3d8e86', fg: '#fff' },
+    // Row 3: 深蓝渐变
+    { label: 'Composite', sub: 'Y1-13', y1: 1, y2: 13, bg: 'linear-gradient(90deg, #3E78BE, #28558F)' },
   ];
   BANDS.forEach(b => {
     const cell = document.createElement('div');
     cell.className = 'band-cell';
-    cell.style.cssText = `grid-column:${b.y1}/${b.y2+1};background:${b.bg};color:${textColorFor(b.bg)}`;
+    const isGradient = b.bg.includes('gradient');
+    const color = b.fg || (isGradient ? '#fff' : textColorFor(b.bg));
+    cell.style.cssText = `grid-column:${b.y1}/${b.y2+1};background:${b.bg};color:${color}`;
     cell.innerHTML = `${esc(b.label)}${b.sub ? '<span class="band-sub">'+esc(b.sub)+'</span>' : ''}`;
     cell.title = `查看包含 ${b.sub} 的学校`;
     cell.addEventListener('click', () => navigateTo(`#/schools?year_level=${b.y1}-${b.y2}&year_min=${b.y1}&year_max=${b.y2}`));
