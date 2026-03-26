@@ -1,7 +1,7 @@
-# Requirement Challenge — Round 4 of 5
+# Requirement Challenge — Round 4 of 8
 
 **Model**: gpt-5.4-xhigh-fast
-**Date**: 2026-03-26 02:23:16
+**Date**: 2026-03-26 23:02:01
 
 ---
 
@@ -10,29 +10,26 @@
 ### SCORE: 7
 
 ### COMPLETENESS
-- Core configurable table flow: COVERED — default columns, column selection, persistence, sorting, and mobile horizontal scrolling are all specified.
-- Sparse scraped-data behavior: GAP — only 18 schools currently have `school_web_data`, but the spec does not define how the UI distinguishes "data unavailable/not scraped" from a real zero or empty value.
-- Column contract consistency: GAP — the proposal repeatedly says 21 columns / 7 scraped columns, while the actual enumerations define 20 total columns and 6 scraped fields.
-- Unfiltered large-result behavior: PARTIAL — the 100-row cap is technically defined, but it changes browse behavior and is not clearly aligned with the original "no pagination" expectation.
-- Testability: PARTIAL — the performance targets are measurable in principle, but the browser/device/network baseline is not defined.
+- Core extraction workflow: COVERED — source pages, matching order, transaction behavior, and validation checks are concrete enough to implement.
+- Cross-section data consistency: GAP — the spec does not state whether every school appearing in subject Top 10 pages must also exist in `school_ncea_summary`, or what to do if that invariant fails.
+- UI/API boundary behavior: PARTIAL — list/detail rendering rules are mostly defined, but the exact backend contract for no-data and partial-data responses is still implicit.
+- Release scope versus original comparison goal: GAP — Release 1 excludes compare-page integration even though the original requirement frames this as an enhancement to the comparison system.
 
 ### ISSUES
-1. [critical] Data semantics — The joined web-data fields exist for only 18 of 2577 schools, but the proposal does not define a distinct user-visible state for "not available yet" versus true zero/none. That can mislead users when comparing curriculum, fees, or activity counts.
-2. [major] Specification consistency — The document says "21 columns" and "7 scraped columns", but the sorting matrix and API section only enumerate 20 total columns and 6 scraped fields. This creates an unstable implementation and QA contract.
-3. [minor] Testability — Acceptance targets such as `<2s`, `<200ms`, and `<100ms` are not tied to a concrete test environment, so pass/fail is not reproducible.
-4. [question] For user — Is showing only the top 100 schools in the unfiltered state acceptable, or must users be able to browse all 2577 rows once the page loads?
+1. [critical] API contract / data integrity — `/api/school/{num}/ncea` is underspecified for no-summary, no-ranking, and ranking-only cases — define exact response shape/status codes and whether rankings are valid without a summary row.
+2. [major] Data semantics — the UI only requires a generic source label, but the dataset mixes `2023` NCEA outcomes with `July 2024` roll data — require explicit year/date labeling in the UI so users do not compare mixed-vintage numbers as if they were from the same period.
+3. [minor] Operability — checksum validation protects the input file before import, but the imported checksum/file version/timestamp is not persisted — storing import provenance would make later troubleshooting and re-verification much easier.
+4. [question] For user — Is Release 1 allowed to stop at list/detail integration, or must NCEA data also appear in the compare workflow to satisfy the original "comparison system" objective?
 
 ### SCENARIOS_ASSESSMENT
-- [scenario 1: first use]: NEEDS_WORK — The default view is clear, but the 100-row cap is still a product decision rather than a fully validated requirement.
-- [scenario 2: customize columns]: WELL_DEFINED — Selector grouping, immediate apply, reset, persistence, and invalid-storage fallback are clearly covered.
-- [scenario 3: sorting]: NEEDS_WORK — Sort behavior itself is defined, but the exact sortable column set is undermined by the unresolved column-count contradiction.
-- [scenario 4: mobile]: WELL_DEFINED — Sticky first column, horizontal scrolling, and the mobile chooser pattern are sufficiently specified.
-- [scenario 5: boundaries/errors]: NEEDS_WORK — API and storage failures are covered, but sparse joined-data nulls are not handled as a separate user-facing state.
+- [Scenario 1: Data extraction and import]: NEEDS_WORK — the main import path is strong, but it still needs an explicit rule for summary-versus-ranking consistency and how that rule is validated.
+- [Scenario 2: List page UE column]: WELL_DEFINED — display behavior, missing-data rendering, and sorting intent are clear enough for implementation.
+- [Scenario 3: Detail page NCEA overview]: NEEDS_WORK — panel visibility rules are clear, but the backend contract for no-data/partial-data cases and the mixed-year presentation are not fully defined.
 
 ### ARCHITECTURE_ASSESSMENT
 - Fitness: 7
-- Risks: [misleading interpretation of missing scraped data, inconsistent column/API contract, product mismatch if the 100-row cap is not accepted]
-- Suggestions: [publish one authoritative column registry with the exact final count, define explicit rendering/sorting semantics for unavailable scraped data and expose that state to users, confirm or remove the unfiltered 100-row cap, pin performance acceptance to a concrete test environment]
+- Risks: [undefined no-data/partial-data API contract, silent hiding of ranking-only schools, mixed-year metrics being misread by users, scope reduction not yet explicitly approved]
+- Suggestions: [define exact `/api/school/{num}/ncea` response shapes and status codes, enforce or explicitly support ranking-only records during import, label `2023 NCEA` and `July 2024 roll` explicitly in the UI, get explicit user sign-off on excluding compare-page delivery from Release 1]
 
 ### SUMMARY
-The proposal is close to convergence and most core interactions are now implementation-ready, but it is not approval-ready yet because it still contains one correctness risk and one internal contradiction: users may misread missing scraped data as real school attributes, and the spec still disagrees with itself on the actual column inventory. Once those are fixed and the 100-row cap is explicitly confirmed as a business decision, the architecture should be solid enough to proceed.
+The proposal is close and most previously critical gaps appear resolved, especially around UE validation, checksum guarding, and ambiguous school matching. The remaining blockers are now boundary and contract issues rather than extraction logic: the spec still needs a precise no-data/partial-data API contract, an explicit rule for summary-versus-ranking consistency, and a clear user decision on whether excluding compare-page integration is acceptable for this release.

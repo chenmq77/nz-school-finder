@@ -3807,6 +3807,15 @@ function svgToPngDataUrl(svgUrl) {
 /* ── Export Xiaohongshu School Card (Page 1: Cover) ── */
 async function exportSchoolCard() {
   if (!_cachedSchool) { showToast('请先选择一所学校'); return; }
+  // 加载衬线字体（首次调用时）
+  if (!window._serifFontLoaded) {
+    const link = document.createElement('link');
+    link.href = 'https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&display=swap';
+    link.rel = 'stylesheet';
+    document.head.appendChild(link);
+    await new Promise(r => setTimeout(r, 1500)); // 等字体加载
+    window._serifFontLoaded = true;
+  }
   const s = _cachedSchool;
   const W = 540, H = 720;
   const B = PALETTE;
@@ -3876,60 +3885,63 @@ async function exportSchoolCard() {
   const div = document.createElement('div');
   div.style.cssText = 'position:fixed;left:-9999px;top:0;width:' + W + 'px;height:' + H + 'px;background:#F8F6F2;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans SC",sans-serif;box-sizing:border-box;display:flex;flex-direction:column;color:#333;overflow:hidden;';
 
-  // Font family — 用衬线体更有中国风
-  const FF = '"Songti SC","STSong","Noto Serif SC","Source Han Serif SC",serif';
+  // 字体：衬线只用于右侧4个标签
+  const SF = 'serif'; // 衬线
+  const SB = 'font-weight:900;-webkit-text-stroke:1px currentColor'; // 衬线加粗
+  const tc = B.teal[0];
 
-  // Top color block
+  // Top color block — 无衬线
   const topBlock = '<div style="background:' + B.blue[0] + ';color:#fff;text-align:center;padding:20px 20px 18px">' +
-    '<div style="font-size:32px;font-weight:700;letter-spacing:4px;white-space:nowrap;font-family:' + FF + '">每天认识一所奥克兰本地高中</div>' +
+    '<div style="font-size:32px;font-weight:700;letter-spacing:4px;white-space:nowrap">每天认识一所奥克兰本地高中</div>' +
     '</div>';
 
-  // Logo
+  // Logo — contain 保持原比例
   const logoHtml = logoSrc
-    ? '<img src="' + logoSrc + '" style="max-width:240px;max-height:200px;object-fit:contain">'
-    : '<div style="width:160px;height:160px;background:#E8E5DF;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:64px;color:#999;font-weight:700">' + esc(cnName.charAt(0)) + '</div>';
-
-  const tc = B.teal[0];
+    ? '<img src="' + logoSrc + '" style="max-width:100%;max-height:100%;object-fit:contain">'
+    : '<div style="width:100%;height:100%;background:#E8E5DF;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:64px;color:#999;font-weight:700">' + esc(cnName.charAt(0)) + '</div>';
 
   // IB label
   let ibLabel = '';
   if (hasIB && hasALevel) ibLabel = 'IB+A-Level';
-  else if (hasIB) ibLabel = 'IB 课程';
+  else if (hasIB) ibLabel = 'IB  课程';
   else if (hasALevel) ibLabel = 'A-Level';
 
-  // EQI short
+  // EQI
   const eqiShort = eqiBand ? { fewer: '社区优越', moderate: '社区中等', more: '社区薄弱' }[eqiBand.group] : '';
 
   div.innerHTML = topBlock +
-    '<div style="flex:1;display:flex;flex-direction:column;padding:10px 20px 10px">' +
-      // logo 左 + 标签右
-      '<div style="display:flex;gap:16px;margin-bottom:6px;flex:1;align-items:center">' +
-        '<div style="flex:1;display:flex;align-items:center;justify-content:center">' + logoHtml + '</div>' +
-        '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px">' +
-          '<div style="font-size:24px;color:#999;text-align:right">No.' + esc(schoolNum) + '</div>' +
-          '<div style="font-size:42px;font-weight:700;color:' + tc + ';font-family:' + FF + '">' + esc(authCn) + '</div>' +
-          '<div style="font-size:38px;font-weight:700;color:#333;font-family:' + FF + '">' + (genderCn === '混校' ? '男女混校' : esc(genderCn)) + '</div>' +
-          (yearLabel ? '<div style="font-size:38px;font-weight:700;color:#333;font-family:' + FF + '">' + esc(yearLabel) + '</div>' : '') +
-          (ibLabel ? '<div style="font-size:38px;font-weight:700;color:' + tc + ';font-family:' + FF + '">' + esc(ibLabel) + '</div>' : '') +
+    '<div style="flex:1;display:flex;flex-direction:column;padding:6px 18px 10px">' +
+      // No.XX 右上角
+      '<div style="text-align:right;font-size:24px;color:#999;margin-bottom:2px">No.' + esc(schoolNum) + '</div>' +
+      // 1x2 grid: logo(固定200x200) | 标签
+      '<div style="display:flex;gap:14px;margin-bottom:4px">' +
+        '<div style="width:200px;height:200px;flex-shrink:0;background:#fff;border-radius:12px;padding:8px;box-sizing:border-box">' + logoHtml + '</div>' +
+        '<div style="flex:1;display:flex;flex-direction:column;justify-content:flex-start;gap:6px;padding-top:4px">' +
+          '<div style="font-size:44px;' + SB + ';color:' + tc + ';font-family:' + SF + '">' + esc(authCn) + '</div>' +
+          '<div style="font-size:40px;' + SB + ';color:#333;font-family:' + SF + '">' + (genderCn === '混校' ? '男女 混校' : esc(genderCn)) + '</div>' +
+          (yearLabel ? '<div style="font-size:40px;' + SB + ';color:#333;font-family:' + SF + '">' + esc(yearLabel).replace('年级', ' 年级') + '</div>' : '') +
+          (ibLabel ? '<div style="font-size:40px;' + SB + ';color:' + tc + ';font-family:' + SF + '">' + esc(ibLabel) + '</div>' : '') +
         '</div>' +
       '</div>' +
-      // 校名居中
-      '<div style="text-align:center;margin-bottom:6px">' +
-        '<div style="font-size:44px;font-weight:700;color:#222;font-family:' + FF + '">' + esc(cnName) + '</div>' +
-        '<div style="font-size:26px;color:#888;margin-top:4px;letter-spacing:1px">' + esc(enName) + '</div>' +
+      // 校名居中 — 无衬线
+      '<div style="text-align:center;margin-bottom:2px">' +
+        '<div style="font-size:40px;font-weight:700;color:#222">' + esc(cnName) + '</div>' +
+        '<div style="font-size:24px;color:#888;margin-top:2px;letter-spacing:1px">' + esc(enName) + '</div>' +
       '</div>' +
       // 底部色块
       '<div style="display:flex;gap:3px;margin-top:auto">' +
-        (l3Val ? '<div style="flex:1;background:' + B.blue[0] + ';color:#fff;padding:14px;display:flex;align-items:center;gap:10px;border-radius:8px 0 0 8px">' +
-          '<div style="font-size:32px;font-weight:700;line-height:1.2">NCEA<br>L3</div>' +
-          '<div><div style="font-size:48px;font-weight:700">' + l3Val + '%</div><div style="font-size:26px;opacity:0.85">升学导向</div></div>' +
+        // NCEA: 居中布局
+        (l3Val ? '<div style="flex:1;background:' + B.blue[0] + ';color:#fff;padding:10px;text-align:center;border-radius:8px 0 0 8px">' +
+          '<div style="font-size:26px;font-weight:700">NCEA &nbsp; L3</div>' +
+          '<div style="font-size:44px;font-weight:700;margin:2px 0">' + l3Val + '%</div>' +
+          '<div style="font-size:26px;font-weight:600;opacity:0.9">升学导向</div>' +
         '</div>' : '') +
-        (eqi > 0 ? '<div style="flex:1;background:' + tc + ';color:#fff;padding:14px;display:flex;align-items:center;gap:10px;border-radius:0 8px 8px 0">' +
-          '<div style="font-size:34px;font-weight:700;line-height:1.2">EQI<br>' + eqi + '</div>' +
-          '<div style="font-size:34px;font-weight:700;line-height:1.2">社区<br>优越</div>' +
+        (eqi > 0 ? '<div style="flex:1;background:' + tc + ';color:#fff;padding:10px;display:flex;flex-direction:column;justify-content:center;gap:4px;border-radius:0 8px 8px 0">' +
+          '<div style="font-size:34px;font-weight:700">EQI &nbsp; ' + eqi + '</div>' +
+          '<div style="font-size:34px;font-weight:700">社区 &nbsp; ' + esc(eqiShort).replace('社区', '') + '</div>' +
         '</div>' : '') +
       '</div>' +
-      '<div style="margin-top:8px;text-align:center;font-size:20px;color:#bbb;letter-spacing:1px">nz-school-finder</div>' +
+      '<div style="margin-top:6px;text-align:center;font-size:20px;color:#bbb;letter-spacing:1px">nz-school-finder</div>' +
     '</div>';
 
   await exportDivAsImage(div, 'nz-school-' + schoolNum + '-cover.png', null);
