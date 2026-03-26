@@ -38,7 +38,7 @@ const TRANSLATIONS = {
     ncea_below_l1:        { en: "Below Level 1", cn: "未达 Level 1" },
     ncea_l1_only:         { en: "NCEA L1", cn: "NCEA L1" },
     ncea_l2_only:         { en: "NCEA L2", cn: "NCEA L2" },
-    ncea_l3_ue:           { en: "L3 / UE", cn: "L3 / 大学入学" },
+    ncea_l3_ue:           { en: "L3", cn: "L3" },
     ncea_comparison:      { en: "Comparison", cn: "对比" },
     // ncea_same_type is dynamic — see renderPerformance for label logic
     ncea_auckland:        { en: "Auckland Region", cn: "奥克兰地区" },
