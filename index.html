@@ -11,16 +11,30 @@
 :root {
   --bg: #f8f9fa;
   --card-bg: #ffffff;
-  --primary: #1a73e8;
-  --primary-light: #e8f0fe;
-  --primary-dark: #1557b0;
+  --primary: #4166B0;
+  --primary-light: #d8e2f2;
+  --primary-dark: #2e4a80;
+  --primary-lightest: #b0c4e0;
+  --primary-muted: #7a96c4;
   --text: #202124;
   --text-secondary: #5f6368;
   --text-muted: #9aa0a6;
   --border: #dadce0;
   --border-light: rgba(0,0,0,0.08);
-  --success: #1e8e3e;
-  --warning: #f9ab00;
+  --success: #3d8e86;
+  --success-light: #d4ece9;
+  --success-dark: #2a6560;
+  --success-bar1: #5dbdad;
+  --success-bar2: #88cfc5;
+  --warning: #c04851;
+  --warning-light: #f0d4d6;
+  --warning-dark: #8a3038;
+  --warning-bar1: #d4888d;
+  --neutral: #d4a574;
+  --neutral-light: #f0e4d4;
+  --neutral-dark: #7a5c3a;
+  --neutral-bar1: #e8cda8;
+  --neutral-bar2: #c08a55;
   --radius: 8px;
   --shadow: 0 1px 2px 0 rgba(0,0,0,0.1);
   --shadow-md: 0 1px 3px 0 rgba(0,0,0,0.15), 0 1px 2px -1px rgba(0,0,0,0.1);
@@ -307,8 +321,8 @@ body {
 
 .gauge-bar-wrap { height: 8px; background: #e2e8f0; border-radius: 4px; margin: 8px 0; overflow: hidden; }
 .gauge-bar { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
-.gauge-bar.eqi { background: linear-gradient(90deg, #10b981, #f59e0b, #ef4444); }
-.gauge-bar.iso { background: linear-gradient(90deg, #10b981, #3b82f6, #8b5cf6); }
+.gauge-bar.eqi { background: linear-gradient(90deg, var(--success), var(--neutral), var(--warning)); }
+.gauge-bar.iso { background: linear-gradient(90deg, var(--success), var(--primary), var(--primary-dark)); }
 
 .gauge-card .gauge-interpret { font-size: 12px; color: var(--text-secondary); }
 
@@ -344,9 +358,9 @@ body {
   margin-left: 8px;
   vertical-align: middle;
 }
-.eqi-band-tag.fewer { background: #d1fae5; color: #065f46; }
-.eqi-band-tag.moderate { background: #fef3c7; color: #92400e; }
-.eqi-band-tag.more { background: #fee2e2; color: #991b1b; }
+.eqi-band-tag.fewer { background: var(--success-light); color: var(--success-dark); }
+.eqi-band-tag.moderate { background: var(--neutral-light); color: var(--neutral-dark); }
+.eqi-band-tag.more { background: var(--warning-light); color: var(--warning-dark); }
 
 /* EQI Modal */
 .eqi-modal-overlay {
@@ -411,9 +425,9 @@ body {
   padding: 6px 0 4px;
   margin-top: 4px;
 }
-.eqi-group-label.fewer { color: #065f46; }
-.eqi-group-label.moderate { color: #92400e; }
-.eqi-group-label.more { color: #991b1b; }
+.eqi-group-label.fewer { color: var(--success-dark); }
+.eqi-group-label.moderate { color: var(--neutral-dark); }
+.eqi-group-label.more { color: var(--warning-dark); }
 
 /* EQI segmented bar in modal */
 .eqi-seg-bar {
@@ -440,13 +454,13 @@ body {
   text-overflow: ellipsis;
   max-width: 90%;
 }
-.eqi-seg-bar .seg.fewer1 { background: #6ee7b7; }
-.eqi-seg-bar .seg.fewer2 { background: #a7f3d0; }
-.eqi-seg-bar .seg.mod1 { background: #fde68a; }
-.eqi-seg-bar .seg.mod2 { background: #fcd34d; }
-.eqi-seg-bar .seg.mod3 { background: #fbbf24; }
-.eqi-seg-bar .seg.more1 { background: #fca5a5; }
-.eqi-seg-bar .seg.more2 { background: #f87171; }
+.eqi-seg-bar .seg.fewer1 { background: var(--success-bar1); }
+.eqi-seg-bar .seg.fewer2 { background: var(--success-bar2); }
+.eqi-seg-bar .seg.mod1 { background: var(--neutral-bar1); }
+.eqi-seg-bar .seg.mod2 { background: var(--neutral); }
+.eqi-seg-bar .seg.mod3 { background: var(--neutral-bar2); }
+.eqi-seg-bar .seg.more1 { background: var(--warning-bar1); }
+.eqi-seg-bar .seg.more2 { background: var(--warning); }
 
 /* EQI current marker */
 .eqi-marker-wrap { position: relative; height: 14px; margin-bottom: 16px; }
@@ -503,9 +517,9 @@ body {
   font-weight: 500;
 }
 
-.status-badge.open { background: #d1fae5; color: #065f46; }
-.status-badge.closed { background: #fee2e2; color: #991b1b; }
-.status-badge.other { background: #fef3c7; color: #92400e; }
+.status-badge.open { background: var(--success-light); color: var(--success-dark); }
+.status-badge.closed { background: var(--warning-light); color: var(--warning-dark); }
+.status-badge.other { background: var(--neutral-light); color: var(--neutral-dark); }
 
 /* ── Separator ────────────────────────────────────── */
 .divider { height: 1px; background: var(--border); margin: 12px 0; }
@@ -942,8 +956,8 @@ body {
   white-space: nowrap;
 }
 .school-card .sc-badge.full-profile {
-  background: #fef3c7;
-  color: #92400e;
+  background: #f0e4d4;
+  color: #7a5c3a;
 }
 .school-card .sc-roll {
   font-size: 13px;
@@ -1221,17 +1235,17 @@ document.body.style.transition = 'opacity 0.15s';
 
     <div class="eqi-band-chart">
       <div class="eqi-group-label fewer">Fewer / 较少障碍 — 社区条件较优越</div>
-      <div class="eqi-band-row"><div class="band-color" style="background:#6ee7b7"></div><span class="band-name">Fewest / 最少障碍</span><span class="band-range">344 – 402</span></div>
-      <div class="eqi-band-row"><div class="band-color" style="background:#a7f3d0"></div><span class="band-name">Few / 较少障碍</span><span class="band-range">403 – 429</span></div>
+      <div class="eqi-band-row"><div class="band-color" style="background:#5dbdad"></div><span class="band-name">Fewest / 最少障碍</span><span class="band-range">344 – 402</span></div>
+      <div class="eqi-band-row"><div class="band-color" style="background:#88cfc5"></div><span class="band-name">Few / 较少障碍</span><span class="band-range">403 – 429</span></div>
 
       <div class="eqi-group-label moderate">Moderate / 中等障碍 — 社区条件中等</div>
-      <div class="eqi-band-row"><div class="band-color" style="background:#fde68a"></div><span class="band-name">Below Average / 低于平均</span><span class="band-range">430 – 448</span></div>
-      <div class="eqi-band-row"><div class="band-color" style="background:#fcd34d"></div><span class="band-name">Average / 平均水平</span><span class="band-range">449 – 469</span></div>
-      <div class="eqi-band-row"><div class="band-color" style="background:#fbbf24"></div><span class="band-name">Above Average / 高于平均</span><span class="band-range">470 – 493</span></div>
+      <div class="eqi-band-row"><div class="band-color" style="background:#e8cda8"></div><span class="band-name">Below Average / 低于平均</span><span class="band-range">430 – 448</span></div>
+      <div class="eqi-band-row"><div class="band-color" style="background:#d4a574"></div><span class="band-name">Average / 平均水平</span><span class="band-range">449 – 469</span></div>
+      <div class="eqi-band-row"><div class="band-color" style="background:#c08a55"></div><span class="band-name">Above Average / 高于平均</span><span class="band-range">470 – 493</span></div>
 
       <div class="eqi-group-label more">More / 较多障碍 — 社区条件较弱</div>
-      <div class="eqi-band-row"><div class="band-color" style="background:#fca5a5"></div><span class="band-name">Many / 较多障碍</span><span class="band-range">494 – 521</span></div>
-      <div class="eqi-band-row"><div class="band-color" style="background:#f87171"></div><span class="band-name">Most / 最多障碍</span><span class="band-range">522 – 569</span></div>
+      <div class="eqi-band-row"><div class="band-color" style="background:#d4888d"></div><span class="band-name">Many / 较多障碍</span><span class="band-range">494 – 521</span></div>
+      <div class="eqi-band-row"><div class="band-color" style="background:#c04851"></div><span class="band-name">Most / 最多障碍</span><span class="band-range">522 – 569</span></div>
     </div>
 
     <p style="font-size:11px;color:var(--text-muted);margin-top:16px">
@@ -1682,9 +1696,9 @@ const EQI_BANDS = [
   { name: 'Most',          cn: '最多障碍', min: 522, max: 569, group: 'more' },
 ];
 const EQI_GROUPS = {
-  fewer:    { name: 'Fewer / 较少',    cn: '社区条件较优越', color: '#065f46' },
-  moderate: { name: 'Moderate / 中等',  cn: '社区条件中等',   color: '#92400e' },
-  more:     { name: 'More / 较多',      cn: '社区条件较弱',   color: '#991b1b' },
+  fewer:    { name: 'Fewer / 较少',    cn: '社区条件较优越', color: '#2a6560' },
+  moderate: { name: 'Moderate / 中等',  cn: '社区条件中等',   color: '#7a5c3a' },
+  more:     { name: 'More / 较多',      cn: '社区条件较弱',   color: '#8a3038' },
 };
 
 function getEqiBand(eqi) {
@@ -1798,9 +1812,9 @@ function renderPerformance(data) {
 
   const colors = {
     below: '#CCD0CF',
-    l1: '#99CDD6',
-    l2: '#7DA0CA',
-    ue: '#3B6B9F',
+    l1: '#b0c4e0',
+    l2: '#4166B0',
+    ue: '#2e4a80',
   };
 
   // ── Translate comparison group label ──
@@ -1823,8 +1837,8 @@ function renderPerformance(data) {
   // ── Helper: format delta with color + triangle ──
   // CN/Both: red=up(good), green=down(bad) — Chinese convention
   // EN: green=up(good), red=down(bad) — Western convention
-  const _upColor = _lang === 'en' ? '#1e8e3e' : '#d93025';
-  const _dnColor = _lang === 'en' ? '#d93025' : '#1e8e3e';
+  const _upColor = _lang === 'en' ? '#3d8e86' : '#c04851';
+  const _dnColor = _lang === 'en' ? '#c04851' : '#3d8e86';
   function deltaHtml(schoolVal, benchVal) {
     if (schoolVal == null || benchVal == null) return '';
     const diff = schoolVal - benchVal;
@@ -2164,11 +2178,11 @@ function renderSectionF(s) {
 
   // 族裔数据
   const ethnicities = [
-    { cn: '欧裔', en: 'European', count: parseInt(s.european_pakeha) || 0, color: '#3b82f6' },
-    { cn: '毛利裔', en: 'Māori', count: parseInt(s.maori) || 0, color: '#10b981' },
-    { cn: '太平洋岛裔', en: 'Pacific', count: parseInt(s.pacific) || 0, color: '#8b5cf6' },
-    { cn: '亚裔', en: 'Asian', count: parseInt(s.asian) || 0, color: '#f59e0b' },
-    { cn: '中东/拉丁/非洲', en: 'MELAA', count: parseInt(s.melaa) || 0, color: '#ef4444' },
+    { cn: '欧裔', en: 'European', count: parseInt(s.european_pakeha) || 0, color: '#4166B0' },
+    { cn: '毛利裔', en: 'Māori', count: parseInt(s.maori) || 0, color: '#3d8e86' },
+    { cn: '太平洋岛裔', en: 'Pacific', count: parseInt(s.pacific) || 0, color: '#7a96c4' },
+    { cn: '亚裔', en: 'Asian', count: parseInt(s.asian) || 0, color: '#2e4a80' },
+    { cn: '中东/拉丁/非洲', en: 'MELAA', count: parseInt(s.melaa) || 0, color: '#c04851' },
     { cn: '其他', en: 'Other', count: parseInt(s.other) || 0, color: '#6b7280' },
   ].sort((a, b) => b.count - a.count);
 
@@ -2375,10 +2389,10 @@ function translateType(t) {
 // 配色规则：Row1 深色白字，Row2 浅色黑字
 const REGION_COLORS = [
   '#28558F','#3468A8','#3E78BE','#4C84CD',  // row1: 深蓝（白字）
-  '#C5D9F0','#CEDEF2','#D8E5F5','#E2ECF8','#EDF3FA'  // row2: 浅蓝（黑字）
+  '#9BB8D8','#A8C4E0','#B5D0E8','#C2DAEE','#D0E2F2'  // row2: 浅蓝（黑字）
 ];
-const AUTH_COLORS = { 'State':'#463187', 'State : Integrated':'#C5B8E8', 'Private':'#D5CCF0', 'Charter School':'#E5DFF5' };
-const GENDER_COLORS = { 'Co-Educational':'#7F3965', 'Boys School':'#E0BDD0', 'Girls School':'#EAD0DE', 'Primary Co-Ed/Secondary Girls':'#F2E4ED', 'Primary Co-Ed/Secondary Boys':'#F2E4ED', 'Boys/Senior Co-Ed':'#F2E4ED' };
+const AUTH_COLORS = { 'State':'#3d8e86', 'State : Integrated':'#88bfb8', 'Private':'#b0d0cc', 'Charter School':'#d0e4e0' };
+const GENDER_COLORS = { 'Co-Educational':'#9A8455', 'Boys School':'#C8B888', 'Girls School':'#D8CCA0', 'Primary Co-Ed/Secondary Girls':'#E5DCC0', 'Primary Co-Ed/Secondary Boys':'#E5DCC0', 'Boys/Senior Co-Ed':'#E5DCC0' };
 
 async function loadDashboard() {
   if (_statsData) { renderDashboard(_statsData); return; }
@@ -2460,7 +2474,7 @@ function renderDashboard(d) {
   const genderOtherSum = genderOther.reduce((s,g) => s + g.count, 0);
   const genderData = [...genderMain];
   if (genderOtherSum > 0) genderData.push({ name: 'Other', count: genderOtherSum });
-  const genderColors = ['#7F3965','#E0BDD0','#EAD0DE','#F2E4ED'];
+  const genderColors = ['#9A8455','#C8B888','#D8CCA0','#E5DCC0'];
   const genderClick = (item) => { if (item.name !== 'Other') navigateTo('#/schools?gender=' + encodeURIComponent(item.name)); };
   const genderContainer = document.getElementById('tmGender');
   genderContainer.innerHTML = '';
@@ -2561,16 +2575,16 @@ function renderYearBandMap() {
   }
   // Band definitions: 所有色块用 year range 筛选
   const BANDS = [
-    // Row 1: 深金色（白字）
-    { label: 'Contributing', sub: 'Y1-6', y1: 1, y2: 6, bg: '#8F6B20' },
-    { label: 'Intermediate', sub: 'Y7-8', y1: 7, y2: 8, bg: '#A07A28' },
-    { label: 'Secondary', sub: 'Y9-13', y1: 9, y2: 13, bg: '#7A5C1A' },
-    // Row 2: 浅金色（黑字）
-    { label: 'Full Primary', sub: 'Y1-8', y1: 1, y2: 8, bg: '#E8D5A8' },
-    { label: 'Junior High', sub: 'Y9-10', y1: 9, y2: 10, bg: '#DECA98' },
-    { label: 'Senior High', sub: 'Y11-13', y1: 11, y2: 13, bg: '#D4BF88' },
-    // Row 3: 最浅金色（黑字）
-    { label: 'Composite', sub: 'Y1-13', y1: 1, y2: 13, bg: '#F2EAD8' },
+    // Row 1: 棕金系 — 左浅右深
+    { label: 'Contributing', sub: 'Y1-6', y1: 1, y2: 6, bg: '#E0D0A0' },
+    { label: 'Intermediate', sub: 'Y7-8', y1: 7, y2: 8, bg: '#C8B888' },
+    { label: 'Secondary', sub: 'Y9-13', y1: 9, y2: 13, bg: '#9A8455' },
+    // Row 2: 青绿系 — 左浅右深
+    { label: 'Full Primary', sub: 'Y1-8', y1: 1, y2: 8, bg: '#b0d0cc' },
+    { label: 'Junior High', sub: 'Y9-10', y1: 9, y2: 10, bg: '#88bfb8' },
+    { label: 'Senior High', sub: 'Y11-13', y1: 11, y2: 13, bg: '#3d8e86' },
+    // Row 3: 蓝色系
+    { label: 'Composite', sub: 'Y1-13', y1: 1, y2: 13, bg: '#28558F' },
   ];
   BANDS.forEach(b => {
     const cell = document.createElement('div');
@@ -2591,7 +2605,7 @@ function renderCurriculumBlock(curriculum) {
     container.innerHTML = '<div style="font-size:13px;color:var(--text-muted);padding:8px">暂无课程体系数据</div>';
     return;
   }
-  const colors = { 'NCEA': '#327285', 'A-Level': '#C0DDE8', 'IB': '#D8ECF2' };
+  const colors = { 'NCEA': '#42799e', 'A-Level': '#c5dde8', 'IB': '#d8eaf0' };
   const sorted = [...curriculum].sort((a,b) => b.count - a.count);
   // Row 1: 最大项（NCEA）
   // Row 2: 其余项并列
@@ -2662,13 +2676,13 @@ function renderEqiBlock(bands) {
 function buildEqiBandBar(fontSize) {
   const sz = fontSize || 9;
   const bands = [
-    { flex:59, bg:'#6ee7b7', fg:'#064e3b', en:'Fewest', cn:'最少' },
-    { flex:27, bg:'#a7f3d0', fg:'#064e3b', en:'Few', cn:'较少' },
-    { flex:19, bg:'#fde68a', fg:'#78350f', en:'B.Avg', cn:'低于均' },
-    { flex:21, bg:'#fcd34d', fg:'#78350f', en:'Avg', cn:'平均' },
-    { flex:24, bg:'#fbbf24', fg:'#78350f', en:'A.Avg', cn:'高于均' },
-    { flex:28, bg:'#fca5a5', fg:'#7f1d1d', en:'Many', cn:'较多' },
-    { flex:48, bg:'#f87171', fg:'#7f1d1d', en:'Most', cn:'最多' },
+    { flex:59, bg:'#5dbdad', fg:'#1a4a44', en:'Fewest', cn:'最少' },
+    { flex:27, bg:'#88cfc5', fg:'#1a4a44', en:'Few', cn:'较少' },
+    { flex:19, bg:'#e8cda8', fg:'#5a3d1e', en:'B.Avg', cn:'低于均' },
+    { flex:21, bg:'#d4a574', fg:'#5a3d1e', en:'Avg', cn:'平均' },
+    { flex:24, bg:'#c08a55', fg:'#5a3d1e', en:'A.Avg', cn:'高于均' },
+    { flex:28, bg:'#d4888d', fg:'#6a2228', en:'Many', cn:'较多' },
+    { flex:48, bg:'#c04851', fg:'#6a2228', en:'Most', cn:'最多' },
   ];
   return '<div style="display:flex;gap:2px;height:28px;border-radius:4px;overflow:hidden;margin:8px 0">' +
     bands.map(b => {

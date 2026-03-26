@@ -1,5 +1,41 @@
 # Changelog
 
+## 2026-03-26 — CSS 硬编码颜色值替换为 CSS 变量引用
+
+### Why
+之前 `<style>` 中大量硬编码的十六进制颜色值（如 `#d4ece9`、`#c04851` 等），与 `:root` 中已定义的 CSS 变量重复。这导致后续调色需要逐一查找替换，维护成本高且容易遗漏。统一引用 CSS 变量后，修改一处即可全局生效。
+
+### What
+将 `<style>` 标签内 18 处硬编码颜色替换为 `var(--xxx)` 引用：
+- **EQI band tags**（fewer/moderate/more）：背景色和文字色 → `--success-light/dark`、`--neutral-light/dark`、`--warning-light/dark`
+- **EQI group labels**（fewer/moderate/more）：文字色 → `--success-dark`、`--neutral-dark`、`--warning-dark`
+- **EQI 分段条** 7 段：背景色 → `--success-bar1/bar2`、`--neutral-bar1/neutral/neutral-bar2`、`--warning-bar1/warning`
+- **Status badges**（open/closed/other）：背景色和文字色 → 对应 success/warning/neutral 变量
+- **gauge-bar.eqi** 渐变：→ `var(--success), var(--neutral), var(--warning)`
+- **gauge-bar.iso** 渐变：→ `var(--success), var(--primary), var(--primary-dark)`
+
+### How
+在 `index.html` 的 `<style>` 块中，逐一将硬编码的 `#xxxxxx` 值替换为对应的 `var(--变量名)`。JS 中的颜色值保留硬编码不做修改。
+
+## 2026-03-26 — 整站配色从 Google 风格改为千里江山图中国传统色系
+
+### Why
+原有配色使用 Google Material / Tailwind 默认色值（如 #10b981、#3b82f6 等），视觉上偏现代西方风格。为了与"千里江山图"主题统一，需要全面替换为中国传统色系（铜青、胭脂、驼色等）。
+
+### What
+- **NCEA 图表**：堆叠条颜色替换为青蓝色系（#a2d2e2 → #296fab）
+- **NCEA 对比箭头**：上涨色改为铜青 #3d8e86，下跌色改为胭脂 #c04851
+- **EQI/ISO 渐变条**：绿→黄→红 改为 铜青→驼色→胭脂
+- **EQI 分段条**：7 段颜色全部替换为传统色对应的渐变
+- **EQI band tags / group labels**：背景色和文字色替换为传统色系
+- **Status badges**：open/closed/other 三种状态颜色替换
+- **族裔饼图**：5 个族裔颜色替换为传统色系
+- **EQI 弹窗色块 & FAQ 色条**：内联样式和 JS 中的色值全部替换
+- **Warning badge**：full-profile 标签颜色替换
+
+### How
+在 `index.html` 中逐一替换 CSS 样式、内联 style、JavaScript 变量中的所有颜色值（共 12 类、约 50+ 处替换）
+
 ## 2026-03-26 — NCEA 升学成绩 section 重构（信息架构优化）
 
 ### Why
