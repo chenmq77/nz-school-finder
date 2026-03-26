@@ -995,6 +995,11 @@ body {
   .band-map { grid-template-columns: 1fr !important; }
   .band-tick { display: none; }
   .band-cell { grid-column: 1 / -1 !important; padding: 10px 12px; }
+  .ncea-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .ncea-table { font-size: 12px; }
+  .ncea-table td, .ncea-table th { padding: 6px 4px !important; }
+  .ncea-table td:first-child { white-space: normal !important; }
+  .ncea-delta { display: none; }
 }
 </style>
 <script src="translations.js"></script>
@@ -1784,7 +1789,7 @@ function renderPerformance(data) {
   const perf = data.performance;
   const comp = data.comparison || {};
 
-  if (!perf.ncea1) {
+  if (!perf || !perf.ncea1) {
     document.getElementById('bodyH').innerHTML = `<div style="color:var(--text-muted);padding:12px 0">${t('ncea_no_data')}</div>`;
     return;
   }
@@ -1796,8 +1801,128 @@ function renderPerformance(data) {
     ue: '#f0c850',
   };
 
-  // Build 3 horizontal bars (one per year) + NZ average bar
-  function makeBar(year, label, opacity) {
+  // ── Translate comparison group label ──
+  const _compLabel = (k) => _lang === 'en' ? k : ({
+    'Auckland Region':'奥克兰地区','New Zealand':'全国平均',
+    'Secondary (Year 9-15)':'同类中学',
+    'State: Not integrated':'公立学校','State: Integrated':'公立整合学校',
+    'Private: Fully Registered':'私立学校','Private: Provisionally Registered':'私立学校',
+  }[k] || k);
+
+  // ── Identify school key and benchmark keys ──
+  const schoolKey = Object.keys(comp).find(k =>
+    comp[k].ncea1 && comp[k].ncea1[latestYear] !== undefined &&
+    !['Auckland Region','New Zealand','Secondary (Year 9-15)'].includes(k) &&
+    !k.startsWith('State') && !k.startsWith('Private'));
+  const sameTypeKey = Object.keys(comp).find(k => k.startsWith('State') || k.startsWith('Private'));
+  const schoolL3 = schoolKey && comp[schoolKey].ncea3 && comp[schoolKey].ncea3[latestYear] != null
+    ? comp[schoolKey].ncea3[latestYear] : null;
+
+  // ── Helper: format delta with color + triangle ──
+  // CN/Both: red=up(good), green=down(bad) — Chinese convention
+  // EN: green=up(good), red=down(bad) — Western convention
+  const _upColor = _lang === 'en' ? '#1e8e3e' : '#d93025';
+  const _dnColor = _lang === 'en' ? '#d93025' : '#1e8e3e';
+  function deltaHtml(schoolVal, benchVal) {
+    if (schoolVal == null || benchVal == null) return '';
+    const diff = schoolVal - benchVal;
+    if (Math.abs(diff) < 0.05) return '';
+    const arrow = diff > 0 ? '▲' : '▼';
+    const color = diff > 0 ? _upColor : _dnColor;
+    return `<span class="ncea-delta" style="font-size:11px;color:${color};margin-left:4px">${arrow}${Math.abs(diff).toFixed(1)}</span>`;
+  }
+
+  // ── Summary sentence: pick best available level (L3 > L2 > L1) ──
+  let summaryHtml = '';
+  const schoolL2 = schoolKey && comp[schoolKey].ncea2 ? comp[schoolKey].ncea2[latestYear] : null;
+  const schoolL1 = schoolKey && comp[schoolKey].ncea1 ? comp[schoolKey].ncea1[latestYear] : null;
+  const summaryLevel = schoolL3 != null ? { val: schoolL3, metric: 'ncea3', label: () => _lang === 'en' ? 'L3 attainment' : 'L3达标率' }
+    : schoolL2 != null ? { val: schoolL2, metric: 'ncea2', label: () => _lang === 'en' ? 'L2 attainment' : 'L2达标率' }
+    : schoolL1 != null ? { val: schoolL1, metric: 'ncea1', label: () => _lang === 'en' ? 'L1 attainment' : 'L1达标率' }
+    : null;
+
+  if (summaryLevel) {
+    const diffs = [];
+    const benchmarks = [
+      { key: 'Auckland Region', short: () => _lang === 'en' ? 'Auckland' : '奥克兰' },
+      { key: sameTypeKey, short: () => _lang === 'en' ? (sameTypeKey || '').replace(/:.*/,'').trim() : ({'State: Not integrated':'公立','State: Integrated':'公立整合','Private: Fully Registered':'私立'}[sameTypeKey] || sameTypeKey) },
+      { key: 'New Zealand', short: () => _lang === 'en' ? 'NZ' : '全国' },
+    ];
+    for (const b of benchmarks) {
+      if (!b.key || !comp[b.key] || !comp[b.key][summaryLevel.metric] || comp[b.key][summaryLevel.metric][latestYear] == null) continue;
+      const diff = summaryLevel.val - comp[b.key][summaryLevel.metric][latestYear];
+      if (Math.abs(diff) < 0.05) continue;
+      diffs.push({ name: b.short(), diff });
+    }
+    let partsHtml = '';
+    if (diffs.length) {
+      // Determine prefix: all above / all below / mixed
+      const allUp = diffs.every(d => d.diff > 0);
+      const allDn = diffs.every(d => d.diff < 0);
+      const prefix = allUp ? (_lang === 'en' ? 'above ' : '高于') : allDn ? (_lang === 'en' ? 'below ' : '低于') : '';
+      const sep = '<span style="margin:0 6px;color:var(--text-muted)">·</span>';
+      partsHtml = sep + diffs.map((d, i) => {
+        const arrow = d.diff > 0 ? '▲' : '▼';
+        const color = d.diff > 0 ? _upColor : _dnColor;
+        const namePrefix = (i === 0 && prefix) ? prefix : '';
+        return `<span style="color:var(--text-secondary)">${namePrefix}${d.name}</span> <span style="color:${color};font-weight:600">${arrow}${Math.abs(d.diff).toFixed(1)}</span>`;
+      }).join(sep);
+    }
+    summaryHtml = `<div style="font-size:14px;margin-bottom:14px">${summaryLevel.label()} <strong>${summaryLevel.val.toFixed(1)}%</strong>${partsHtml}</div>`;
+  }
+
+  // ── Comparison table with deltas ──
+  const compRows = [
+    { key: schoolKey, isSchool: true },
+    { key: 'Auckland Region', labelOverride: t('ncea_auckland') },
+    { key: sameTypeKey, labelOverride: _compLabel(sameTypeKey || ''), tooltip: sameTypeKey },
+    { key: 'New Zealand', labelOverride: t('ncea_nz_avg') },
+  ].filter(r => r.key && comp[r.key]);
+
+  // Get school values for delta calculation
+  const sL1 = schoolKey && comp[schoolKey].ncea1 ? comp[schoolKey].ncea1[latestYear] : null;
+  const sL2 = schoolKey && comp[schoolKey].ncea2 ? comp[schoolKey].ncea2[latestYear] : null;
+  const sL3 = schoolL3;
+
+  let tableHtml = `
+    <table class="ncea-table" style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead>
+        <tr style="border-bottom:1px solid var(--border)">
+          <th style="text-align:left;padding:8px 12px;font-weight:500">${t('ncea_comparison')} (${latestYear})</th>
+          <th style="text-align:right;padding:8px 6px;font-weight:500">L1</th>
+          <th style="text-align:right;padding:8px 6px;font-weight:500">L2</th>
+          <th style="text-align:right;padding:8px 6px;font-weight:500">L3/UE</th>
+        </tr>
+      </thead>
+      <tbody>`;
+
+  for (const row of compRows) {
+    const d = comp[row.key];
+    const v1 = d.ncea1 && d.ncea1[latestYear] != null ? d.ncea1[latestYear] : null;
+    const v2 = d.ncea2 && d.ncea2[latestYear] != null ? d.ncea2[latestYear] : null;
+    const v3 = d.ncea3 && d.ncea3[latestYear] != null ? d.ncea3[latestYear] : null;
+    const f = (v) => v != null ? v.toFixed(1) + '%' : '--';
+    const style = row.isSchool ? 'font-weight:600;background:var(--primary-light)' : '';
+    const label = row.isSchool ? (row.key || 'School') : (row.labelOverride || row.key);
+    const prefix = row.isSchool ? '★ ' : '';
+    const titleAttr = row.tooltip ? ` title="${esc(row.tooltip)}"` : '';
+    // Show deltas for non-school rows
+    const d1 = row.isSchool ? '' : deltaHtml(sL1, v1);
+    const d2 = row.isSchool ? '' : deltaHtml(sL2, v2);
+    const d3 = row.isSchool ? '' : deltaHtml(sL3, v3);
+    tableHtml += `
+        <tr style="border-bottom:1px solid var(--border);${style}">
+          <td style="padding:8px 12px;white-space:nowrap"${titleAttr}>${prefix}${esc(label)}</td>
+          <td style="text-align:right;padding:8px 6px">${f(v1)}${d1}</td>
+          <td style="text-align:right;padding:8px 6px">${f(v2)}${d2}</td>
+          <td style="text-align:right;padding:8px 6px">${f(v3)}${d3}</td>
+        </tr>`;
+  }
+  tableHtml += `</tbody></table>
+    <div style="font-size:11px;color:var(--text-muted);margin-top:6px;font-style:italic">* ${t('ncea_footnote')}${ _lang === 'en' ? '. Colored values = difference in percentage points vs school.' : '。彩色数值为与本校的百分点差距。'}</div>`;
+
+  // ── Stacked bars (school years only, no benchmark bar) ──
+  function makeBar(year, label) {
     const n1 = perf.ncea1 && perf.ncea1[year];
     if (!n1) return '';
     const n2 = perf.ncea2 && perf.ncea2[year];
@@ -1815,9 +1940,9 @@ function renderPerformance(data) {
     const pL3 = l3Above / total * 100;
 
     return `
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;opacity:${opacity}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
         <div style="width:80px;text-align:right;font-size:12px;color:var(--text-muted);flex-shrink:0">${label} <span style="font-size:10px">(n=${total})</span></div>
-        <div style="flex:1;display:flex;height:26px;border-radius:0;overflow:hidden">
+        <div style="flex:1;display:flex;height:26px;overflow:hidden">
           ${pBelow > 0 ? `<div title="${t('ncea_below_l1')}: ${pBelow.toFixed(1)}%" style="width:${pBelow}%;background:${colors.below};display:flex;align-items:center;justify-content:center;font-size:9px;color:#555">${pBelow >= 4 ? pBelow.toFixed(0)+'%' : ''}</div>` : ''}
           ${pL1 > 0 ? `<div title="${t('ncea_l1_only')}: ${pL1.toFixed(1)}%" style="width:${pL1}%;background:${colors.l1};display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff">${pL1 >= 4 ? pL1.toFixed(0)+'%' : ''}</div>` : ''}
           ${pL2 > 0 ? `<div title="${t('ncea_l2_only')}: ${pL2.toFixed(1)}%" style="width:${pL2}%;background:${colors.l2};display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff">${pL2 >= 4 ? pL2.toFixed(0)+'%' : ''}</div>` : ''}
@@ -1826,49 +1951,40 @@ function renderPerformance(data) {
       </div>`;
   }
 
-  // School bars for each year
   let barsHtml = '';
   for (const y of years) {
-    barsHtml += makeBar(y, String(y), 1);
+    barsHtml += makeBar(y, String(y));
   }
 
-  // Comparison bar: pick the group with highest L3/UE percentage (most challenging benchmark)
-  const compKeys = Object.keys(comp).filter(k => {
-    const d = comp[k]; return d.ncea3 && d.ncea3[latestYear] != null;
-  });
-  // Exclude the school itself
-  const schoolKey2 = Object.keys(comp).find(k => comp[k].ncea1 && comp[k].ncea1[latestYear] !== undefined && !['Auckland Region','New Zealand','Secondary (Year 9-15)'].includes(k) && !k.startsWith('State') && !k.startsWith('Private'));
-  const benchKeys = compKeys.filter(k => k !== schoolKey2);
-  // Pick highest L3 benchmark
-  let bestBench = null;
-  let bestL3 = -1;
-  for (const k of benchKeys) {
+  // Add best benchmark comparison bar (highest L3, same height, with opacity)
+  const benchKeys2 = Object.keys(comp).filter(k =>
+    k !== schoolKey && comp[k].ncea1 && comp[k].ncea3 && comp[k].ncea3[latestYear] != null);
+  let bestBenchKey = null, bestBenchL3 = -1;
+  for (const k of benchKeys2) {
     const l3 = comp[k].ncea3[latestYear] || 0;
-    if (l3 > bestL3) { bestL3 = l3; bestBench = k; }
+    if (l3 > bestBenchL3) { bestBenchL3 = l3; bestBenchKey = k; }
   }
-
-  if (bestBench && comp[bestBench].ncea1) {
-    const bc = comp[bestBench];
-    const bL1pct = 100 - (bc.ncea1[latestYear] || 0);
-    const bL1only = (bc.ncea1[latestYear] || 0) - (bc.ncea2 ? bc.ncea2[latestYear] || 0 : 0);
-    const bL2only = (bc.ncea2 ? bc.ncea2[latestYear] || 0 : 0) - (bc.ncea3 ? bc.ncea3[latestYear] || 0 : 0);
-    const bL3 = bc.ncea3 ? bc.ncea3[latestYear] || 0 : 0;
-    // Translate benchmark label
-    const benchLabel = _lang === 'en' ? bestBench : ({'Auckland Region':'奥克兰地区','New Zealand':'全国平均','Secondary (Year 9-15)':'同类中学','State: Not integrated':'公立学校','State: Integrated':'公立整合','Private: Fully Registered':'私立学校'}[bestBench] || bestBench);
-
+  if (bestBenchKey && comp[bestBenchKey].ncea1) {
+    const bc = comp[bestBenchKey];
+    const bL1 = bc.ncea1[latestYear] || 0;
+    const bL2 = bc.ncea2 ? (bc.ncea2[latestYear] || 0) : 0;
+    const bL3 = bc.ncea3 ? (bc.ncea3[latestYear] || 0) : 0;
+    const bBelow = 100 - bL1;
+    const bL1only = bL1 - bL2;
+    const bL2only = bL2 - bL3;
+    const benchLabel = _compLabel(bestBenchKey);
     barsHtml += `
-      <div style="display:flex;align-items:center;gap:8px;margin-top:4px;opacity:0.45">
+      <div style="display:flex;align-items:center;gap:8px;margin-top:4px;opacity:0.4">
         <div style="width:80px;text-align:right;font-size:11px;color:var(--text-muted);flex-shrink:0">${esc(benchLabel)}</div>
-        <div style="flex:1;display:flex;height:14px;overflow:hidden">
-          ${bL1pct > 0 ? `<div style="width:${bL1pct}%;background:${colors.below}"></div>` : ''}
+        <div style="flex:1;display:flex;height:26px;overflow:hidden">
+          ${bBelow > 0 ? `<div style="width:${bBelow}%;background:${colors.below}"></div>` : ''}
           ${bL1only > 0 ? `<div style="width:${bL1only}%;background:${colors.l1}"></div>` : ''}
           ${bL2only > 0 ? `<div style="width:${bL2only}%;background:${colors.l2}"></div>` : ''}
-          ${bL3 > 0 ? `<div style="width:${bL3}%;background:${colors.ue};display:flex;align-items:center;justify-content:center;font-size:9px;color:#333">${bL3.toFixed(0)}%</div>` : ''}
+          ${bL3 > 0 ? `<div style="width:${bL3}%;background:${colors.ue};display:flex;align-items:center;justify-content:center;font-size:10px;color:#333;font-weight:600">${bL3.toFixed(0)}%</div>` : ''}
         </div>
       </div>`;
   }
 
-  // Legend
   const legendHtml = `
     <div style="display:flex;gap:14px;font-size:11px;color:var(--text-muted);flex-wrap:wrap;margin-top:10px">
       <span><span style="display:inline-block;width:10px;height:10px;background:${colors.below};border-radius:2px;margin-right:3px"></span>${t('ncea_below_l1')}</span>
@@ -1877,59 +1993,14 @@ function renderPerformance(data) {
       <span><span style="display:inline-block;width:10px;height:10px;background:${colors.ue};border-radius:2px;margin-right:3px"></span>${t('ncea_l3_ue')}</span>
     </div>`;
 
-  // Comparison table (latest year)
-  const schoolKey = Object.keys(comp).find(k => comp[k].ncea1 && comp[k].ncea1[latestYear] !== undefined && !['Auckland Region','New Zealand','Secondary (Year 9-15)'].includes(k) && !k.startsWith('State'));
-  const sameTypeKey = Object.keys(comp).find(k => k.startsWith('State'));
-
-  const compRows = [
-    { label: schoolKey || `School`, key: schoolKey, isSchool: true },
-    { label: 'Auckland Region', key: 'Auckland Region', labelOverride: t('ncea_auckland') },
-    { label: sameTypeKey || '', key: sameTypeKey, labelOverride: _lang === 'en' ? sameTypeKey : ({'State: Not integrated':'公立学校','State: Integrated':'公立整合学校','Private: Fully Registered':'私立学校','Private: Provisionally Registered':'私立学校'}[sameTypeKey] || sameTypeKey), tooltip: sameTypeKey },
-    { label: 'New Zealand', key: 'New Zealand', labelOverride: t('ncea_nz_avg') },
-  ].filter(r => r.key && comp[r.key]);
-
-  let tableHtml = `
-    <table style="width:100%;border-collapse:collapse;margin-top:16px;font-size:13px">
-      <thead>
-        <tr style="border-bottom:1px solid var(--border)">
-          <th style="text-align:left;padding:8px 12px;font-weight:500">${t('ncea_comparison')} (${latestYear})</th>
-          <th style="text-align:right;padding:8px 12px;font-weight:500">NCEA L1</th>
-          <th style="text-align:right;padding:8px 12px;font-weight:500">NCEA L2</th>
-          <th style="text-align:right;padding:8px 12px;font-weight:500">L3/UE</th>
-        </tr>
-      </thead>
-      <tbody>`;
-
-  for (const row of compRows) {
-    const d = comp[row.key];
-    const l1 = d.ncea1 && d.ncea1[latestYear] != null ? d.ncea1[latestYear].toFixed(1) + '%' : '--';
-    const l2 = d.ncea2 && d.ncea2[latestYear] != null ? d.ncea2[latestYear].toFixed(1) + '%' : '--';
-    const l3 = d.ncea3 && d.ncea3[latestYear] != null ? d.ncea3[latestYear].toFixed(1) + '%' : '--';
-    const style = row.isSchool ? 'font-weight:600;background:var(--primary-light)' : '';
-    const label = row.labelOverride || row.label;
-    const prefix = row.isSchool ? '★ ' : '';
-    const titleAttr = row.tooltip ? ` title="${esc(row.tooltip)}"` : '';
-    tableHtml += `
-        <tr style="border-bottom:1px solid var(--border);${style}">
-          <td style="padding:8px 12px"${titleAttr}>${prefix}${esc(label)}</td>
-          <td style="text-align:right;padding:8px 12px">${l1}</td>
-          <td style="text-align:right;padding:8px 12px">${l2}</td>
-          <td style="text-align:right;padding:8px 12px">${l3}</td>
-        </tr>`;
-  }
-  tableHtml += `</tbody></table>
-    <div style="font-size:11px;color:var(--text-muted);margin-top:6px;font-style:italic">* ${t('ncea_footnote')}</div>`;
-
+  // ── Final layout: summary → table → chart ──
   document.getElementById('bodyH').innerHTML = `
-    <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start">
-      <div style="flex:1;min-width:320px">
-        <div style="font-size:13px;font-weight:500;margin-bottom:8px">${t('ncea_distribution')}</div>
-        ${barsHtml}
-        ${legendHtml}
-      </div>
-      <div style="flex:1;min-width:300px">
-        ${tableHtml}
-      </div>
+    ${summaryHtml}
+    <div class="ncea-table-wrap">${tableHtml}</div>
+    <div style="margin-top:18px">
+      <div style="font-size:13px;font-weight:500;margin-bottom:8px">${t('ncea_distribution')}</div>
+      ${barsHtml}
+      ${legendHtml}
     </div>
   `;
 }
