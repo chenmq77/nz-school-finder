@@ -3726,26 +3726,36 @@ async function exportNceaCard() {
   });
 
   const div = document.createElement('div');
-  div.style.cssText = 'position:fixed;left:-9999px;top:0;width:621px;min-height:830px;background:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:36px 32px;box-sizing:border-box;color:#1a1a1a;display:flex;flex-direction:column;';
+  div.style.cssText = 'position:fixed;left:-9999px;top:0;width:621px;min-height:830px;background:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:40px 32px;box-sizing:border-box;color:#1a1a1a;display:flex;flex-direction:column;justify-content:space-between;';
 
-  // Header
+  // Header: brand + school name + NCEA title side by side
+  const s = _cachedSchool || {};
+  const cnName = s.school_name_cn || '';
+  const enName = s.school_name || '';
+  const displayName = cnName || enName;
+  const subName = cnName ? enName : '';
+
   const header = document.createElement('div');
-  header.style.cssText = 'margin-bottom:20px;';
-  const schoolName = document.querySelector('#bodyA .info-value')?.textContent ||
-    document.querySelector('.school-detail-name')?.textContent || '';
   header.innerHTML = `
-    <div style="font-size:18px;font-weight:700;color:#2563eb;margin-bottom:8px;">${esc(t('col_export_brand'))}</div>
-    <div style="font-size:16px;font-weight:600;">${esc(schoolName)}</div>
-    <div style="font-size:12px;color:#888;margin-top:2px;">${t('section_ncea')}</div>
+    <div style="font-size:12px;font-weight:600;color:#2563eb;margin-bottom:14px;">${esc(t('col_export_brand'))}</div>
+    <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;">
+      <span style="font-size:24px;font-weight:800;">${esc(displayName)}</span>
+      <span style="font-size:18px;font-weight:700;color:#2563eb;">${t('section_ncea')}</span>
+    </div>
+    ${subName ? `<div style="font-size:12px;color:#999;margin-top:4px;">${esc(subName)}</div>` : ''}
   `;
   div.appendChild(header);
 
   // NCEA content
-  clone.style.cssText = 'flex:1;font-size:13px;';
+  clone.style.cssText = 'font-size:13px;margin:20px 0;';
   clone.className = '';
   div.appendChild(clone);
 
-  div.appendChild(buildExportFooter());
+  // Footer pinned to bottom
+  const footer = buildExportFooter();
+  footer.style.marginTop = 'auto';
+  footer.style.paddingTop = '12px';
+  div.appendChild(footer);
 
   const btn = document.querySelector('#sectionH .col-chooser-btn');
   await exportDivAsImage(div, `nz-school-ncea-${new Date().toISOString().split('T')[0]}.png`, btn);
