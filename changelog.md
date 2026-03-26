@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-03-26 — 修复颜色系统：消除重复定义 + 统一 EQI 千里江山配色
+
+### Why
+index.html 的 `:root` 和 colors.css 同时定义了颜色变量，存在重复且容易不一致。EQI Dashboard 中多处 JS 硬编码颜色仍使用旧的 Google 风格色值（绿/橙/红），与千里江山配色体系不统一。
+
+### What
+1. **删除 index.html `:root` 中的颜色变量**，仅保留非颜色变量（--radius, --shadow*, --transition），让 colors.css 成为唯一颜色定义来源
+2. **更新 colors.css**，补充完整注释和蓝/青绿/金色系变量，明确标注各色系用途
+3. **修复 EQI 颜色**（共 6 处）：
+   - HTML band-color 内联样式：Fewer 段从 `#5dbdad/#88cfc5` 改为 `#3d8e86/#88bfb8`（teal-1/teal-3）
+   - JS eqiColors 数组：7 色全部替换为千里江山配色
+   - JS buildEqiBandBar：Fewer 段同步修改
+   - JS EQI groups 颜色（Row2 标签色）：从旧绿/黄/红改为 `#2a6560/#7a5c3a/#8a3038`
+   - JS EQI 数值着色（2处）：从 `#16a34a/#d97706/#dc2626` 改为 `#2a6560/#7a5c3a/#8a3038`
+   - EQI 帮助文本中 Fewer/Moderate/More 文字色同步修改
+
+### How
+逐一 Read 确认后用 Edit 替换。最后用 Grep 扫描确认旧色值已全部清除。
+
 ## 2026-03-26 — CSS 硬编码颜色值替换为 CSS 变量引用
 
 ### Why

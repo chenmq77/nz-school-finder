@@ -1,0 +1,73 @@
+/*
+ * NZ School Finder — 千里江山图配色系统
+ * 唯一颜色定义文件 — 改颜色只改这里 + index.html 中的 PALETTE 对象
+ *
+ * 蓝色系(blue): Region, Curriculum, Composite, 主色链接
+ * 青绿系(teal): Authority, EQI 正向, Year Level Row2
+ * 金色系(gold): Gender, Year Level Row1
+ * 胭脂系(warning): EQI 负向
+ * 赭色系(neutral): EQI 中性
+ */
+
+:root {
+  /* ── 主色（群青）── */
+  --primary: #4166B0;
+  --primary-light: #d8e2f2;
+  --primary-dark: #2e4a80;
+  --primary-lightest: #b0c4e0;
+  --primary-muted: #7a96c4;
+
+  /* ── 蓝色系（Region / Curriculum）── */
+  --blue-1: #1D3560;
+  --blue-2: #254D78;
+  --blue-3: #31769F;
+  --blue-4: #4088B0;
+  --blue-5: #7AB0C8;
+  --blue-6: #8CBBD0;
+  --blue-7: #9EC6D8;
+  --blue-8: #B0D1E0;
+  --blue-9: #C2DCE8;
+
+  /* ── 青绿系（Authority / Year Level Row2）── */
+  --teal-1: #3d8e86;
+  --teal-2: #5da39d;
+  --teal-3: #88bfb8;
+  --teal-4: #a4c9cc;
+  --teal-5: #b0d0cc;
+  --teal-6: #d0e4e0;
+
+  /* ── 金色系（Gender / Year Level Row1）── */
+  --gold-1: #927D41;
+  --gold-2: #B3A259;
+  --gold-3: #CCBC80;
+  --gold-4: #DDD0A0;
+
+  /* ── 语义色：正向（铜青）── */
+  --success: #3d8e86;
+  --success-light: #d4ece9;
+  --success-dark: #2a6560;
+  --success-bar1: #5dbdad;
+  --success-bar2: #88cfc5;
+
+  /* ── 语义色：负向（胭脂）── */
+  --warning: #c04851;
+  --warning-light: #f0d4d6;
+  --warning-dark: #8a3038;
+  --warning-bar1: #d4888d;
+
+  /* ── 语义色：中性（赭）── */
+  --neutral: #d4a574;
+  --neutral-light: #f0e4d4;
+  --neutral-dark: #7a5c3a;
+  --neutral-bar1: #e8cda8;
+  --neutral-bar2: #c08a55;
+
+  /* ── 宣纸底 ── */
+  --bg: #F0EDE8;
+  --card-bg: #F8F6F2;
+  --text: #202124;
+  --text-secondary: #5f6368;
+  --text-muted: #9aa0a6;
+  --border: #D8D5D0;
+  --border-light: rgba(0,0,0,0.06);
+}

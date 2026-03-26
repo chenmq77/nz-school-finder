@@ -5,36 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NZ School Finder / 新西兰择校助手</title>
 <style>
-/* ── Reset & Base ─────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+/* ── 千里江山图配色系统（同步 colors.css）── */
 :root {
-  --bg: #f8f9fa;
-  --card-bg: #ffffff;
   --primary: #4166B0;
   --primary-light: #d8e2f2;
   --primary-dark: #2e4a80;
   --primary-lightest: #b0c4e0;
   --primary-muted: #7a96c4;
-  --text: #202124;
-  --text-secondary: #5f6368;
-  --text-muted: #9aa0a6;
-  --border: #dadce0;
-  --border-light: rgba(0,0,0,0.08);
-  --success: #3d8e86;
-  --success-light: #d4ece9;
-  --success-dark: #2a6560;
-  --success-bar1: #5dbdad;
-  --success-bar2: #88cfc5;
-  --warning: #c04851;
-  --warning-light: #f0d4d6;
-  --warning-dark: #8a3038;
-  --warning-bar1: #d4888d;
-  --neutral: #d4a574;
-  --neutral-light: #f0e4d4;
-  --neutral-dark: #7a5c3a;
-  --neutral-bar1: #e8cda8;
-  --neutral-bar2: #c08a55;
+  --blue-1: #1D3560; --blue-2: #254D78; --blue-3: #31769F; --blue-4: #4088B0;
+  --blue-5: #7AB0C8; --blue-6: #8CBBD0; --blue-7: #9EC6D8; --blue-8: #B0D1E0; --blue-9: #C2DCE8;
+  --teal-1: #3d8e86; --teal-2: #5da39d; --teal-3: #88bfb8; --teal-4: #a4c9cc; --teal-5: #b0d0cc; --teal-6: #d0e4e0;
+  --gold-1: #927D41; --gold-2: #B3A259; --gold-3: #CCBC80; --gold-4: #DDD0A0;
+  --success: #3d8e86; --success-light: #d4ece9; --success-dark: #2a6560; --success-bar1: #5dbdad; --success-bar2: #88cfc5;
+  --warning: #c04851; --warning-light: #f0d4d6; --warning-dark: #8a3038; --warning-bar1: #d4888d;
+  --neutral: #d4a574; --neutral-light: #f0e4d4; --neutral-dark: #7a5c3a; --neutral-bar1: #e8cda8; --neutral-bar2: #c08a55;
+  --bg: #F0EDE8; --card-bg: #F8F6F2; --text: #202124; --text-secondary: #5f6368; --text-muted: #9aa0a6;
+  --border: #D8D5D0; --border-light: rgba(0,0,0,0.06);
+}
+/* ── Reset & Base ─────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
   --radius: 8px;
   --shadow: 0 1px 2px 0 rgba(0,0,0,0.1);
   --shadow-md: 0 1px 3px 0 rgba(0,0,0,0.15), 0 1px 2px -1px rgba(0,0,0,0.1);
@@ -163,7 +154,7 @@ body {
   padding: 10px 20px;
   font-size: 12px;
   color: var(--text-muted);
-  background: #f8f9fa;
+  background: var(--bg);
   border-bottom: 1px solid var(--border);
 }
 
@@ -198,7 +189,7 @@ body {
 }
 
 .section-header.collapsible { cursor: pointer; user-select: none; }
-.section-header.collapsible:hover { background: #f1f3f4; }
+.section-header.collapsible:hover { background: #EAE7E2; }
 
 .section-title {
   display: flex;
@@ -235,7 +226,7 @@ body {
   flex-direction: column;
   padding: 8px 16px;
   border-radius: 8px;
-  background: #f8f9fa;
+  background: var(--bg);
   border: 1px solid var(--border);
   min-width: 120px;
 }
@@ -261,7 +252,7 @@ body {
   text-align: center;
   padding: 20px;
   margin-bottom: 24px;
-  background: #f8f9fa;
+  background: var(--bg);
   border-radius: var(--radius);
   border: 1px solid var(--border);
 }
@@ -280,7 +271,7 @@ body {
 }
 
 .ethnic-label { width: 140px; font-size: 13px; color: var(--text-secondary); flex-shrink: 0; text-align: right; }
-.ethnic-bar-wrap { flex: 1; height: 22px; background: #f1f5f9; border-radius: 4px; overflow: hidden; position: relative; }
+.ethnic-bar-wrap { flex: 1; height: 22px; background: #EAE7E2; border-radius: 4px; overflow: hidden; position: relative; }
 .ethnic-bar { height: 100%; border-radius: 4px; transition: width 0.6s ease; min-width: 2px; }
 .ethnic-count { width: 50px; font-size: 13px; color: var(--text); text-align: right; font-weight: 500; flex-shrink: 0; }
 .ethnic-pct { width: 48px; font-size: 12px; color: var(--text-muted); text-align: right; flex-shrink: 0; }
@@ -293,7 +284,7 @@ body {
   padding: 16px 20px;
   border-radius: 10px;
   border: 1px solid var(--border);
-  background: #fefefe;
+  background: var(--card-bg);
 }
 
 .highlight-card .card-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
@@ -311,7 +302,7 @@ body {
   min-width: 240px;
   padding: 16px 20px;
   border-radius: 10px;
-  background: #f8fafc;
+  background: var(--card-bg);
   border: 1px solid var(--border);
   position: relative;
 }
@@ -376,7 +367,7 @@ body {
 .eqi-modal-overlay.show { display: flex; }
 
 .eqi-modal {
-  background: #fff;
+  background: var(--card-bg);
   border-radius: 14px;
   max-width: 520px;
   width: 100%;
@@ -652,7 +643,7 @@ body {
   color: var(--text-secondary);
   padding: 8px 4px;
   font-weight: 600;
-  background: #F5EFE0;
+  background: var(--bg);
 }
 .band-cell {
   display: flex;
@@ -890,7 +881,7 @@ body {
 .school-table th .sort-icon { margin-left: 4px; font-size: 10px; }
 .school-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-light, #f0f0f0); white-space: nowrap; }
 .school-table tr { transition: background var(--transition); cursor: pointer; }
-.school-table tr:hover { background: var(--bg-hover, #f8f9fa); }
+.school-table tr:hover { background: var(--bg-hover, var(--bg)); }
 .school-table .td-name { white-space: normal; min-width: 140px; }
 .school-table .td-name .cn { font-weight: 600; font-size: 14px; }
 .school-table .td-name .en { color: var(--text-muted); font-size: 11px; }
@@ -917,7 +908,7 @@ body {
 /* Mobile sticky first column */
 @media (max-width: 767px) {
   .school-table th:first-child, .school-table td:first-child { position: sticky; left: 0; z-index: 2; background: var(--bg); box-shadow: 2px 0 4px rgba(0,0,0,0.05); }
-  .school-table tr:hover td:first-child { background: var(--bg-hover, #f8f9fa); }
+  .school-table tr:hover td:first-child { background: var(--bg-hover, var(--bg)); }
 }
 
 .school-card {
@@ -951,7 +942,7 @@ body {
   font-size: 11px;
   padding: 2px 8px;
   border-radius: 10px;
-  background: #f1f3f4;
+  background: #EAE7E2;
   color: var(--text-secondary);
   white-space: nowrap;
 }
@@ -1235,8 +1226,8 @@ document.body.style.transition = 'opacity 0.15s';
 
     <div class="eqi-band-chart">
       <div class="eqi-group-label fewer">Fewer / 较少障碍 — 社区条件较优越</div>
-      <div class="eqi-band-row"><div class="band-color" style="background:#5dbdad"></div><span class="band-name">Fewest / 最少障碍</span><span class="band-range">344 – 402</span></div>
-      <div class="eqi-band-row"><div class="band-color" style="background:#88cfc5"></div><span class="band-name">Few / 较少障碍</span><span class="band-range">403 – 429</span></div>
+      <div class="eqi-band-row"><div class="band-color" style="background:#3d8e86"></div><span class="band-name">Fewest / 最少障碍</span><span class="band-range">344 – 402</span></div>
+      <div class="eqi-band-row"><div class="band-color" style="background:#88bfb8"></div><span class="band-name">Few / 较少障碍</span><span class="band-range">403 – 429</span></div>
 
       <div class="eqi-group-label moderate">Moderate / 中等障碍 — 社区条件中等</div>
       <div class="eqi-band-row"><div class="band-color" style="background:#e8cda8"></div><span class="band-name">Below Average / 低于平均</span><span class="band-range">430 – 448</span></div>
@@ -2385,14 +2376,22 @@ function translateType(t) {
    Dashboard
    ══════════════════════════════════════════════════════ */
 
-// 配色方案：每个区域一个色相，内部深→浅渐变（大=深，小=浅）
-// 配色规则：Row1 深色白字，Row2 浅色黑字
-const REGION_COLORS = [
-  '#1D3560','#254D78','#31769F','#4088B0',  // row1: 深→浅（白字）
-  '#7AB0C8','#8CBBD0','#9EC6D8','#B0D1E0','#C2DCE8'  // row2: 浅色（黑字）
-];
-const AUTH_COLORS = { 'State':'#3d8e86', 'State : Integrated':'#88bfb8', 'Private':'#b0d0cc', 'Charter School':'#d0e4e0' };
-const GENDER_COLORS = { 'Co-Educational':'#9A8455', 'Boys School':'#C8B888', 'Girls School':'#D8CCA0', 'Primary Co-Ed/Secondary Girls':'#E5DCC0', 'Primary Co-Ed/Secondary Boys':'#E5DCC0', 'Boys/Senior Co-Ed':'#E5DCC0' };
+/*
+ * 千里江山图配色系统 — JS 颜色常量
+ * 蓝(blue): Region, NCEA, Composite
+ * 绿(teal): Authority
+ * 金(gold): Gender, Year Level
+ * 改颜色只需改这里 + colors.css
+ */
+const PALETTE = {
+  blue:  ['#1D3560','#254D78','#31769F','#4088B0','#7AB0C8','#8CBBD0','#9EC6D8','#B0D1E0','#C2DCE8'],
+  teal:  ['#3d8e86','#5da39d','#88bfb8','#a4c9cc','#b0d0cc','#d0e4e0'],
+  gold:  ['#927D41','#B3A259','#CCBC80','#DDD0A0'],
+};
+
+const REGION_COLORS = PALETTE.blue;
+const AUTH_COLORS = { 'State': PALETTE.teal[0], 'State : Integrated': PALETTE.teal[2], 'Private': PALETTE.teal[4], 'Charter School': PALETTE.teal[5] };
+const GENDER_COLORS = { 'Co-Educational': PALETTE.gold[0], 'Boys School': PALETTE.gold[1], 'Girls School': PALETTE.gold[2], 'Primary Co-Ed/Secondary Girls': PALETTE.gold[3], 'Primary Co-Ed/Secondary Boys': PALETTE.gold[3], 'Boys/Senior Co-Ed': PALETTE.gold[3] };
 
 async function loadDashboard() {
   if (_statsData) { renderDashboard(_statsData); return; }
@@ -2474,7 +2473,7 @@ function renderDashboard(d) {
   const genderOtherSum = genderOther.reduce((s,g) => s + g.count, 0);
   const genderData = [...genderMain];
   if (genderOtherSum > 0) genderData.push({ name: 'Other', count: genderOtherSum });
-  const genderColors = ['#9A8455','#C8B888','#D8CCA0','#E5DCC0'];
+  const genderColors = [...PALETTE.gold];
   const genderClick = (item) => { if (item.name !== 'Other') navigateTo('#/schools?gender=' + encodeURIComponent(item.name)); };
   const genderContainer = document.getElementById('tmGender');
   genderContainer.innerHTML = '';
@@ -2564,10 +2563,12 @@ function renderYearBandMap() {
   const grid = document.createElement('div');
   grid.className = 'band-map';
   // Row 0: Year ticks (Y1-Y13) — 每个数字可点击，筛选单年级，渐变金→绿→蓝
+  // 1-13 格子从浅金到深金渐变，基于 PALETTE.gold
+  const g = PALETTE.gold;
   const tickColors = [
-    '#EDE4C8','#E8DEBB','#E3D8AE','#DED2A2',
-    '#D8CCA0','#D0C490','#C8BB85','#C0B27A',
-    '#B8AA70','#B0A268','#A89A60','#A09258','#988A50'
+    g[3],     '#D8CA98','#D2C490', g[2],
+    '#C5B578','#BEAE70','#B7A768','#B0A060',
+    '#A89858','#A09050','#998848', g[0],     '#8A7538'
   ];
   for (let y = 1; y <= 13; y++) {
     const tick = document.createElement('div');
@@ -2583,15 +2584,15 @@ function renderYearBandMap() {
   // Band definitions: 所有色块用 year range 筛选
   const BANDS = [
     // Row 1: 棕金系 — 左浅右深
-    { label: 'Contributing', sub: 'Y1-6', y1: 1, y2: 6, bg: '#E0D0A0' },
-    { label: 'Intermediate', sub: 'Y7-8', y1: 7, y2: 8, bg: '#C8B888' },
-    { label: 'Secondary', sub: 'Y9-13', y1: 9, y2: 13, bg: '#9A8455', fg: '#fff' },
+    { label: 'Contributing', sub: 'Y1-6', y1: 1, y2: 6, bg: PALETTE.gold[3] },
+    { label: 'Intermediate', sub: 'Y7-8', y1: 7, y2: 8, bg: PALETTE.gold[1] },
+    { label: 'Secondary', sub: 'Y9-13', y1: 9, y2: 13, bg: PALETTE.gold[0], fg: '#fff' },
     // Row 2: 青绿系 — 左浅右深
-    { label: 'Full Primary', sub: 'Y1-8', y1: 1, y2: 8, bg: '#b0d0cc' },
-    { label: 'Junior High', sub: 'Y9-10', y1: 9, y2: 10, bg: '#5da39d', fg: '#fff' },
-    { label: 'Senior High', sub: 'Y11-13', y1: 11, y2: 13, bg: '#3d8e86', fg: '#fff' },
+    { label: 'Full Primary', sub: 'Y1-8', y1: 1, y2: 8, bg: PALETTE.teal[4] },
+    { label: 'Junior High', sub: 'Y9-10', y1: 9, y2: 10, bg: PALETTE.teal[1], fg: '#fff' },
+    { label: 'Senior High', sub: 'Y11-13', y1: 11, y2: 13, bg: PALETTE.teal[0], fg: '#fff' },
     // Row 3: 深蓝渐变
-    { label: 'Composite', sub: 'Y1-13', y1: 1, y2: 13, bg: 'linear-gradient(90deg, #3E78BE, #28558F)' },
+    { label: 'Composite', sub: 'Y1-13', y1: 1, y2: 13, bg: `linear-gradient(90deg, ${PALETTE.blue[2]}, ${PALETTE.blue[0]})` },
   ];
   BANDS.forEach(b => {
     const cell = document.createElement('div');
@@ -2614,7 +2615,7 @@ function renderCurriculumBlock(curriculum) {
     container.innerHTML = '<div style="font-size:13px;color:var(--text-muted);padding:8px">暂无课程体系数据</div>';
     return;
   }
-  const colors = { 'NCEA': '#42799e', 'A-Level': '#c5dde8', 'IB': '#d8eaf0' };
+  const colors = { 'NCEA': PALETTE.blue[2], 'A-Level': PALETTE.blue[6], 'IB': PALETTE.blue[7] };
   const sorted = [...curriculum].sort((a,b) => b.count - a.count);
   // Row 1: 最大项（NCEA）
   // Row 2: 其余项并列
@@ -2649,7 +2650,7 @@ function renderEqiBlock(bands) {
   if (!container) return;
   container.innerHTML = '';
   // Grid 7列，2行，确保 Group 边界与 Band 边界精确对齐
-  const eqiColors = ['#2E7D5B','#3D9468','#A0AD42','#C8C45A','#DBBB52','#CC6347','#BF4E3F'];
+  const eqiColors = ['#3d8e86','#88bfb8','#e8cda8','#d4a574','#c08a55','#d4888d','#c04851'];
   const grid = document.createElement('div');
   grid.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:36px 36px;gap:1px;width:100%';
   // Row 1: 7 bands
@@ -2665,9 +2666,9 @@ function renderEqiBlock(bands) {
   });
   // Row 2: 3 groups 用 grid-column 跨列
   const groups = [
-    { label: 'Fewer', bands: bands.slice(0, 2), color: '#2E7D5B', col: '1/3' },
-    { label: 'Moderate', bands: bands.slice(2, 5), color: '#C8C45A', col: '3/6' },
-    { label: 'More', bands: bands.slice(5, 7), color: '#BF4E3F', col: '6/8' },
+    { label: 'Fewer', bands: bands.slice(0, 2), color: '#2a6560', col: '1/3' },
+    { label: 'Moderate', bands: bands.slice(2, 5), color: '#7a5c3a', col: '3/6' },
+    { label: 'More', bands: bands.slice(5, 7), color: '#8a3038', col: '6/8' },
   ];
   groups.forEach(g => {
     const total = g.bands.reduce((s, b) => s + b.count, 0);
@@ -2685,8 +2686,8 @@ function renderEqiBlock(bands) {
 function buildEqiBandBar(fontSize) {
   const sz = fontSize || 9;
   const bands = [
-    { flex:59, bg:'#5dbdad', fg:'#1a4a44', en:'Fewest', cn:'最少' },
-    { flex:27, bg:'#88cfc5', fg:'#1a4a44', en:'Few', cn:'较少' },
+    { flex:59, bg:'#3d8e86', fg:'#1a4a44', en:'Fewest', cn:'最少' },
+    { flex:27, bg:'#88bfb8', fg:'#1a4a44', en:'Few', cn:'较少' },
     { flex:19, bg:'#e8cda8', fg:'#5a3d1e', en:'B.Avg', cn:'低于均' },
     { flex:21, bg:'#d4a574', fg:'#5a3d1e', en:'Avg', cn:'平均' },
     { flex:24, bg:'#c08a55', fg:'#5a3d1e', en:'A.Avg', cn:'高于均' },
@@ -2705,9 +2706,9 @@ function buildEqiFaqHtml() {
     `<b>简单理解：EQI 数值越低，说明学校周边社区越富裕。</b><br><br>` +
     `教育部综合考虑学生家庭收入、住房条件、家长教育背景、职业类型等因素，计算出每所学校的 EQI 分数（范围 344-569），并划分为 3 个组 (Group)、7 个段 (Band)，每段内的学校数量大致均等：<br><br>` +
     buildEqiBandBar(9) +
-    `<span style="color:#16a34a;font-weight:600">Fewer / 较好</span> <span style="color:#888">344-429</span> — 社区条件优越<br>` +
-    `<span style="color:#d97706;font-weight:600">Moderate / 中等</span> <span style="color:#888">430-493</span> — 社区条件中等<br>` +
-    `<span style="color:#dc2626;font-weight:600">More / 较弱</span> <span style="color:#888">494-569</span> — 社区条件相对薄弱<br><br>` +
+    `<span style="color:#2a6560;font-weight:600">Fewer / 较好</span> <span style="color:#888">344-429</span> — 社区条件优越<br>` +
+    `<span style="color:#7a5c3a;font-weight:600">Moderate / 中等</span> <span style="color:#888">430-493</span> — 社区条件中等<br>` +
+    `<span style="color:#8a3038;font-weight:600">More / 较弱</span> <span style="color:#888">494-569</span> — 社区条件相对薄弱<br><br>` +
     `<b>EQI 不等于教学质量。</b>一些 EQI 较高的学校可能有非常优秀的教学团队和升学率。家长选校时应结合 NCEA 通过率、课程体系、课外活动等综合考量。`;
 }
 
@@ -3262,7 +3263,7 @@ function formatCell(key, val, s) {
   if (val === null || val === undefined) return '<span class="td-null">—</span>';
   if (key === 'eqi') {
     const v = parseFloat(val);
-    const color = v <= 429 ? '#16a34a' : v <= 493 ? '#d97706' : '#dc2626';
+    const color = v <= 429 ? '#2a6560' : v <= 493 ? '#7a5c3a' : '#8a3038';
     return `<span style="color:${color};font-weight:600">${Math.round(v)}</span>`;
   }
   if (key === 'intl') {
@@ -3543,7 +3544,7 @@ function buildExportTemplate(results, visCols) {
       } else if (col.key === 'eqi' && val !== null) {
         const v = parseFloat(val);
         td_el.textContent = Math.round(v);
-        td_el.style.color = v <= 429 ? '#16a34a' : v <= 493 ? '#d97706' : '#dc2626';
+        td_el.style.color = v <= 429 ? '#2a6560' : v <= 493 ? '#7a5c3a' : '#8a3038';
         td_el.style.fontWeight = '600';
       } else if (col.key === 'intl' && val !== null) {
         const count = parseInt(s.international) || 0;

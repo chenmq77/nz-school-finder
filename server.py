@@ -512,6 +512,8 @@ class SchoolFinderHandler(http.server.SimpleHTTPRequestHandler):
             self._serve_file("index.html", "text/html; charset=utf-8")
         elif path == "/translations.js":
             self._serve_file("translations.js", "application/javascript; charset=utf-8")
+        elif path == "/colors.css":
+            self._serve_file("colors.css", "text/css; charset=utf-8")
         elif path.endswith(".png") and "/" not in path[1:]:
             self._serve_file(path[1:], "image/png")
         elif path.startswith("/logos/"):
