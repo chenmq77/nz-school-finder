@@ -1131,14 +1131,7 @@ document.body.style.transition = 'opacity 0.15s';
       <div class="section-body" id="bodyH"></div>
     </div>
 
-    <!-- 位置与学区 -->
-    <div class="section" id="sectionB">
-      <div class="section-header collapsible" onclick="toggleSection('B')">
-        <div class="section-title" id="titleB"></div>
-        <span class="section-toggle open" id="toggleB">&#9660;</span>
-      </div>
-      <div class="section-body" id="bodyB"></div>
-    </div>
+    <!-- B section removed — address + zone now in A -->
 
     <!-- 课程与学科 -->
     <div class="section" id="sectionC">
@@ -1542,10 +1535,12 @@ async function loadSchool(num, schoolName) {
   });
   document.getElementById('bodyA').innerHTML = '<div class="spinner"></div>';
 
-  // A-F 展开，G 折叠
-  ['A','B','C','D','E','F'].forEach(k => {
-    document.getElementById('body' + k).classList.remove('collapsed');
-    document.getElementById('toggle' + k).classList.add('open');
+  // Sections 展开 (B removed)，G 折叠
+  ['A','C','D','E','F'].forEach(k => {
+    const body = document.getElementById('body' + k);
+    const toggle = document.getElementById('toggle' + k);
+    if (body) body.classList.remove('collapsed');
+    if (toggle) toggle.classList.add('open');
   });
   document.getElementById('bodyG').classList.add('collapsed');
   document.getElementById('toggleG').classList.remove('open');
@@ -1575,7 +1570,7 @@ let _cachedWebData = null;    // cached web data (from /api/school/:id/web)
 function renderSchool(s) {
   _cachedSchool = s;  // cache for lang switch
   // 确保所有 section 可见（从错误状态恢复时）
-  ['B','C','D','E','F','G'].forEach(k => { document.getElementById('section' + k).style.display = ''; });
+  ['C','D','E','F','G'].forEach(k => { const el = document.getElementById('section' + k); if (el) el.style.display = ''; });
   // 显示当前学校名标签
   $schoolTag.textContent = safe(s.school_name);
   $schoolTag.classList.add('show');
@@ -1614,30 +1609,56 @@ function renderSectionA(s) {
   const authLabel = td('authority', safe(s.authority));
   const genderLabel = td('gender', safe(s.gender_of_students));
   const boardingLabel = td('boarding', safe(s.boarding_facilities));
+  const roll = s.total_school_roll ? parseInt(s.total_school_roll).toLocaleString() : '--';
 
   const website = safe(s.school_website);
   const websiteUrl = ensureHttp(website);
   const websiteLink = website !== '--' && isSafeUrl(websiteUrl) ? `<a href="${esc(websiteUrl)}" target="_blank" rel="noopener">${esc(website)}</a>` : esc(website);
 
+  // Enrolment + zone link inline
+  const enrolText = td('enrolment_scheme', safe(s.enrolment_scheme));
+  // Zone links will be appended by appendZoneToB → need a placeholder
+  const enrolHtml = `${esc(enrolText)} <span id="zoneInlineLink"></span>`;
+
+  // Address
+  const parts = [s.street, s.suburb, s.town_city].filter(v => hasValue(v));
+  const address = parts.length ? parts.map(v => String(v).trim()).join(', ') : '--';
+  const lat = parseFloat(safe(s.latitude));
+  const lng = parseFloat(safe(s.longitude));
+  const hasCoords = !isNaN(lat) && !isNaN(lng);
+  const mapLink = hasCoords ? ` <a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" rel="noopener" style="font-size:12px">[${t('open_map')}]</a>` : '';
+
+  // School name + logo inline
+  const cnName = s.school_name_cn;
+  const mainName = _lang === 'cn' && cnName ? esc(cnName) : esc(safe(s.school_name));
+  const subName = _lang === 'both' && cnName ? `<span style="font-size:14px;color:var(--text-muted);margin-left:8px">${esc(cnName)}</span>`
+    : _lang === 'cn' && cnName ? `<span style="font-size:13px;color:var(--text-muted);margin-left:8px">${esc(safe(s.school_name))}</span>` : '';
+
   document.getElementById('bodyA').innerHTML = `
-    <div style="position:relative">
-      <img id="schoolLogo" src="" alt="" referrerPolicy="no-referrer" style="display:none;position:absolute;right:8px;top:8px;max-width:160px;max-height:160px;object-fit:contain;opacity:0.6">
-      <div class="school-name-row">
-        <span class="school-main-name">${_lang === 'cn' && s.school_name_cn ? esc(s.school_name_cn) : esc(safe(s.school_name))}</span>
-        <span class="school-number">No. ${esc(safe(s.school_number))}</span>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+      <img id="schoolLogo" src="" alt="" referrerPolicy="no-referrer" style="display:none;width:48px;height:48px;object-fit:contain;flex-shrink:0">
+      <div>
+        <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+          <span class="school-main-name">${mainName}</span>
+          <span class="school-number">No. ${esc(safe(s.school_number))}</span>
+          ${subName}
+        </div>
       </div>
-      ${_lang === 'both' && s.school_name_cn ? `<div style="font-size:16px;color:var(--text-muted);margin-top:-4px;margin-bottom:8px">${esc(s.school_name_cn)}</div>` : ''}
-      ${_lang === 'cn' && s.school_name_cn ? `<div style="font-size:13px;color:var(--text-muted);margin-top:-4px;margin-bottom:8px">${esc(safe(s.school_name))}</div>` : ''}
     </div>
-    <div class="info-row"><span class="info-label">${t('school_type')}</span><span class="info-value">${esc(typeLabel)}</span></div>
-    <div class="info-row"><span class="info-label">${t('year_level')}</span><span class="info-value">${esc(yearLabel)}</span></div>
-    <div class="info-row"><span class="info-label">${t('authority')}</span><span class="info-value">${esc(authLabel)}</span></div>
-    <div class="info-row"><span class="info-label">${t('gender')}</span><span class="info-value">${esc(genderLabel)}</span></div>
-    <div id="curriculumBadges"></div>
-    <div class="info-row"><span class="info-label">${t('boarding')}</span><span class="info-value">${esc(boardingLabel)}</span></div>
-    <div class="info-row"><span class="info-label">${t('enrolment')}</span><span class="info-value">${esc(td('enrolment_scheme', safe(s.enrolment_scheme)))}</span></div>
-    <div class="info-row"><span class="info-label">${t('total_students')}</span><span class="info-value">${s.total_school_roll ? parseInt(s.total_school_roll).toLocaleString() + ' ' + t('person') : '--'}</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px">
+      <div class="info-row"><span class="info-label">${t('school_type')}</span><span class="info-value">${esc(typeLabel)}</span></div>
+      <div class="info-row"><span class="info-label">${t('year_level')}</span><span class="info-value">${esc(yearLabel)}</span></div>
+      <div class="info-row"><span class="info-label">${t('authority')}</span><span class="info-value">${esc(authLabel)}</span></div>
+      <div class="info-row"><span class="info-label">${t('gender')}</span><span class="info-value">${esc(genderLabel)}</span></div>
+      <div class="info-row"><span class="info-label">${t('boarding')}</span><span class="info-value">${esc(boardingLabel)}</span></div>
+      <div class="info-row"><span class="info-label">${t('total_students')}</span><span class="info-value">${roll}</span></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px">
+      <div class="info-row" id="curriculumBadges"></div>
+      <div class="info-row"><span class="info-label">${t('enrolment')}</span><span class="info-value">${enrolHtml}</span></div>
+    </div>
     ${renderEqiCompact(s)}
+    <div class="info-row"><span class="info-label">${t('address')}</span><span class="info-value">${esc(address)}${mapLink}</span></div>
     <div class="info-row"><span class="info-label">${t('website')}</span><span class="info-value">${websiteLink}</span></div>
   `;
 }
@@ -1666,24 +1687,8 @@ function getEqiBand(eqi) {
 }
 
 function renderSectionB(s) {
-  // Streamlined: address + map link + zone links only
-  const parts = [s.street, s.suburb, s.town_city].filter(v => hasValue(v));
-  const address = parts.length ? parts.map(v => String(v).trim()).join(', ') : '--';
-
-  const lat = safe(s.latitude);
-  const lng = safe(s.longitude);
-  const latNum = parseFloat(lat);
-  const lngNum = parseFloat(lng);
-  const hasCoords = !isNaN(latNum) && !isNaN(lngNum);
-  const mapLink = hasCoords ? ` <a href="https://www.google.com/maps?q=${latNum},${lngNum}" target="_blank" rel="noopener" style="font-size:12px">[${t('open_map')}]</a>` : '';
-
-  const areaDisplay = td('urban_rural', safe(s.urban_rural));
-
-  document.getElementById('bodyB').innerHTML = `
-    <div class="info-row"><span class="info-label">${t('address')}</span><span class="info-value">${esc(address)}${mapLink}</span></div>
-    <div class="info-row"><span class="info-label">${t('area')}</span><span class="info-value">${esc(areaDisplay)}</span></div>
-    <div id="zoneRow"></div>
-  `;
+  // Section B removed — address and zone are now in Section A
+  // This function is kept as no-op for compatibility
 }
 
 function renderSectionG_contact(s) {
@@ -1915,17 +1920,25 @@ function safeUrl(url) {
 
 function appendZoneToB(w) {
   if (!w.zone_map_url && !w.zone_streets_url && !w.zone_page_url) return;
-  const bodyB = document.getElementById('bodyB');
   let zoneLinks = [];
   const zoneMapSafe = safeUrl(w.zone_map_url);
   const zoneStreetsSafe = safeUrl(w.zone_streets_url);
   const zonePageSafe = safeUrl(w.zone_page_url);
-  if (zoneMapSafe) zoneLinks.push(`<a href="${esc(zoneMapSafe)}" target="_blank" rel="noopener">[学区地图 / Zone map]</a>`);
-  if (zoneStreetsSafe) zoneLinks.push(`<a href="${esc(zoneStreetsSafe)}" target="_blank" rel="noopener">[街道列表 / Streets PDF]</a>`);
-  if (zonePageSafe) zoneLinks.push(`<a href="${esc(zonePageSafe)}" target="_blank" rel="noopener">[入学详情 / Enrolment]</a>`);
-  const zoneHtml = `<div class="info-row"><span class="info-label">Zone / 学区</span><span class="info-value" style="font-size:13px">${zoneLinks.join('  ')}</span></div>`;
+  if (zoneMapSafe) zoneLinks.push(`<a href="${esc(zoneMapSafe)}" target="_blank" rel="noopener">[${t('zone_map')}]</a>`);
+  if (zoneStreetsSafe) zoneLinks.push(`<a href="${esc(zoneStreetsSafe)}" target="_blank" rel="noopener">[${t('streets_pdf')}]</a>`);
+  if (zonePageSafe) zoneLinks.push(`<a href="${esc(zonePageSafe)}" target="_blank" rel="noopener">[${t('enrolment_link')}]</a>`);
+
+  // Insert inline after enrolment in Section A
+  const inlineEl = document.getElementById('zoneInlineLink');
+  if (inlineEl) {
+    inlineEl.innerHTML = `<span style="font-size:12px">${zoneLinks.join(' ')}</span>`;
+  }
+
+  // Also fill zone row in Section B if it exists
   const zoneRow = document.getElementById('zoneRow');
-  if (zoneRow) zoneRow.innerHTML = zoneHtml;
+  if (zoneRow) {
+    zoneRow.innerHTML = `<div class="info-row"><span class="info-label">${t('zone')}</span><span class="info-value" style="font-size:13px">${zoneLinks.join('  ')}</span></div>`;
+  }
 }
 
 function renderCurriculumBadges(w) {

@@ -64,7 +64,7 @@ const TRANSLATIONS = {
     email:                { en: "Email", cn: "邮箱" },
     enrolment:            { en: "Enrolment", cn: "招生计划" },
     zone:                 { en: "Zone", cn: "学区" },
-    eqi:                  { en: "EQI", cn: "公平指数" },
+    eqi:                  { en: "EQI", cn: "社区条件" },
     open_map:             { en: "Open Map", cn: "打开地图" },
     zone_map:             { en: "Zone map", cn: "学区地图" },
     streets_pdf:          { en: "Streets PDF", cn: "街道列表" },
