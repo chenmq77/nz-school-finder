@@ -2885,7 +2885,7 @@ function getCellValue(s, key) {
       // Total = tuition + homestay * 40 weeks (school year)
       return homestay ? Math.round(tuition + homestay * 40) : null;
     }
-    case 'ncea_l3': return null; // TODO: data not yet crawled
+    case 'ncea_l3': return s.ncea_l3 != null ? parseFloat(s.ncea_l3) : null;
     case 'fee': return s.intl_tuition_annual || null;
     case 'subjects': return s.subjects_count || null;
     case 'sports': return s.sports_count || null;
@@ -2943,6 +2943,7 @@ function formatCell(key, val, s) {
   if (key === 'roll' || key === 'intl_count') return parseInt(val).toLocaleString();
   if (key === 'fee' || key === 'intl_fee' || key === 'intl_total') return '$' + parseFloat(val).toLocaleString();
   if (key === 'intl_homestay') return '$' + parseFloat(val).toLocaleString() + '/w';
+  if (key === 'ncea_l3') return parseFloat(val).toFixed(1) + '%';
   if (key === 'ethnicity') {
     // Show largest ethnicity name + %
     const roll = parseInt(s.total_school_roll) || 0;
