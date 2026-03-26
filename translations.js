@@ -170,6 +170,13 @@ const TRANSLATIONS = {
     col_eqi_tip:          { en: "Lower = better community", cn: "越低=社区条件越好" },
     col_zone_yes:         { en: "Yes", cn: "有" },
     col_no_match:         { en: "No matching schools", cn: "没有匹配的学校" },
+    col_export:           { en: "Export", cn: "导出图片" },
+    col_export_loading:   { en: "Generating...", cn: "生成中..." },
+    col_export_fail:      { en: "Export failed, please retry", cn: "导出失败，请重试" },
+    col_export_no_lib:    { en: "Export component not loaded", cn: "导出组件未加载" },
+    col_export_too_cols:  { en: "Max 6 columns for export", cn: "导出最多显示 6 列" },
+    col_export_truncated: { en: "Showing {n} of {total}", cn: "共 {total} 所，显示前 {n} 所" },
+    col_export_all:       { en: "All schools", cn: "全部学校" },
 
     // Misc
     no_data:              { en: "No data available", cn: "暂无数据" },

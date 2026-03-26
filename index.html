@@ -886,6 +886,7 @@ body {
 /* Column chooser */
 .col-chooser-btn { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 4px; }
 .col-chooser-btn:hover { border-color: var(--primary); color: var(--primary); }
+.col-chooser-btn:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: auto; }
 .col-chooser-btn.active { border-color: var(--primary); color: var(--primary); background: var(--bg-secondary); }
 
 /* Side panel layout */
@@ -998,6 +999,7 @@ body {
 }
 </style>
 <script src="translations.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" defer></script>
 </head>
 <body>
 <script>
@@ -3120,6 +3122,179 @@ function toggleColumnChooser() {
 // Initialize columns
 loadVisibleCols();
 
+/* ── Export as Image ── */
+function buildFilterSummary() {
+  const parts = [];
+  if (_currentFilters['region'] && _currentFilters['region'].length)
+    parts.push(_currentFilters['region'][0].replace(' Region', ''));
+  if (_currentFilters['authority'] && _currentFilters['authority'].length)
+    parts.push(_currentFilters['authority'].join(', '));
+  if (_currentFilters['gender'] && _currentFilters['gender'].length)
+    parts.push(_currentFilters['gender'].map(g => td('gender', g)).join(', '));
+  if (_currentFilters['year_min'] && _currentFilters['year_min'].length)
+    parts.push('Y' + _currentFilters['year_min'][0] + '-' + (_currentFilters['year_max'] || _currentFilters['year_min'])[0]);
+  if (_currentFilters['eqi_group'] && _currentFilters['eqi_group'].length)
+    parts.push('EQI: ' + _currentFilters['eqi_group'].join(', '));
+  if (_currentFilters['curriculum'] && _currentFilters['curriculum'].length)
+    parts.push(_currentFilters['curriculum'].join(', '));
+  const text = parts.length ? parts.join(' / ') : t('col_export_all');
+  return text.length > 55 ? text.substring(0, 52) + '...' : text;
+}
+
+function buildExportTemplate(results, visCols) {
+  const maxRows = 20;
+  const rows = results.slice(0, maxRows);
+  const total = results.length;
+  const truncated = total > maxRows;
+
+  const div = document.createElement('div');
+  div.style.cssText = 'position:fixed;left:-9999px;top:0;width:621px;height:830px;background:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:24px 28px;box-sizing:border-box;color:#1a1a1a;';
+
+  // Header
+  const header = document.createElement('div');
+  header.style.cssText = 'margin-bottom:16px;';
+  header.innerHTML = `
+    <div style="font-size:18px;font-weight:700;color:#2563eb;margin-bottom:4px;">NZ School Finder</div>
+    <div style="font-size:12px;color:#888;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(buildFilterSummary())}</div>
+    <div style="font-size:10px;color:#aaa;margin-top:2px;">${new Date().toISOString().split('T')[0]}</div>
+  `;
+  div.appendChild(header);
+
+  // Table
+  const table = document.createElement('table');
+  const fontSize = visCols.length > 6 ? '12px' : '14px';
+  table.style.cssText = `width:100%;border-collapse:collapse;font-size:${fontSize};`;
+
+  // Table header
+  const thead = document.createElement('thead');
+  const htr = document.createElement('tr');
+  htr.style.cssText = 'border-bottom:2px solid #e5e7eb;';
+  visCols.forEach(col => {
+    const th = document.createElement('th');
+    th.style.cssText = `padding:6px 4px;text-align:${col.align === 'right' ? 'right' : 'left'};font-size:12px;font-weight:600;color:#666;white-space:nowrap;`;
+    th.textContent = t(col.tKey);
+    htr.appendChild(th);
+  });
+  thead.appendChild(htr);
+  table.appendChild(thead);
+
+  // Table body
+  const tbody = document.createElement('tbody');
+  rows.forEach((s, i) => {
+    const tr = document.createElement('tr');
+    tr.style.cssText = `border-bottom:1px solid ${i < rows.length - 1 ? '#f0f0f0' : 'transparent'};`;
+    visCols.forEach(col => {
+      const td_el = document.createElement('td');
+      td_el.style.cssText = `padding:7px 4px;text-align:${col.align === 'right' ? 'right' : 'left'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;font-size:14px;`;
+
+      // Export-safe formatting (plain text, no HTML badges)
+      const val = getCellValue(s, col.key);
+      if (col.key === 'name') {
+        td_el.textContent = s.school_name_cn || s.school_name || '';
+        td_el.style.fontWeight = '600';
+        td_el.style.whiteSpace = 'normal';
+        td_el.style.maxWidth = '200px';
+      } else if (col.key === 'eqi' && val !== null) {
+        const v = parseFloat(val);
+        td_el.textContent = Math.round(v);
+        td_el.style.color = v <= 429 ? '#16a34a' : v <= 493 ? '#d97706' : '#dc2626';
+        td_el.style.fontWeight = '600';
+      } else if (col.key === 'intl' && val !== null) {
+        const count = parseInt(s.international) || 0;
+        const roll = parseInt(s.total_school_roll) || 0;
+        const pct = roll > 0 ? Math.round(count / roll * 100) : 0;
+        td_el.textContent = `${count} (${pct}%)`;
+      } else if ((col.key === 'fee' || col.key === 'intl_fee' || col.key === 'intl_total') && val !== null) {
+        td_el.textContent = '$' + parseFloat(val).toLocaleString();
+      } else if (col.key === 'intl_homestay' && val !== null) {
+        td_el.textContent = '$' + parseFloat(val).toLocaleString() + '/w';
+      } else if (col.key === 'ncea_l3' && val !== null) {
+        td_el.textContent = parseFloat(val).toFixed(1) + '%';
+      } else if (col.key.startsWith('eth_') && val !== null) {
+        td_el.textContent = val + '%';
+      } else if (col.key === 'roll' && val !== null) {
+        td_el.textContent = parseInt(val).toLocaleString();
+      } else if (col.key === 'ethnicity' && val !== null) {
+        td_el.textContent = formatCell('ethnicity', val, s).replace(/<[^>]+>/g, '');
+      } else if (val === null || val === undefined) {
+        td_el.textContent = '—';
+        td_el.style.color = '#ccc';
+      } else {
+        td_el.textContent = String(val);
+      }
+      tr.appendChild(td_el);
+    });
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  div.appendChild(table);
+
+  // Footer
+  const footer = document.createElement('div');
+  footer.style.cssText = 'position:absolute;bottom:20px;left:28px;right:28px;font-size:10px;color:#bbb;display:flex;justify-content:space-between;';
+  const countText = truncated
+    ? t('col_export_truncated').replace('{n}', maxRows).replace('{total}', total)
+    : `${total} ${t('schools_count')}`;
+  footer.innerHTML = `<span>nzschoolfinder.com</span><span>${esc(countText)}</span>`;
+  div.appendChild(footer);
+
+  return div;
+}
+
+function showToast(msg, duration) {
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:8px;font-size:14px;z-index:9999;transition:opacity 0.3s;';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, duration || 3000);
+}
+
+async function exportAsImage() {
+  if (!window.html2canvas) { showToast(t('col_export_no_lib')); return; }
+  if (!_lastListData || !_lastListData.results.length) return;
+
+  const visCols = _visibleCols.map(k => TABLE_COLUMNS.find(c => c.key === k)).filter(Boolean);
+  if (visCols.length > 9) { showToast(t('col_export_too_cols')); return; }
+
+  // Snapshot
+  const results = sortTableData([..._lastListData.results]);
+  const exportBtn = document.querySelector('.col-export-btn');
+
+  // Show truncation toast
+  if (results.length > 20) {
+    showToast(t('col_export_truncated').replace('{n}', '20').replace('{total}', results.length));
+  }
+
+  // Loading state
+  if (exportBtn) { exportBtn.textContent = t('col_export_loading'); exportBtn.disabled = true; }
+
+  const div = buildExportTemplate(results, visCols);
+  document.body.appendChild(div);
+
+  try {
+    const canvas = await html2canvas(div, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+    canvas.toBlob(blob => {
+      if (!blob) { showToast(t('col_export_fail')); return; }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `nz-schools-${new Date().toISOString().split('T')[0]}.png`;
+      // iOS fallback
+      if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+        window.open(url);
+      } else {
+        a.click();
+      }
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    }, 'image/png');
+  } catch (e) {
+    showToast(t('col_export_fail'));
+  } finally {
+    if (div.parentNode) div.parentNode.removeChild(div);
+    if (exportBtn) { exportBtn.textContent = t('col_export'); exportBtn.disabled = false; }
+  }
+}
+
 function renderListCards(results, total, page, pages) {
   _lastListData = { results, total, page, pages };
 
@@ -3149,6 +3324,23 @@ function renderListCards(results, total, page, pages) {
       btn.textContent = t('col_columns');
       btn.onclick = (e) => { e.stopPropagation(); toggleColumnChooser(); };
       actions.appendChild(btn);
+    }
+    // Export button
+    if (actions && !actions.querySelector('.col-export-btn')) {
+      const ebtn = document.createElement('button');
+      ebtn.className = 'col-chooser-btn col-export-btn';
+      ebtn.textContent = t('col_export');
+      ebtn.onclick = () => exportAsImage();
+      actions.appendChild(ebtn);
+    }
+    // Update export button state
+    const ebtn = actions && actions.querySelector('.col-export-btn');
+    if (ebtn) {
+      const tooManyCols = _visibleCols.length > 9;
+      const noData = !results || !results.length;
+      ebtn.disabled = tooManyCols || noData;
+      if (tooManyCols) ebtn.title = t('col_export_too_cols');
+      else ebtn.title = '';
     }
   }
 
