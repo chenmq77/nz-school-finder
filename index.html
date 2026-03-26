@@ -8,7 +8,7 @@
 /* ── 千里江山图配色系统（同步 colors.css）── */
 :root {
   --primary: #4166B0;
-  --primary-light: #d8e2f2;
+  --primary-light: #D0E0EC;
   --primary-dark: #2e4a80;
   --primary-lightest: #b0c4e0;
   --primary-muted: #7a96c4;
@@ -1802,10 +1802,10 @@ function renderPerformance(data) {
   }
 
   const colors = {
-    below: '#CCD0CF',
-    l1: '#b0c4e0',
-    l2: '#4166B0',
-    ue: '#2e4a80',
+    below: '#D8D5D0',
+    l1: '#88bfb8',
+    l2: '#3d8e86',
+    ue: '#254D78',
   };
 
   // ── Translate comparison group label ──
@@ -1950,10 +1950,10 @@ function renderPerformance(data) {
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
         <div style="width:80px;text-align:right;font-size:12px;color:var(--text-muted);flex-shrink:0">${label} <span style="font-size:10px">(n=${total})</span></div>
         <div style="flex:1;display:flex;height:26px;overflow:hidden">
-          ${pBelow > 0 ? `<div title="${t('ncea_below_l1')}: ${pBelow.toFixed(1)}%" style="width:${pBelow}%;background:${colors.below};display:flex;align-items:center;justify-content:center;font-size:9px;color:#333">${pBelow >= 4 ? pBelow.toFixed(0)+'%' : ''}</div>` : ''}
-          ${pL1 > 0 ? `<div title="${t('ncea_l1_only')}: ${pL1.toFixed(1)}%" style="width:${pL1}%;background:${colors.l1};display:flex;align-items:center;justify-content:center;font-size:9px;color:#333">${pL1 >= 4 ? pL1.toFixed(0)+'%' : ''}</div>` : ''}
-          ${pL2 > 0 ? `<div title="${t('ncea_l2_only')}: ${pL2.toFixed(1)}%" style="width:${pL2}%;background:${colors.l2};display:flex;align-items:center;justify-content:center;font-size:9px;color:#333">${pL2 >= 4 ? pL2.toFixed(0)+'%' : ''}</div>` : ''}
-          ${pL3 > 0 ? `<div title="${t('ncea_l3_ue')}: ${pL3.toFixed(1)}%" style="width:${pL3}%;background:${colors.ue};display:flex;align-items:center;justify-content:center;font-size:10px;color:#333;font-weight:600">${pL3.toFixed(0)}%</div>` : ''}
+          ${pBelow > 0 ? `<div title="${t('ncea_below_l1')}: ${pBelow.toFixed(1)}%" style="width:${pBelow}%;background:${colors.below};display:flex;align-items:center;justify-content:center;font-size:9px;color:#666">${pBelow >= 4 ? pBelow.toFixed(0)+'%' : ''}</div>` : ''}
+          ${pL1 > 0 ? `<div title="${t('ncea_l1_only')}: ${pL1.toFixed(1)}%" style="width:${pL1}%;background:${colors.l1};display:flex;align-items:center;justify-content:center;font-size:9px;color:#2a5550">${pL1 >= 4 ? pL1.toFixed(0)+'%' : ''}</div>` : ''}
+          ${pL2 > 0 ? `<div title="${t('ncea_l2_only')}: ${pL2.toFixed(1)}%" style="width:${pL2}%;background:${colors.l2};display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff">${pL2 >= 4 ? pL2.toFixed(0)+'%' : ''}</div>` : ''}
+          ${pL3 > 0 ? `<div title="${t('ncea_l3_ue')}: ${pL3.toFixed(1)}%" style="width:${pL3}%;background:${colors.ue};display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:600">${pL3.toFixed(0)}%</div>` : ''}
         </div>
       </div>`;
   }
@@ -1983,11 +1983,14 @@ function renderPerformance(data) {
     barsHtml += `
       <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
         <div style="width:80px;text-align:right;font-size:11px;color:var(--text-muted);flex-shrink:0">${esc(benchLabel)}</div>
-        <div style="flex:1;display:flex;height:26px;overflow:hidden;opacity:0.5">
-          ${bBelow > 0 ? `<div style="width:${bBelow}%;background:${colors.below}"></div>` : ''}
-          ${bL1only > 0 ? `<div style="width:${bL1only}%;background:${colors.l1}"></div>` : ''}
-          ${bL2only > 0 ? `<div style="width:${bL2only}%;background:${colors.l2}"></div>` : ''}
-          ${bL3 > 0 ? `<div style="width:${bL3}%;background:${colors.ue};display:flex;align-items:center;justify-content:center;font-size:10px;color:#333;font-weight:600">${bL3.toFixed(0)}%</div>` : ''}
+        <div style="flex:1;position:relative;height:26px;overflow:hidden">
+          <div style="display:flex;height:100%;opacity:0.45">
+            ${bBelow > 0 ? `<div style="width:${bBelow}%;background:${colors.below}"></div>` : ''}
+            ${bL1only > 0 ? `<div style="width:${bL1only}%;background:${colors.l1}"></div>` : ''}
+            ${bL2only > 0 ? `<div style="width:${bL2only}%;background:${colors.l2}"></div>` : ''}
+            ${bL3 > 0 ? `<div style="width:${bL3}%;background:${colors.ue}"></div>` : ''}
+          </div>
+          ${bL3 > 0 ? `<div style="position:absolute;right:${(100-bBelow-bL1only-bL2only-bL3/2)}%;top:50%;transform:translate(50%,-50%);font-size:10px;color:#333;font-weight:600">${bL3.toFixed(0)}%</div>` : ''}
         </div>
       </div>`;
   }
