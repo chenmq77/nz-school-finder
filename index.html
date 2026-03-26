@@ -3654,7 +3654,7 @@ async function exportDivAsImage(div, filename, loadingBtn) {
 function buildExportFooter() {
   const footer = document.createElement('div');
   footer.style.cssText = 'margin-top:auto;padding-top:12px;border-top:1px solid #eee;font-size:10px;color:#bbb;display:flex;justify-content:space-between;';
-  footer.innerHTML = `<span>nzschoolfinder.com</span><span>${new Date().toISOString().split('T')[0]}</span>`;
+  footer.innerHTML = `<span>nzschoolfinder.com</span><span>${new Date().toLocaleDateString('en-CA', {timeZone: 'Pacific/Auckland'})}</span>`;
   return footer;
 }
 
@@ -3784,7 +3784,8 @@ async function exportNceaCard() {
   div.appendChild(footer);
 
   const btn = document.querySelector('#sectionH .col-chooser-btn');
-  await exportDivAsImage(div, `nz-school-ncea-${new Date().toISOString().split('T')[0]}.png`, btn);
+  const nzDate = new Date().toLocaleDateString('en-CA', {timeZone: 'Pacific/Auckland'});
+  await exportDivAsImage(div, `nz-school-${s.school_number || 'x'}-ncea-${nzDate}.png`, btn);
 }
 
 /* ── SVG to PNG helper ── */
