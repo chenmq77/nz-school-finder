@@ -3312,28 +3312,12 @@ function showToast(msg, duration) {
   setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, duration || 3000);
 }
 
-async function exportAsImage() {
+/* ── Shared Export Utility ── */
+async function exportDivAsImage(div, filename, loadingBtn) {
   if (!window.html2canvas) { showToast(t('col_export_no_lib')); return; }
-  if (!_lastListData || !_lastListData.results.length) return;
+  if (loadingBtn) { loadingBtn.textContent = t('col_export_loading'); loadingBtn.disabled = true; }
 
-  const visCols = _visibleCols.map(k => TABLE_COLUMNS.find(c => c.key === k)).filter(Boolean);
-  if (visCols.length > 9) { showToast(t('col_export_too_cols')); return; }
-
-  // Snapshot
-  const results = sortTableData([..._lastListData.results]);
-  const exportBtn = document.querySelector('.col-export-btn');
-
-  // Show truncation toast
-  if (results.length > 20) {
-    showToast(t('col_export_truncated').replace('{n}', '20').replace('{total}', results.length));
-  }
-
-  // Loading state
-  if (exportBtn) { exportBtn.textContent = t('col_export_loading'); exportBtn.disabled = true; }
-
-  const div = buildExportTemplate(results, visCols);
   document.body.appendChild(div);
-
   try {
     const canvas = await html2canvas(div, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
     canvas.toBlob(blob => {
@@ -3341,85 +3325,7 @@ async function exportAsImage() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `nz-schools-${new Date().toISOString().split('T')[0]}.png`;
-      // iOS fallback
-      if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-        window.open(url);
-      } else {
-        a.click();
-      }
-      setTimeout(() => URL.revokeObjectURL(url), 5000);
-    }, 'image/png');
-  } catch (e) {
-    showToast(t('col_export_fail'));
-  } finally {
-    if (div.parentNode) div.parentNode.removeChild(div);
-    if (exportBtn) { exportBtn.textContent = t('col_export'); exportBtn.disabled = false; }
-  }
-}
-
-/* ── Export FAQ as Image ── */
-async function exportFaqAsImage(faqIndex) {
-  if (!window.html2canvas) { showToast(t('col_export_no_lib')); return; }
-
-  // Get FAQ data (rebuild to get current language)
-  const faqData = [
-    { q: 'EQI 公平指数是什么？数值怎么看？', buildAnswer: true },
-  ];
-  // Also get from rendered DOM for non-EQI FAQs
-  const faqItems = document.querySelectorAll('.faq-item');
-  if (!faqItems[faqIndex]) return;
-  const qText = faqItems[faqIndex].querySelector('.faq-q span').textContent;
-
-  // Get answer HTML (with band chart)
-  const faqEl = faqItems[faqIndex].querySelector('.faq-a');
-  // Clone the answer content (preserves HTML including band chart)
-  const answerClone = faqEl.cloneNode(true);
-  // Remove the export button from clone
-  const btnInClone = answerClone.querySelector('.col-chooser-btn');
-  if (btnInClone) btnInClone.parentElement.remove();
-
-  // Build export div - 621x830 CSS → 1242x1660 PNG
-  const div = document.createElement('div');
-  div.style.cssText = 'position:fixed;left:-9999px;top:0;width:621px;min-height:830px;background:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:48px 44px;box-sizing:border-box;color:#1a1a1a;display:flex;flex-direction:column;';
-
-  // Header
-  const header = document.createElement('div');
-  header.style.cssText = 'text-align:center;margin-bottom:32px;';
-  header.innerHTML = `<div style="font-size:20px;font-weight:700;color:#2563eb;">NZ School Finder</div>`;
-  div.appendChild(header);
-
-  // Question
-  const qDiv = document.createElement('div');
-  qDiv.style.cssText = 'font-size:18px;font-weight:700;margin-bottom:24px;text-align:center;line-height:1.4;';
-  qDiv.textContent = qText;
-  div.appendChild(qDiv);
-
-  // Answer (clone with all HTML preserved)
-  answerClone.style.cssText = 'font-size:14px;line-height:2;color:#333;flex:1;';
-  answerClone.className = '';
-  answerClone.classList.remove('faq-a');
-  // Make band bar bigger for export
-  const bandBar = answerClone.querySelector('div[style*="display:flex"][style*="height:"]');
-  if (bandBar) bandBar.style.height = '32px';
-  div.appendChild(answerClone);
-
-  // Footer
-  const footer = document.createElement('div');
-  footer.style.cssText = 'margin-top:32px;padding-top:12px;border-top:1px solid #eee;font-size:10px;color:#bbb;display:flex;justify-content:space-between;';
-  footer.innerHTML = `<span>nzschoolfinder.com</span><span>${new Date().toISOString().split('T')[0]}</span>`;
-  div.appendChild(footer);
-
-  document.body.appendChild(div);
-
-  try {
-    const canvas = await html2canvas(div, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
-    canvas.toBlob(blob => {
-      if (!blob) { showToast(t('col_export_fail')); return; }
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `nz-school-faq-${faqIndex + 1}.png`;
+      a.download = filename;
       if (/iPad|iPhone|iPod/.test(navigator.userAgent)) { window.open(url); }
       else { a.click(); }
       setTimeout(() => URL.revokeObjectURL(url), 5000);
@@ -3428,7 +3334,66 @@ async function exportFaqAsImage(faqIndex) {
     showToast(t('col_export_fail'));
   } finally {
     if (div.parentNode) div.parentNode.removeChild(div);
+    if (loadingBtn) { loadingBtn.textContent = t('col_export'); loadingBtn.disabled = false; }
   }
+}
+
+function buildExportFooter() {
+  const footer = document.createElement('div');
+  footer.style.cssText = 'margin-top:auto;padding-top:12px;border-top:1px solid #eee;font-size:10px;color:#bbb;display:flex;justify-content:space-between;';
+  footer.innerHTML = `<span>nzschoolfinder.com</span><span>${new Date().toISOString().split('T')[0]}</span>`;
+  return footer;
+}
+
+/* ── Export Table as Image ── */
+async function exportAsImage() {
+  if (!window.html2canvas) { showToast(t('col_export_no_lib')); return; }
+  if (!_lastListData || !_lastListData.results.length) return;
+
+  const visCols = _visibleCols.map(k => TABLE_COLUMNS.find(c => c.key === k)).filter(Boolean);
+  if (visCols.length > 9) { showToast(t('col_export_too_cols')); return; }
+
+  const results = sortTableData([..._lastListData.results]);
+  if (results.length > 20) {
+    showToast(t('col_export_truncated').replace('{n}', '20').replace('{total}', results.length));
+  }
+
+  const div = buildExportTemplate(results, visCols);
+  await exportDivAsImage(div, `nz-schools-${new Date().toISOString().split('T')[0]}.png`, document.querySelector('.col-export-btn'));
+}
+
+/* ── Export FAQ as Image ── */
+async function exportFaqAsImage(faqIndex) {
+  const faqItems = document.querySelectorAll('.faq-item');
+  if (!faqItems[faqIndex]) return;
+  const qText = faqItems[faqIndex].querySelector('.faq-q span').textContent;
+
+  const faqEl = faqItems[faqIndex].querySelector('.faq-a');
+  const answerClone = faqEl.cloneNode(true);
+  const btnInClone = answerClone.querySelector('.col-chooser-btn');
+  if (btnInClone) btnInClone.parentElement.remove();
+
+  const div = document.createElement('div');
+  div.style.cssText = 'position:fixed;left:-9999px;top:0;width:621px;min-height:830px;background:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:48px 44px;box-sizing:border-box;color:#1a1a1a;display:flex;flex-direction:column;';
+
+  const header = document.createElement('div');
+  header.style.cssText = 'text-align:center;margin-bottom:32px;';
+  header.innerHTML = `<div style="font-size:20px;font-weight:700;color:#2563eb;">NZ School Finder</div>`;
+  div.appendChild(header);
+
+  const qDiv = document.createElement('div');
+  qDiv.style.cssText = 'font-size:18px;font-weight:700;margin-bottom:24px;text-align:center;line-height:1.4;';
+  qDiv.textContent = qText;
+  div.appendChild(qDiv);
+
+  answerClone.style.cssText = 'font-size:14px;line-height:2;color:#333;flex:1;';
+  answerClone.className = '';
+  const bandBar = answerClone.querySelector('div[style*="display:flex"][style*="height:"]');
+  if (bandBar) bandBar.style.height = '32px';
+  div.appendChild(answerClone);
+
+  div.appendChild(buildExportFooter());
+  await exportDivAsImage(div, `nz-school-faq-${faqIndex + 1}.png`);
 }
 
 function renderListCards(results, total, page, pages) {
