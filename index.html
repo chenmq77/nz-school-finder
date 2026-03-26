@@ -2387,11 +2387,38 @@ function renderEqiBlock(bands) {
   container.appendChild(grid);
 }
 
+function buildEqiBandBar(fontSize) {
+  const sz = fontSize || 9;
+  const bands = [
+    { flex:59, bg:'#6ee7b7', fg:'#064e3b', en:'Fewest', cn:'最少' },
+    { flex:27, bg:'#a7f3d0', fg:'#064e3b', en:'Few', cn:'较少' },
+    { flex:19, bg:'#fde68a', fg:'#78350f', en:'B.Avg', cn:'低于均' },
+    { flex:21, bg:'#fcd34d', fg:'#78350f', en:'Avg', cn:'平均' },
+    { flex:24, bg:'#fbbf24', fg:'#78350f', en:'A.Avg', cn:'高于均' },
+    { flex:28, bg:'#fca5a5', fg:'#7f1d1d', en:'Many', cn:'较多' },
+    { flex:48, bg:'#f87171', fg:'#7f1d1d', en:'Most', cn:'最多' },
+  ];
+  return '<div style="display:flex;gap:2px;height:28px;border-radius:4px;overflow:hidden;margin:8px 0">' +
+    bands.map(b => {
+      const label = _lang === 'cn' ? b.cn : _lang === 'en' ? b.en : `${b.en}/${b.cn}`;
+      return `<div style="flex:${b.flex};background:${b.bg};display:flex;align-items:center;justify-content:center;font-size:${sz}px;color:${b.fg};font-weight:500">${label}</div>`;
+    }).join('') + '</div>';
+}
+
+function buildEqiFaqHtml() {
+  return `EQI (Equity Index) 是新西兰教育部对每所学校所在社区经济条件的评估指数，2023 年起替代了旧的 Decile 评分系统。<br><br>` +
+    `<b>简单理解：EQI 数值越低，说明学校周边社区越富裕。</b><br><br>` +
+    `教育部综合考虑学生家庭收入、住房条件、家长教育背景、职业类型等因素，计算出每所学校的 EQI 分数（范围 344-569），并划分为 3 个组 (Group)、7 个段 (Band)，每段内的学校数量大致均等：<br><br>` +
+    buildEqiBandBar(9) +
+    `<span style="color:#16a34a;font-weight:600">Fewer / 较好</span> <span style="color:#888">344-429</span> — 社区条件优越<br>` +
+    `<span style="color:#d97706;font-weight:600">Moderate / 中等</span> <span style="color:#888">430-493</span> — 社区条件中等<br>` +
+    `<span style="color:#dc2626;font-weight:600">More / 较弱</span> <span style="color:#888">494-569</span> — 社区条件相对薄弱<br><br>` +
+    `<b>EQI 不等于教学质量。</b>一些 EQI 较高的学校可能有非常优秀的教学团队和升学率。家长选校时应结合 NCEA 通过率、课程体系、课外活动等综合考量。`;
+}
+
 function renderFAQ() {
   const faqs = [
-    { q: 'EQI 公平指数是什么？数值怎么看？', a: 'EQI (Equity Index) 是新西兰教育部对每所学校所在社区经济条件的评估指数，2023 年起替代了旧的 Decile 评分系统。\n\n简单理解：EQI 数值越低，说明学校周边社区越富裕、家长教育水平越高。\n\n新西兰教育部综合考虑学生家庭收入、住房条件、家长教育背景、职业类型等因素，计算出每所学校的 EQI 分数（范围 344-569）。为了让每个分段内的学校数量大致均等，教育部将所有学校划分为 3 个组 (Group)、7 个段 (Band)：', html: true },
-    { q: '', isEqiBands: true },
-    { q: 'EQI 能代表学校好坏吗？', a: '不能。EQI 不等于教学质量。\n\n一些 EQI 数值较高（社区条件较弱）的学校，可能拥有非常优秀的教学团队和升学率。同样，EQI 较低的学校也不一定各方面都出色。\n\nEQI 反映的是社区经济背景，不是学校教学水平。\n\n家长在选校时应综合考虑：\n  NCEA Level 3 通过率（学术水平）\n  课程体系（NCEA / IB / Cambridge）\n  课外活动丰富度（运动、艺术、社团）\n  国际生比例和支持服务\n  学校距离和交通便利性' },
+    { q: 'EQI 公平指数是什么？数值怎么看？', html: true, buildAnswer: true },
     { q: 'State, State Integrated 和 Private 学校有什么区别？', a: 'State（公立）学校由政府全额资助，免学费；State Integrated（公立整合）学校曾是私立学校，后纳入公立体系，仍保留特殊办学理念（如宗教），需缴纳少量 attendance dues；Private（私立）学校需缴纳全额学费，不受政府课程标准约束。' },
     { q: '新西兰的学制是怎样的？', a: 'Y1-Y6 为 Contributing (小学)，Y1-Y8 为 Full Primary (全小学)，Y7-Y8 为 Intermediate (初中)，Y9-Y13 为 Secondary (中学)，Y1-Y13 为 Composite (综合学校)。大多数学生 5 岁入学 (Y1)，13 岁进入 Y9。' },
     { q: 'NCEA, A-Level, IB 分别是什么课程体系？', a: 'NCEA (National Certificate of Educational Achievement) 是新西兰国家课程评估体系，几乎所有中学都提供。A-Level (Cambridge) 和 IB (International Baccalaureate) 是国际课程体系，少数学校额外提供。选择哪种取决于升学目标。' },
@@ -2399,36 +2426,9 @@ function renderFAQ() {
   const list = document.getElementById('faqList');
   list.innerHTML = '';
   faqs.forEach((f, i) => {
-    // Special: EQI bands chart (no question, just the visual)
-    if (f.isEqiBands) {
-      const bandDiv = document.createElement('div');
-      bandDiv.className = 'faq-item';
-      bandDiv.style.cssText = 'padding:0 0 16px;border-bottom:none;';
-      bandDiv.innerHTML = `
-        <div style="padding:12px 16px;background:var(--bg-secondary);border-radius:8px;font-size:13px;line-height:1.6;">
-          <div style="margin-bottom:8px;font-weight:600;color:var(--text-secondary)">3 Group / 7 Band</div>
-          <div style="display:flex;gap:2px;height:24px;border-radius:4px;overflow:hidden;margin-bottom:12px;">
-            <div style="flex:59;background:#6ee7b7;display:flex;align-items:center;justify-content:center;font-size:9px;color:#064e3b">Fewest</div>
-            <div style="flex:27;background:#a7f3d0;display:flex;align-items:center;justify-content:center;font-size:9px;color:#064e3b">Few</div>
-            <div style="flex:19;background:#fde68a;display:flex;align-items:center;justify-content:center;font-size:8px;color:#78350f">B.Avg</div>
-            <div style="flex:21;background:#fcd34d;display:flex;align-items:center;justify-content:center;font-size:8px;color:#78350f">Avg</div>
-            <div style="flex:24;background:#fbbf24;display:flex;align-items:center;justify-content:center;font-size:8px;color:#78350f">A.Avg</div>
-            <div style="flex:28;background:#fca5a5;display:flex;align-items:center;justify-content:center;font-size:9px;color:#7f1d1d">Many</div>
-            <div style="flex:48;background:#f87171;display:flex;align-items:center;justify-content:center;font-size:9px;color:#7f1d1d">Most</div>
-          </div>
-          <div><span style="color:#16a34a;font-weight:600">Fewer / 较好</span> <span style="color:#888">344-429</span> — 社区条件优越，学区房价较高</div>
-          <div><span style="color:#d97706;font-weight:600">Moderate / 中等</span> <span style="color:#888">430-493</span> — 社区条件中等</div>
-          <div><span style="color:#dc2626;font-weight:600">More / 较弱</span> <span style="color:#888">494-569</span> — 社区条件相对薄弱</div>
-          <div style="margin-top:8px;font-size:11px;color:#999">每个 Band 的分数范围经过设计，使各段内的学校数量大致均等</div>
-        </div>
-      `;
-      list.appendChild(bandDiv);
-      return;
-    }
-
     const item = document.createElement('div');
     item.className = 'faq-item';
-    const answerHtml = f.html ? f.a.replace(/\n/g, '<br>') : esc(f.a).replace(/\n/g, '<br>');
+    const answerHtml = f.buildAnswer ? buildEqiFaqHtml() : f.html ? f.a.replace(/\n/g, '<br>') : esc(f.a).replace(/\n/g, '<br>');
     item.innerHTML = `
       <div class="faq-q" onclick="toggleFaq(${i})">
         <span>${esc(f.q)}</span>
@@ -3179,8 +3179,17 @@ function buildFilterSummary() {
   }
   if (_currentFilters['curriculum'] && _currentFilters['curriculum'].length)
     parts.push(_currentFilters['curriculum'].join(', '));
+  // Add sort info
+  if (_tableSort.key) {
+    const sortCol = TABLE_COLUMNS.find(c => c.key === _tableSort.key);
+    if (sortCol) {
+      const colName = t(sortCol.tKey);
+      const dir = _tableSort.dir === 'asc' ? (_lang === 'en' ? 'Low-High' : '低→高') : (_lang === 'en' ? 'High-Low' : '高→低');
+      parts.push(`${_lang === 'en' ? 'by ' : '按'}${colName} ${dir}`);
+    }
+  }
   const text = parts.length ? parts.join(' / ') : t('col_export_all');
-  return text.length > 55 ? text.substring(0, 52) + '...' : text;
+  return text.length > 65 ? text.substring(0, 62) + '...' : text;
 }
 
 function buildExportTemplate(results, visCols) {
@@ -3353,27 +3362,53 @@ async function exportAsImage() {
 async function exportFaqAsImage(faqIndex) {
   if (!window.html2canvas) { showToast(t('col_export_no_lib')); return; }
 
-  const faqs = document.querySelectorAll('.faq-item');
-  if (!faqs[faqIndex]) return;
+  // Get FAQ data (rebuild to get current language)
+  const faqData = [
+    { q: 'EQI 公平指数是什么？数值怎么看？', buildAnswer: true },
+  ];
+  // Also get from rendered DOM for non-EQI FAQs
+  const faqItems = document.querySelectorAll('.faq-item');
+  if (!faqItems[faqIndex]) return;
+  const qText = faqItems[faqIndex].querySelector('.faq-q span').textContent;
 
-  const faq = faqs[faqIndex];
-  const qText = faq.querySelector('.faq-q span').textContent;
-  const aEl = faq.querySelector('.faq-a');
-  const aText = aEl.textContent;
+  // Get answer HTML (with band chart)
+  const faqEl = faqItems[faqIndex].querySelector('.faq-a');
+  // Clone the answer content (preserves HTML including band chart)
+  const answerClone = faqEl.cloneNode(true);
+  // Remove the export button from clone
+  const btnInClone = answerClone.querySelector('.col-chooser-btn');
+  if (btnInClone) btnInClone.parentElement.remove();
 
-  // Build export div
+  // Build export div - 621x830 CSS → 1242x1660 PNG
   const div = document.createElement('div');
-  div.style.cssText = 'position:fixed;left:-9999px;top:0;width:621px;background:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:32px 36px;box-sizing:border-box;color:#1a1a1a;';
+  div.style.cssText = 'position:fixed;left:-9999px;top:0;width:621px;min-height:830px;background:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:48px 44px;box-sizing:border-box;color:#1a1a1a;display:flex;flex-direction:column;';
 
-  div.innerHTML = `
-    <div style="font-size:18px;font-weight:700;color:#2563eb;margin-bottom:20px;">NZ School Finder</div>
-    <div style="font-size:16px;font-weight:700;margin-bottom:16px;line-height:1.4;">${esc(qText)}</div>
-    <div style="font-size:14px;line-height:1.8;color:#333;white-space:pre-line;">${esc(aText)}</div>
-    <div style="margin-top:24px;padding-top:12px;border-top:1px solid #eee;font-size:10px;color:#bbb;display:flex;justify-content:space-between;">
-      <span>nzschoolfinder.com</span>
-      <span>${new Date().toISOString().split('T')[0]}</span>
-    </div>
-  `;
+  // Header
+  const header = document.createElement('div');
+  header.style.cssText = 'text-align:center;margin-bottom:32px;';
+  header.innerHTML = `<div style="font-size:20px;font-weight:700;color:#2563eb;">NZ School Finder</div>`;
+  div.appendChild(header);
+
+  // Question
+  const qDiv = document.createElement('div');
+  qDiv.style.cssText = 'font-size:18px;font-weight:700;margin-bottom:24px;text-align:center;line-height:1.4;';
+  qDiv.textContent = qText;
+  div.appendChild(qDiv);
+
+  // Answer (clone with all HTML preserved)
+  answerClone.style.cssText = 'font-size:14px;line-height:2;color:#333;flex:1;';
+  answerClone.className = '';
+  answerClone.classList.remove('faq-a');
+  // Make band bar bigger for export
+  const bandBar = answerClone.querySelector('div[style*="display:flex"][style*="height:"]');
+  if (bandBar) bandBar.style.height = '32px';
+  div.appendChild(answerClone);
+
+  // Footer
+  const footer = document.createElement('div');
+  footer.style.cssText = 'margin-top:32px;padding-top:12px;border-top:1px solid #eee;font-size:10px;color:#bbb;display:flex;justify-content:space-between;';
+  footer.innerHTML = `<span>nzschoolfinder.com</span><span>${new Date().toISOString().split('T')[0]}</span>`;
+  div.appendChild(footer);
 
   document.body.appendChild(div);
 
