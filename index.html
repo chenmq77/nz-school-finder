@@ -3184,8 +3184,8 @@ function buildFilterSummary() {
     const sortCol = TABLE_COLUMNS.find(c => c.key === _tableSort.key);
     if (sortCol) {
       const colName = t(sortCol.tKey);
-      const dir = _tableSort.dir === 'asc' ? (_lang === 'en' ? 'Low-High' : '低→高') : (_lang === 'en' ? 'High-Low' : '高→低');
-      parts.push(`${_lang === 'en' ? 'by ' : '按'}${colName} ${dir}`);
+      const dir = _tableSort.dir === 'asc' ? t('col_export_sort_asc') : t('col_export_sort_desc');
+      parts.push(`${t('col_export_sort_by')}${colName} ${dir}`);
     }
   }
   const text = parts.length ? parts.join(' / ') : t('col_export_all');
@@ -3205,7 +3205,7 @@ function buildExportTemplate(results, visCols) {
   const header = document.createElement('div');
   header.style.cssText = 'margin-bottom:16px;';
   header.innerHTML = `
-    <div style="font-size:18px;font-weight:700;color:#2563eb;margin-bottom:4px;">NZ School Finder</div>
+    <div style="font-size:18px;font-weight:700;color:#2563eb;margin-bottom:4px;">${esc(t('col_export_brand'))}</div>
     <div style="font-size:12px;color:#888;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(buildFilterSummary())}</div>
     <div style="font-size:10px;color:#aaa;margin-top:2px;">${new Date().toISOString().split('T')[0]}</div>
   `;
@@ -3292,13 +3292,13 @@ function buildExportTemplate(results, visCols) {
   table.appendChild(tbody);
   div.appendChild(table);
 
-  // Footer
-  const footer = document.createElement('div');
-  footer.style.cssText = 'position:absolute;bottom:20px;left:28px;right:28px;font-size:10px;color:#bbb;display:flex;justify-content:space-between;';
+  // Footer (reuse shared builder with custom right text)
   const countText = truncated
     ? t('col_export_truncated').replace('{n}', maxRows).replace('{total}', total)
     : `${total} ${t('schools_count')}`;
-  footer.innerHTML = `<span>nzschoolfinder.com</span><span>${esc(countText)}</span>`;
+  const footer = buildExportFooter();
+  footer.style.cssText = 'position:absolute;bottom:20px;left:28px;right:28px;font-size:10px;color:#bbb;display:flex;justify-content:space-between;';
+  footer.querySelector('span:last-child').textContent = countText;
   div.appendChild(footer);
 
   return div;
@@ -3320,16 +3320,19 @@ async function exportDivAsImage(div, filename, loadingBtn) {
   document.body.appendChild(div);
   try {
     const canvas = await html2canvas(div, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
-    canvas.toBlob(blob => {
-      if (!blob) { showToast(t('col_export_fail')); return; }
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      if (/iPad|iPhone|iPod/.test(navigator.userAgent)) { window.open(url); }
-      else { a.click(); }
-      setTimeout(() => URL.revokeObjectURL(url), 5000);
-    }, 'image/png');
+    await new Promise((resolve, reject) => {
+      canvas.toBlob(blob => {
+        if (!blob) { showToast(t('col_export_fail')); resolve(); return; }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) { window.open(url); }
+        else { a.click(); }
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        resolve();
+      }, 'image/png');
+    });
   } catch (e) {
     showToast(t('col_export_fail'));
   } finally {
@@ -3366,9 +3369,12 @@ async function exportAsImage() {
 async function exportFaqAsImage(faqIndex) {
   const faqItems = document.querySelectorAll('.faq-item');
   if (!faqItems[faqIndex]) return;
-  const qText = faqItems[faqIndex].querySelector('.faq-q span').textContent;
+  const qSpan = faqItems[faqIndex].querySelector('.faq-q span');
+  if (!qSpan) return;
+  const qText = qSpan.textContent;
 
   const faqEl = faqItems[faqIndex].querySelector('.faq-a');
+  if (!faqEl) return;
   const answerClone = faqEl.cloneNode(true);
   const btnInClone = answerClone.querySelector('.col-chooser-btn');
   if (btnInClone) btnInClone.parentElement.remove();
@@ -3378,7 +3384,7 @@ async function exportFaqAsImage(faqIndex) {
 
   const header = document.createElement('div');
   header.style.cssText = 'text-align:center;margin-bottom:32px;';
-  header.innerHTML = `<div style="font-size:20px;font-weight:700;color:#2563eb;">NZ School Finder</div>`;
+  header.innerHTML = `<div style="font-size:20px;font-weight:700;color:#2563eb;">${esc(t('col_export_brand'))}</div>`;
   div.appendChild(header);
 
   const qDiv = document.createElement('div');
@@ -3393,7 +3399,8 @@ async function exportFaqAsImage(faqIndex) {
   div.appendChild(answerClone);
 
   div.appendChild(buildExportFooter());
-  await exportDivAsImage(div, `nz-school-faq-${faqIndex + 1}.png`);
+  const faqBtn = faqEl.querySelector('.col-chooser-btn');
+  await exportDivAsImage(div, `nz-school-faq-${faqIndex + 1}.png`, faqBtn);
 }
 
 function renderListCards(results, total, page, pages) {

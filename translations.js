@@ -177,6 +177,10 @@ const TRANSLATIONS = {
     col_export_too_cols:  { en: "Max 6 columns for export", cn: "导出最多显示 6 列" },
     col_export_truncated: { en: "Showing {n} of {total}", cn: "共 {total} 所，显示前 {n} 所" },
     col_export_all:       { en: "All schools", cn: "全部学校" },
+    col_export_brand:     { en: "NZ School Finder", cn: "NZ School Finder" },
+    col_export_sort_asc:  { en: "Low-High", cn: "低→高" },
+    col_export_sort_desc: { en: "High-Low", cn: "高→低" },
+    col_export_sort_by:   { en: "by ", cn: "按" },
 
     // Misc
     no_data:              { en: "No data available", cn: "暂无数据" },
