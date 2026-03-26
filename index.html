@@ -16,6 +16,7 @@
   --blue-5: #7AB0C8; --blue-6: #8CBBD0; --blue-7: #9EC6D8; --blue-8: #B0D1E0; --blue-9: #C2DCE8;
   --teal-1: #3d8e86; --teal-2: #5da39d; --teal-3: #88bfb8; --teal-4: #a4c9cc; --teal-5: #b0d0cc; --teal-6: #d0e4e0;
   --gold-1: #927D41; --gold-2: #B3A259; --gold-3: #CCBC80; --gold-4: #DDD0A0;
+  --red-1: #c04851; --red-2: #d4888d; --red-3: #e8b0b3; --red-4: #f0d4d6;
   --success: #3d8e86; --success-light: #d4ece9; --success-dark: #2a6560; --success-bar1: #5dbdad; --success-bar2: #88cfc5;
   --warning: #c04851; --warning-light: #f0d4d6; --warning-dark: #8a3038; --warning-bar1: #d4888d;
   --neutral: #d4a574; --neutral-light: #f0e4d4; --neutral-dark: #7a5c3a; --neutral-bar1: #e8cda8; --neutral-bar2: #c08a55;
@@ -2392,6 +2393,7 @@ const PALETTE = {
   blue:  ['#1D3560','#254D78','#31769F','#4088B0','#7AB0C8','#8CBBD0','#9EC6D8','#B0D1E0','#C2DCE8'],
   teal:  ['#3d8e86','#5da39d','#88bfb8','#a4c9cc','#b0d0cc','#d0e4e0'],
   gold:  ['#927D41','#B3A259','#CCBC80','#DDD0A0'],
+  red:   ['#c04851','#d4888d','#e8b0b3','#f0d4d6'],
 };
 
 const REGION_COLORS = PALETTE.blue;
@@ -2438,7 +2440,7 @@ function renderDashboard(d) {
   const regionContainer = document.getElementById('tmRegion');
   regionContainer.innerHTML = '';
   const row1Total = row1.reduce((s, r) => s + r.count, 0);
-  const R1H = 72, R2H = 56, GAP = 1;
+  const R1H = 56, R2H = 56, GAP = 1;
   regionContainer.style.cssText = `position:relative;height:${R1H + GAP + R2H}px`;
   function _placeRow(items, colors, topPx, heightPx) {
     let accum = 0;
@@ -2656,8 +2658,8 @@ function renderEqiBlock(bands) {
   container.innerHTML = '';
   // Grid 7列，2行，确保 Group 边界与 Band 边界精确对齐
   // Row1: 浅色背景黑字 — 浅绿、浅绿、浅金、浅金、浅金、浅红、浅红
-  // Row1: 浅色背景黑字 — 浅绿、浅绿、浅金、浅金、浅金、浅红、浅红
-  const eqiColors = ['#b0d0cc','#d0e4e0','#DDD0A0','#CCBC80','#B3A259','#e8b0b3','#d4888d'];
+  // Row1: 浅色背景黑字 — teal浅、teal最浅、gold浅→深、red浅→深
+  const eqiColors = [PALETTE.teal[4], PALETTE.teal[5], PALETTE.gold[3], PALETTE.gold[2], PALETTE.gold[1], PALETTE.red[2], PALETTE.red[1]];
   const grid = document.createElement('div');
   grid.style.cssText = 'display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:36px 36px;gap:1px;width:100%';
   // Row 1: 7 bands
@@ -2673,9 +2675,9 @@ function renderEqiBlock(bands) {
   });
   // Row 2: 3 groups 用 grid-column 跨列
   const groups = [
-    { label: 'Fewer', bands: bands.slice(0, 2), color: '#3d8e86', col: '1/3' },
-    { label: 'Moderate', bands: bands.slice(2, 5), color: '#927D41', col: '3/6' },
-    { label: 'More', bands: bands.slice(5, 7), color: '#c04851', col: '6/8' },
+    { label: 'Fewer', bands: bands.slice(0, 2), color: PALETTE.teal[0], col: '1/3' },
+    { label: 'Moderate', bands: bands.slice(2, 5), color: PALETTE.gold[0], col: '3/6' },
+    { label: 'More', bands: bands.slice(5, 7), color: PALETTE.red[0], col: '6/8' },
   ];
   groups.forEach(g => {
     const total = g.bands.reduce((s, b) => s + b.count, 0);
