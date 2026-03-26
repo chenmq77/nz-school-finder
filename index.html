@@ -3726,9 +3726,14 @@ async function exportNceaCard() {
   });
 
   const div = document.createElement('div');
-  div.style.cssText = 'position:fixed;left:-9999px;top:0;width:621px;min-height:830px;background:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:40px 32px;box-sizing:border-box;color:#1a1a1a;display:flex;flex-direction:column;justify-content:space-between;';
+  div.style.cssText = 'position:fixed;left:-9999px;top:0;width:621px;min-height:830px;background:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:0 32px;box-sizing:border-box;color:#1a1a1a;display:flex;flex-direction:column;';
 
-  // Header: brand + school name + NCEA title side by side
+  // Top spacer
+  const topSpacer = document.createElement('div');
+  topSpacer.style.cssText = 'flex:1;min-height:24px;';
+  div.appendChild(topSpacer);
+
+  // Header: brand + school name + NCEA title
   const s = _cachedSchool || {};
   const cnName = s.school_name_cn || '';
   const enName = s.school_name || '';
@@ -3738,34 +3743,73 @@ async function exportNceaCard() {
   const header = document.createElement('div');
   header.innerHTML = `
     <div style="font-size:12px;font-weight:600;color:#2563eb;margin-bottom:14px;">${esc(t('col_export_brand'))}</div>
-    <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;">
-      <span style="font-size:24px;font-weight:800;">${esc(displayName)}</span>
-      <span style="font-size:18px;font-weight:700;color:#2563eb;">${t('section_ncea')}</span>
+    <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;">
+      <span style="font-size:28px;font-weight:800;letter-spacing:-0.5px;">${esc(displayName)}</span>
+      <span style="font-size:20px;font-weight:700;color:#2563eb;">${t('section_ncea')}</span>
     </div>
     ${subName ? `<div style="font-size:12px;color:#999;margin-top:4px;">${esc(subName)}</div>` : ''}
   `;
   div.appendChild(header);
 
+  // Extract latest year from NCEA content
+  const yearMatch = bodyH.textContent.match(/20\d{2}/);
+  const ncYear = yearMatch ? yearMatch[0] : '';
+
+  // NCEA introduction
+  const intro = document.createElement('div');
+  intro.style.cssText = 'margin:20px 0;padding:14px 18px;background:#f8f9fa;border-radius:8px;font-size:12.5px;line-height:1.8;color:#444;';
+  intro.innerHTML = _lang === 'en'
+    ? `<b>About NCEA</b> — New Zealand's credit-based assessment system for secondary school students.<br>`
+      + `<b>Level 1</b> (Year 11) foundation, <b>Level 2</b> (Year 12) intermediate.<br>`
+      + `<b>Level 3</b> (Year 13) advanced — required for university entrance (UE).<br>`
+      + `<span style="color:#888">Data below shows % of ${esc(enName)} ${ncYear} leavers achieving each level or above.</span>`
+    : `<b>NCEA</b> 是新西兰中学的学分考核体系，学生通过各科考试和校内评估积累学分。<br>`
+      + `<b>Level 1</b>（11 年级）基础水平，<b>Level 2</b>（12 年级）中级水平。<br>`
+      + `<b>Level 3</b>（13 年级）高级水平，申请大学需达到 UE 标准。`;
+  div.appendChild(intro);
+
   // NCEA content
-  clone.style.cssText = 'font-size:13px;margin:20px 0;';
+  clone.style.cssText = 'font-size:13px;';
   clone.className = '';
   div.appendChild(clone);
 
-  // Footer pinned to bottom
+  // Bottom spacer
+  const bottomSpacer = document.createElement('div');
+  bottomSpacer.style.cssText = 'flex:1;min-height:16px;';
+  div.appendChild(bottomSpacer);
+
+  // Footer
   const footer = buildExportFooter();
-  footer.style.marginTop = 'auto';
-  footer.style.paddingTop = '12px';
+  footer.style.paddingBottom = '24px';
   div.appendChild(footer);
 
   const btn = document.querySelector('#sectionH .col-chooser-btn');
   await exportDivAsImage(div, `nz-school-ncea-${new Date().toISOString().split('T')[0]}.png`, btn);
 }
 
+/* ── SVG to PNG helper ── */
+function svgToPngDataUrl(svgUrl) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = img.naturalWidth || 400;
+      c.height = img.naturalHeight || 400;
+      c.getContext('2d').drawImage(img, 0, 0);
+      resolve(c.toDataURL('image/png'));
+    };
+    img.onerror = () => resolve('');
+    img.src = svgUrl;
+  });
+}
+
 /* ── Export Xiaohongshu School Card (Page 1: Cover) ── */
 async function exportSchoolCard() {
   if (!_cachedSchool) { showToast('请先选择一所学校'); return; }
   const s = _cachedSchool;
-  const W = 540, H = 720; // 1080x1440 at scale:2
+  const W = 540, H = 720;
+  const B = PALETTE;
 
   // Data extraction
   const cnName = s.school_name_cn || s.school_name || '';
@@ -3777,28 +3821,39 @@ async function exportSchoolCard() {
   const roll = parseInt(s.total_school_roll) || 0;
   const intl = parseInt(s.international) || 0;
   const intlPct = roll > 0 ? (intl / roll * 100).toFixed(0) : '0';
-
-  // Authority label
   const auth = safe(s.authority);
   const authCn = auth.includes('State') && !auth.includes('Integrated') ? '公立' : auth.includes('Integrated') ? '公立整合' : auth.includes('Private') ? '私立' : auth;
-  // Gender label
   const gender = safe(s.gender_of_students);
   const genderCn = gender === 'Co-Ed' || gender === 'Co-Educational' ? '混校' : gender.includes('Boys') ? '男校' : gender.includes('Girls') ? '女校' : gender;
-  // Year level
-  const def = safe(s.definition) || '';
-  const yearMatch = def.match(/Year\s*(\d+)\s*-\s*(\d+)/i) || def.match(/(\d+)\s*-\s*(\d+)/);
-  const yearLabel = yearMatch ? `${yearMatch[1]}-${yearMatch[2]}年级` : '';
-
-  // Curriculum
+  const typeDef = safe(s.school_type) || safe(s.definition) || '';
+  const yearMatch = typeDef.match(/Year\s*(\d+)\s*-\s*(\d+)/i) || typeDef.match(/(\d+)\s*-\s*(\d+)/);
+  const yearLabel = yearMatch ? yearMatch[1] + '-' + yearMatch[2] + '年级' : '';
   const webData = _cachedWebData || {};
   const curriculum = webData.curriculum_systems || '';
   const hasIB = curriculum.toLowerCase().includes('ib');
   const hasALevel = curriculum.toLowerCase().includes('a-level') || curriculum.toLowerCase().includes('cambridge');
+  const tuition = webData.intl_tuition_annual;
+  const homestay = webData.intl_homestay_weekly;
+  const feesYear = webData.intl_fees_year || '';
 
-  // NCEA L3 — only show if above national average (55.5%)
+  // Missing data warning
+  const missing = [];
+  if (!cnName || cnName === enName) missing.push('中文校名');
+  if (!webData.logo_url) missing.push('校徽');
+  if (!tuition) missing.push('学费');
+  if (missing.length > 0 && !confirm('以下数据缺失，是否继续导出？\n\n- ' + missing.join('\n- '))) return;
+
+  // Logo: SVG → PNG conversion
+  let logoSrc = '';
+  const logoUrl = webData.logo_url || '';
+  if (logoUrl) {
+    logoSrc = logoUrl.endsWith('.svg') ? await svgToPngDataUrl(logoUrl) : logoUrl;
+  }
+
+  // NCEA L3 — extract values
   const perf = _cachedPerformance;
-  let nceas = '';
-  if (perf && perf.performance && perf.comparison) {
+  let l3Val = null, l3Diff = null, l3Nz = null;
+  if (perf && perf.comparison) {
     const comp = perf.comparison;
     const latestYear = perf.years[perf.years.length - 1] || 2024;
     const schoolKey = Object.keys(comp).find(k =>
@@ -3808,73 +3863,76 @@ async function exportSchoolCard() {
     const nzKey = Object.keys(comp).find(k => k === 'New Zealand');
     if (schoolKey && comp[schoolKey].ncea3) {
       const schoolL3 = comp[schoolKey].ncea3[latestYear];
-      const nzL3 = nzKey && comp[nzKey].ncea3 ? comp[nzKey].ncea3[latestYear] : 55.5;
+      const nzL3 = nzKey && comp[nzKey].ncea3 ? comp[nzKey].ncea3[latestYear] : null;
       if (schoolL3 != null && nzL3 != null && schoolL3 > nzL3) {
-        const diff = (schoolL3 - nzL3).toFixed(1);
-        nceas = `<div style="margin:12px 0;text-align:center">
-          <div style="font-size:16px;color:#666;margin-bottom:6px">NCEA L3 达标率</div>
-          <div style="font-size:48px;font-weight:700;color:${PALETTE.primary}">${schoolL3.toFixed(1)}%</div>
-          <div style="font-size:16px;color:#888;margin-top:6px">高于全国 ${diff} 个百分点（全国 ${nzL3.toFixed(1)}%）</div>
-        </div>`;
+        l3Val = schoolL3.toFixed(1);
+        l3Diff = (schoolL3 - nzL3).toFixed(1);
+        l3Nz = nzL3.toFixed(1);
       }
     }
   }
 
-  // Fees
-  const tuition = webData.intl_tuition_annual;
-  const homestay = webData.intl_homestay_weekly;
-  const feesYear = webData.intl_fees_year || '';
-
-  // Logo URL
-  const logoUrl = webData.logo_url || '';
-
-  // IB / A-Level badge — 用中文解释
-  let currBadgeHtml = '';
-  if (hasIB && hasALevel) currBadgeHtml = `<div style="text-align:center;margin:12px 0"><span style="display:inline-block;background:${PALETTE.teal[0]};color:#fff;padding:8px 24px;border-radius:6px;font-size:20px;font-weight:700">双轨课程（IB MYP + A-Level）</span></div>`;
-  else if (hasIB) currBadgeHtml = `<div style="text-align:center;margin:12px 0"><span style="display:inline-block;background:${PALETTE.teal[0]};color:#fff;padding:8px 24px;border-radius:6px;font-size:20px;font-weight:700">双轨课程（IB MYP）</span></div>`;
-  else if (hasALevel) currBadgeHtml = `<div style="text-align:center;margin:12px 0"><span style="display:inline-block;background:${PALETTE.blue[2]};color:#fff;padding:8px 24px;border-radius:6px;font-size:20px;font-weight:700">双轨课程（A-Level）</span></div>`;
-
-  // Build div
+  // Build card
   const div = document.createElement('div');
-  div.style.cssText = `position:fixed;left:-9999px;top:0;width:${W}px;height:${H}px;background:#F8F6F2;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans SC",sans-serif;padding:40px 40px 32px;box-sizing:border-box;display:flex;flex-direction:column;color:#333;`;
+  div.style.cssText = 'position:fixed;left:-9999px;top:0;width:' + W + 'px;height:' + H + 'px;background:#F8F6F2;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans SC",sans-serif;box-sizing:border-box;display:flex;flex-direction:column;color:#333;overflow:hidden;';
 
-  div.innerHTML = `
-    <div style="text-align:center;font-size:14px;color:#888;letter-spacing:2px;margin-bottom:16px">
-      NZ School Finder | 每天认识一所奥克兰高中
-    </div>
+  // Font family — 用衬线体更有中国风
+  const FF = '"Songti SC","STSong","Noto Serif SC","Source Han Serif SC",serif';
 
-    <div style="text-align:center;margin-bottom:12px">
-      ${logoUrl ? `<img src="${logoUrl}" style="width:140px;height:140px;object-fit:contain" crossorigin="anonymous">` : `<div style="width:140px;height:140px;margin:0 auto;background:#E8E5DF;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:40px;color:#999">${esc(cnName.charAt(0))}</div>`}
-    </div>
+  // Top color block
+  const topBlock = '<div style="background:' + B.blue[0] + ';color:#fff;text-align:center;padding:20px 20px 18px">' +
+    '<div style="font-size:32px;font-weight:700;letter-spacing:4px;white-space:nowrap;font-family:' + FF + '">每天认识一所奥克兰本地高中</div>' +
+    '</div>';
 
-    <div style="text-align:center;margin-bottom:8px">
-      <div style="font-size:32px;font-weight:700;color:#222">${esc(cnName)}</div>
-      <div style="font-size:16px;color:#888;margin-top:6px">${esc(enName)}  No.${esc(schoolNum)}</div>
-    </div>
+  // Logo
+  const logoHtml = logoSrc
+    ? '<img src="' + logoSrc + '" style="max-width:240px;max-height:200px;object-fit:contain">'
+    : '<div style="width:160px;height:160px;background:#E8E5DF;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:64px;color:#999;font-weight:700">' + esc(cnName.charAt(0)) + '</div>';
 
-    <div style="text-align:center;margin:10px 0 8px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap">
-      <span style="background:#E8E5DF;color:#444;padding:5px 14px;border-radius:4px;font-size:15px;font-weight:500">${esc(authCn)}</span>
-      <span style="background:#E8E5DF;color:#444;padding:5px 14px;border-radius:4px;font-size:15px;font-weight:500">${esc(genderCn)}</span>
-      ${yearLabel ? `<span style="background:#E8E5DF;color:#444;padding:5px 14px;border-radius:4px;font-size:15px;font-weight:500">${esc(yearLabel)}</span>` : ''}
-    </div>
+  const tc = B.teal[0];
 
-    ${nceas}
+  // IB label
+  let ibLabel = '';
+  if (hasIB && hasALevel) ibLabel = 'IB+A-Level';
+  else if (hasIB) ibLabel = 'IB 课程';
+  else if (hasALevel) ibLabel = 'A-Level';
 
-    ${currBadgeHtml}
+  // EQI short
+  const eqiShort = eqiBand ? { fewer: '社区优越', moderate: '社区中等', more: '社区薄弱' }[eqiBand.group] : '';
 
-    <div style="margin-top:auto;font-size:17px;line-height:2.2;color:#444;border-top:2px solid #E0DDD8;padding-top:16px">
-      ${tuition ? `<div>学费  <strong style="color:#222">$${Number(tuition).toLocaleString()}/年</strong>${feesYear ? ` <span style="color:#999">(${feesYear})</span>` : ''}</div>` : ''}
-      ${homestay ? `<div>住宿  <strong style="color:#222">$${Number(homestay).toLocaleString()}/周</strong></div>` : ''}
-      <div>学生  <strong style="color:#222">${roll.toLocaleString()}人</strong>${intl > 0 ? ` <span style="color:#888">(国际生 ${intlPct}%)</span>` : ''}</div>
-      ${eqi > 0 ? `<div>EQI  <strong style="color:#222">${eqi}</strong> <span style="color:#888">${esc(eqiGroup)}</span></div>` : ''}
-    </div>
+  div.innerHTML = topBlock +
+    '<div style="flex:1;display:flex;flex-direction:column;padding:10px 20px 10px">' +
+      // logo 左 + 标签右
+      '<div style="display:flex;gap:16px;margin-bottom:6px;flex:1;align-items:center">' +
+        '<div style="flex:1;display:flex;align-items:center;justify-content:center">' + logoHtml + '</div>' +
+        '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px">' +
+          '<div style="font-size:24px;color:#999;text-align:right">No.' + esc(schoolNum) + '</div>' +
+          '<div style="font-size:42px;font-weight:700;color:' + tc + ';font-family:' + FF + '">' + esc(authCn) + '</div>' +
+          '<div style="font-size:38px;font-weight:700;color:#333;font-family:' + FF + '">' + (genderCn === '混校' ? '男女混校' : esc(genderCn)) + '</div>' +
+          (yearLabel ? '<div style="font-size:38px;font-weight:700;color:#333;font-family:' + FF + '">' + esc(yearLabel) + '</div>' : '') +
+          (ibLabel ? '<div style="font-size:38px;font-weight:700;color:' + tc + ';font-family:' + FF + '">' + esc(ibLabel) + '</div>' : '') +
+        '</div>' +
+      '</div>' +
+      // 校名居中
+      '<div style="text-align:center;margin-bottom:6px">' +
+        '<div style="font-size:44px;font-weight:700;color:#222;font-family:' + FF + '">' + esc(cnName) + '</div>' +
+        '<div style="font-size:26px;color:#888;margin-top:4px;letter-spacing:1px">' + esc(enName) + '</div>' +
+      '</div>' +
+      // 底部色块
+      '<div style="display:flex;gap:3px;margin-top:auto">' +
+        (l3Val ? '<div style="flex:1;background:' + B.blue[0] + ';color:#fff;padding:14px;display:flex;align-items:center;gap:10px;border-radius:8px 0 0 8px">' +
+          '<div style="font-size:32px;font-weight:700;line-height:1.2">NCEA<br>L3</div>' +
+          '<div><div style="font-size:48px;font-weight:700">' + l3Val + '%</div><div style="font-size:26px;opacity:0.85">升学导向</div></div>' +
+        '</div>' : '') +
+        (eqi > 0 ? '<div style="flex:1;background:' + tc + ';color:#fff;padding:14px;display:flex;align-items:center;gap:10px;border-radius:0 8px 8px 0">' +
+          '<div style="font-size:34px;font-weight:700;line-height:1.2">EQI<br>' + eqi + '</div>' +
+          '<div style="font-size:34px;font-weight:700;line-height:1.2">社区<br>优越</div>' +
+        '</div>' : '') +
+      '</div>' +
+      '<div style="margin-top:8px;text-align:center;font-size:20px;color:#bbb;letter-spacing:1px">nz-school-finder</div>' +
+    '</div>';
 
-    <div style="margin-top:16px;text-align:center;font-size:13px;color:#bbb;letter-spacing:1px">
-      nz-school-finder
-    </div>
-  `;
-
-  await exportDivAsImage(div, `nz-school-${schoolNum}-cover.png`, null);
+  await exportDivAsImage(div, 'nz-school-' + schoolNum + '-cover.png', null);
 }
 
 function renderListCards(results, total, page, pages) {

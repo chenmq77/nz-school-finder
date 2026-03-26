@@ -1,7 +1,7 @@
-# Requirement Challenge — Round 3 of 5
+# Requirement Challenge — Round 3 of 8
 
 **Model**: gpt-5.4-xhigh-fast
-**Date**: 2026-03-26 02:19:08
+**Date**: 2026-03-26 22:50:59
 
 ---
 
@@ -10,29 +10,28 @@
 ### SCORE: 7
 
 ### COMPLETENESS
-- [core configurable table flow]: COVERED — default columns, column chooser, persistence, sorting interactions, and mobile horizontal scrolling are all defined at a usable level.
-- [field catalog alignment]: PARTIAL — the requirement lists seven ethnicity source fields, but the proposal only exposes five sub-columns and the stated total of 19 columns does not match the actual definitions.
-- [sorting behavior]: PARTIAL — click cycle, null placement, and per-column defaults are defined, but bilingual name sorting and the business meaning of the default EQI direction are still ambiguous.
-- [error and degraded states]: COVERED — zero results, API failure, invalid localStorage data, and localStorage write failure are explicitly handled.
-- [testability]: PARTIAL — most acceptance criteria are measurable, but sorting cannot be fully verified until the spec defines whether the 100-row cap is applied before or after sorting.
+- Import workflow and rollback safety: COVERED — The happy path, failure path, rerun model, and transactional rollback are clearly defined for the core import flow.
+- Data semantics and validation rules: GAP — The proposal still contains a logical contradiction around UE versus the mutually exclusive level buckets, so the validation contract is not yet reliable.
+- School identity resolution: PARTIAL — Exact/normalized/manual mapping is defined, but ambiguous multi-match cases in the existing `schools` table are not handled.
+- UI/API behavior for partial data: PARTIAL — List-page null handling is clear, but detail-page behavior for schools outside Metro coverage and subjects not in Top 10 is still underspecified.
+- External dependency control: PARTIAL — The parser depends on a very specific PDF layout and file version, but there is no explicit checksum/version guard or failure rule for source-file drift.
 
 ### ISSUES
-1. [critical] Sorting/Data Window — The proposal says the unfiltered view shows only the first 100 schools, but it does not define whether sorting operates on all 2577 schools and then displays the top 100, or sorts only the visible 100. That changes the meaning of comparison results and must be specified.
-2. [major] Data Model Completeness — The available data includes `MELAA` and `Other` ethnicity fields, but the column model omits them while also claiming there are 19 columns. The schema, UI column registry, and requirement inventory are not fully aligned.
-3. [minor] Sorting Semantics — `name` sorting is defined as `school_name_cn` fallback `school_name`, which does not clearly satisfy the stated "A-Z" rule for text columns, and `eqi` assumes "low = good" without business confirmation. These rules are likely to confuse users unless explicitly justified.
-4. [question] For user — Do you want the product to expose all available ethnicity fields, and what should be the canonical sort rule for the bilingual school name column and EQI default direction from a business perspective?
+1. [critical] Data semantics — The line "`Below L1 + L1 + L2 + L3`, mutually exclusive, adding UE approximately 100%" is internally wrong because UE is not a separate mutually exclusive bucket from highest NCEA level; if implemented as written, valid data can fail validation and users can be misled — redefine the rule as `Below L1 + L1 + L2 + L3 ~= 100` with a rounding tolerance, and document the intended UE relationship separately.
+2. [major] Matching — The matching strategy does not say what happens when an exact or normalized school name maps to multiple rows in `schools`; in a 2577-school dataset this can silently attach Metro data to the wrong school — treat multi-candidate matches as a hard failure and emit an explicit ambiguous-match report for manual resolution.
+3. [major] Dependency risk — The design assumes one exact PDF structure and file version, but there is no guard against the wrong PDF, a revised Metro release, or extraction differences across PyMuPDF versions — pin the input filename/checksum and fail fast if the source file or extraction preconditions do not match the expected baseline.
+4. [major] Detail-page contract — `school_subject_ranking` only stores positive Top 10 hits, but the UI/API behavior for a subject with no row is undefined, so consumers cannot tell "not in Metro Top 10" from "data missing / parse failed" — define an explicit response contract and rendering rule for absent rankings and out-of-coverage schools.
+5. [question] For user — When a school has no Metro row, or a subject has no Top 10 ranking, should the product show explicit labels such as "Not covered by Metro 2025" / "Not in Top 10", or should those values stay hidden/blank?
 
 ### SCENARIOS_ASSESSMENT
-- [scenario 1: first-use default browsing]: NEEDS_WORK — the initial default view is clear, but the interaction between the 100-row cap and sorting is not.
-- [scenario 2: custom columns]: WELL_DEFINED — grouping, persistence, restore-default behavior, and invalid localStorage recovery are all adequately specified.
-- [scenario 3: sorting]: NEEDS_WORK — the mechanical click behavior is clear, but the sort scope and some domain-specific sort rules are still underspecified.
-- [scenario 4: mobile]: WELL_DEFINED — sticky name column, horizontal scrolling, and a mobile-specific selector pattern are sufficient for implementation.
-- [scenario 5: edge and error states]: WELL_DEFINED — the main failure and empty-state paths are covered with expected UI behavior.
+- Scenario 1 (data extraction and import): NEEDS_WORK — The operational flow is strong, but ambiguous school matches and the incorrect UE validation relationship still make the import spec unsafe.
+- Scenario 2 (list page UE column): WELL_DEFINED — The display, null state, and sort behavior are clear and measurable for Release 1.
+- Scenario 3 (detail page NCEA overview): NEEDS_WORK — Core fields are listed, but subject-ranking empty states and no-coverage messaging are not defined well enough for implementation consistency.
 
 ### ARCHITECTURE_ASSESSMENT
-- Fitness: 7/10
-- Risks: ambiguity between display cap and sort scope; incomplete ethnicity column mapping; unconfirmed business semantics for bilingual name sorting and EQI ordering
-- Suggestions: define whether the 100-row limit is fetch-time or display-time and how sorting interacts with it; align the column registry with the full available field set or explicitly de-scope omitted fields; get a business decision on canonical name sorting and EQI default order before implementation
+- Fitness: 7
+- Risks: [invalid validation caused by the UE/bucket contradiction; silent wrong-school linkage on ambiguous names; parser brittleness if the PDF file/version changes; unclear API semantics for non-ranked subjects and non-covered schools]
+- Suggestions: [change validation to `Below L1 + L1 + L2 + L3 ~= 100` with explicit tolerance and separate UE checks; add hard-fail handling for ambiguous matches, not just unmatched ones; lock the source PDF by filename/checksum and document parser prerequisites; define API/UI semantics for "not covered" versus "not ranked" versus "missing data"]
 
 ### SUMMARY
-The proposal is close and the main user flows are now largely covered, but it is not yet approval-ready because one core correctness issue remains unresolved: how sorting behaves when the unfiltered view is capped at 100 rows. In addition, the column inventory is internally inconsistent and the sort semantics for bilingual names and EQI still rely on assumptions rather than explicit business rules.
+The proposal is close to implementation-ready and is appropriately scoped for Release 1, but it is not fully converged yet. The remaining problems are not broad architecture rewrites; they are precision issues that can still cause incorrect imports or ambiguous UI behavior: the UE validation rule is logically wrong as written, ambiguous school-name collisions are not handled, and partial-data semantics for Top 10 rankings and Metro coverage need to be made explicit. Once those points are fixed, this should be ready to approve.

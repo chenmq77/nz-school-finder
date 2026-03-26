@@ -1,44 +1,42 @@
-# Requirement Challenge — Round 1 of 3
+# Requirement Challenge — Round 1 of 8
 
 **Model**: gpt-5.4-xhigh-fast
-**Date**: 2026-03-26 21:42:50
+**Date**: 2026-03-26 22:04:09
 
 ---
 
 ### VERDICT: CHANGES_REQUESTED
 
-### SCORE: 4
+### SCORE: 5
 
 ### COMPLETENESS
-- Proposal deliverable: GAP — the "current proposal" mostly repeats the original requirement and does not actually provide distinct scenarios, architecture, or an implementation plan.
-- Visual specification: PARTIAL — core blocks, some font sizes, and colors are defined, but spacing, alignment, max widths, safe margins, and overflow behavior are missing.
-- Conditional rendering rules: PARTIAL — visibility conditions exist for NCEA, boarding, and IB/A-Level, but equality cases, missing values, and layout reflow after hiding sections are undefined.
-- Data contract: GAP — required fields, optional fields, valid ranges, formatting rules, data freshness, and source-of-truth for metrics are not specified.
-- Failure handling: GAP — there is no defined behavior for missing logo assets, SVG conversion failure, missing names, missing tuition, or incomplete school records.
-- Testability: GAP — acceptance criteria are not measurable enough to verify export quality, text readability, spacing consistency, or conditional block placement.
+- [School-level extraction]: PARTIAL — the core table on pages 31-33 is covered, but the schema does not cleanly represent that some values are for 2023 while `school_roll` is explicitly for July 2024.
+- [Subject ranking extraction]: PARTIAL — the 11 top-10 subject rankings are included, but tie handling, non-ranked schools, and validation expectations are not defined.
+- [Comparison-system integration]: PARTIAL — list and detail pages are described, but the proposal does not define an actual multi-school comparison flow even though the requirement is to strengthen comparison capability.
+- [School matching and referential integrity]: GAP — the proposal says all PDF schools should map to `schools`, but the acceptance target is only `>95%`, and no final policy exists for unmatched schools.
+- [Regional/trend data scope]: GAP — pages 3-6 are listed as extractable data, but the proposal neither models them nor explicitly marks them out of scope.
+- [Operational robustness]: GAP — reruns, transactions, partial failures, import auditability, and dependency failure behavior are not specified.
 
 ### ISSUES
-1. [critical] Proposal completeness — The submission for "Scenarios + Architecture + Plan" is effectively just a restatement of the requirement — the actual scenario breakdown, architecture design, and execution plan are missing.
-2. [critical] Data contract — The spec does not define the full input schema, required vs optional fields, fallback values, or formatting rules for `school_number`, names, tuition, boarding, student count, international percentage, EQI, and NCEA metrics — implementation would be inconsistent across engineers.
-3. [major] Conditional layout — Multiple sections are optional, but there is no rule for vertical reflow, spacing redistribution, or component ordering when blocks are hidden — this creates a high risk of broken or unbalanced layouts.
-4. [major] Text overflow and localization — Long Chinese names, long English names, long curriculum labels, and large numeric values have no wrapping, truncation, or multi-line behavior defined — the "no text below 20px" rule is not enough to guarantee a valid layout.
-5. [major] Metric semantics — "Higher than national average", the fixed `55.5%`, EQI qualitative labels, and rounding/display rules are undefined — different implementations could produce different outputs for the same school.
-6. [major] Dependency risk — Using canvas to convert SVG and `html2canvas` to export is plausible, but CORS issues, external SVG references, font loading, async asset readiness, and render fidelity are not addressed — exports may fail or be nondeterministic.
-7. [minor] Acceptance criteria — The spec lacks measurable checks for exact output size, acceptable line count, maximum text width, padding consistency, image sharpness, and export success conditions — QA cannot reliably approve or reject output.
-8. [question] For user — When key data is missing or low-confidence, such as no Chinese name, no logo, no tuition, or unavailable NCEA data, should the card still export with omitted sections/placeholders, or should export be blocked?
+1. [critical] Data model semantics — the proposed `school_ncea_summary.year` suggests a single time period, but the row mixes 2023 outcomes with a July 2024 roll count. This will create misleading API semantics unless metric periods are separated or explicitly modeled.
+2. [critical] Mapping/completeness — the requirement says the PDF schools must be associated to the existing `schools` table, but the proposal accepts only `>95%` matching and does not define what happens to the remaining schools. Define whether import must fail, quarantine unmatched rows, or require manual mapping before release.
+3. [major] Source-of-truth conflict — the system already has `school_performance` data for NCEA levels for 11 schools, but the proposal does not define which source wins when the Metro PDF differs. The API and UI need a canonical precedence rule per field.
+4. [major] Scope ambiguity — the source overview includes regional summary/trend pages and the requirement mentions a comparison system, yet the proposal only specifies list/detail behavior and silently drops regional aggregates. Release-1 scope needs an explicit boundary.
+5. [major] Import reliability — no idempotent import strategy, transaction boundary, rollback behavior, or import report is defined. A rerun or partial failure in SQLite could leave the dataset in an inconsistent state.
+6. [minor] Schema/testability — `outstanding_merit` and `distinction` are typed as `TEXT` while comments imply percentages, and “data matches PDF” is not measurable. Use explicit numeric/raw-value rules and define concrete validation checks.
+7. [question] For user — should release 1 include regional summary/trend insights and a dedicated comparison-page experience, or is the business priority limited to school-level summary data on list/detail pages only?
 
 ### SCENARIOS_ASSESSMENT
-- Full-data school card: NEEDS_WORK — the happy path is visually described, but formatting rules and acceptance criteria are still too loose for deterministic implementation.
-- School without boarding fee: NEEDS_WORK — omission is mentioned, but resulting spacing and layout behavior are not defined.
-- School with NCEA at or below national average: NEEDS_WORK — hiding logic is partially defined, but equality, unavailable data, and post-hide layout rules are missing.
-- School with IB and A-Level or other combined curricula: NEEDS_WORK — the badge is mentioned, but wording rules, prioritization, and overflow handling for multiple curricula are unclear.
-- School with long bilingual names: MISSING — no wrapping, truncation, or line-break strategy is provided.
-- School with broken or cross-origin SVG logo: MISSING — no fallback asset strategy or export failure behavior is defined.
+- [Scenario 1: data extraction and import]: NEEDS_WORK — the happy path is present, but rerun behavior, unmatched-school resolution, import atomicity, and hard pass/fail rules are missing.
+- [Scenario 2: list-page UE comparison]: NEEDS_WORK — the column and sorting behavior are sketched, but null ordering, source labeling, and mixed-year labeling are undefined.
+- [Scenario 3: school detail NCEA view]: NEEDS_WORK — the displayed metrics are identified, but non-top10 subject behavior, conflicting legacy values, and user-facing provenance are not specified.
+- [Scenario 4: school-to-school comparison flow]: MISSING — the proposal does not define how the new data improves the actual comparison experience beyond a sortable list column.
+- [Scenario 5: regional/trend summary usage]: MISSING — pages 3-6 are acknowledged in the source data, but there is no user flow, schema, or API for them.
 
 ### ARCHITECTURE_ASSESSMENT
-- Fitness: 4
-- Risks: [`proposal does not actually define an architecture`, `no explicit input schema`, `optional sections can break layout flow`, `html2canvas and SVG conversion may fail due to CORS or asset timing`, `font loading may cause nondeterministic export output`, `QA cannot validate output consistently`]
-- Suggestions: [`add a strict input schema with required/optional fields and display formatting rules`, `define a deterministic layout algorithm for hidden sections and long text`, `specify asset preloading and font readiness checks before export`, `define fallback behavior for logo conversion and missing data`, `add measurable acceptance criteria plus golden-image comparison tests`]
+- Fitness: 5/10
+- Risks: [mixed-period data stored under one year key, unresolved precedence against existing `school_performance` values, fragile school-name matching without a strict remediation workflow, non-idempotent/partial SQLite imports, unclear product scope for regional summaries and comparison UX]
+- Suggestions: [separate metric periods or add explicit field-level period metadata, define a source-of-truth rule before API/UI integration, add transactional upsert plus unmatched-school audit/reporting, specify exact UI behavior for nulls/non-top10/ties and make it testable, get explicit product sign-off on whether regional pages 3-6 are in scope for release 1]
 
 ### SUMMARY
-This proposal is not ready for approval because it does not actually provide the requested scenarios, architecture, or plan; it mainly repeats the original visual brief. The design intent is understandable, but the specification is under-defined in the areas that matter most for implementation reliability: input data rules, conditional layout behavior, overflow handling, dependency failure paths, and measurable acceptance criteria. The export approach could work, but only after the missing product decisions and technical constraints are explicitly defined.
+The proposal is directionally reasonable for extracting school-level Metro data, but it is not yet a production-ready specification. The biggest gaps are semantic correctness of the data model, the unresolved handling of unmatched schools and overlapping existing data, and unclear release boundaries around comparison UX and regional summary content. Once those decisions are made explicit and testable, the architecture can be implemented with much lower delivery and data-quality risk.
