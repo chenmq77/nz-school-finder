@@ -191,6 +191,26 @@ const TRANSLATIONS = {
   // ── Data Value Translations (CSV enum values) ─────────────────────
 
   data: {
+    // region names
+    region: {
+      "Auckland Region":                   { en: "Auckland", cn: "奥克兰地区" },
+      "Waikato Region":                    { en: "Waikato", cn: "怀卡托地区" },
+      "Canterbury Region":                 { en: "Canterbury", cn: "坎特伯雷地区" },
+      "Wellington Region":                 { en: "Wellington", cn: "惠灵顿地区" },
+      "Bay of Plenty Region":              { en: "Bay of Plenty", cn: "丰盛湾地区" },
+      "Manawatū-Whanganui Region":         { en: "Manawatū-Whanganui", cn: "马纳瓦图地区" },
+      "Northland Region":                  { en: "Northland", cn: "北地地区" },
+      "Otago Region":                      { en: "Otago", cn: "奥塔哥地区" },
+      "Hawke's Bay Region":                { en: "Hawke's Bay", cn: "霍克斯湾地区" },
+      "Taranaki Region":                   { en: "Taranaki", cn: "塔拉纳基地区" },
+      "Southland Region":                  { en: "Southland", cn: "南地地区" },
+      "Gisborne Region":                   { en: "Gisborne", cn: "吉斯伯恩地区" },
+      "Tasman Region":                     { en: "Tasman", cn: "塔斯曼地区" },
+      "Nelson Region":                     { en: "Nelson", cn: "尼尔森地区" },
+      "Marlborough Region":                { en: "Marlborough", cn: "马尔堡地区" },
+      "West Coast Region":                 { en: "West Coast", cn: "西海岸地区" },
+    },
+
     // school_type split into type_label (school category) and year_range (grade range)
     school_type_label: {
       "Contributing":                    { en: "Contributing", cn: "小学" },

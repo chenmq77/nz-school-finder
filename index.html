@@ -3126,15 +3126,22 @@ loadVisibleCols();
 function buildFilterSummary() {
   const parts = [];
   if (_currentFilters['region'] && _currentFilters['region'].length)
-    parts.push(_currentFilters['region'][0].replace(' Region', ''));
+    parts.push(td('region', _currentFilters['region'][0]));
   if (_currentFilters['authority'] && _currentFilters['authority'].length)
-    parts.push(_currentFilters['authority'].join(', '));
+    parts.push(_currentFilters['authority'].map(a => td('authority', a)).join(', '));
   if (_currentFilters['gender'] && _currentFilters['gender'].length)
     parts.push(_currentFilters['gender'].map(g => td('gender', g)).join(', '));
   if (_currentFilters['year_min'] && _currentFilters['year_min'].length)
     parts.push('Y' + _currentFilters['year_min'][0] + '-' + (_currentFilters['year_max'] || _currentFilters['year_min'])[0]);
-  if (_currentFilters['eqi_group'] && _currentFilters['eqi_group'].length)
-    parts.push('EQI: ' + _currentFilters['eqi_group'].join(', '));
+  if (_currentFilters['eqi_group'] && _currentFilters['eqi_group'].length) {
+    const eqiRanges = { fewer: '344-429', moderate: '430-493', more: '494-569' };
+    const labels = _currentFilters['eqi_group'].map(g => {
+      const label = t('eqi_group_' + g);
+      const range = eqiRanges[g] || '';
+      return _lang === 'en' ? `${label} (EQI ${range})` : `${t('filter_eqi')}${label} (EQI ${range})`;
+    });
+    parts.push(labels.join(', '));
+  }
   if (_currentFilters['curriculum'] && _currentFilters['curriculum'].length)
     parts.push(_currentFilters['curriculum'].join(', '));
   const text = parts.length ? parts.join(' / ') : t('col_export_all');
@@ -3182,18 +3189,18 @@ function buildExportTemplate(results, visCols) {
   const tbody = document.createElement('tbody');
   rows.forEach((s, i) => {
     const tr = document.createElement('tr');
-    tr.style.cssText = `border-bottom:1px solid ${i < rows.length - 1 ? '#f0f0f0' : 'transparent'};`;
+    const hasEnSub = s.school_name && s.school_name_cn;
+    tr.style.cssText = `border-bottom:1px solid ${!hasEnSub && i < rows.length - 1 ? '#f0f0f0' : 'transparent'};`;
     visCols.forEach(col => {
       const td_el = document.createElement('td');
-      td_el.style.cssText = `padding:7px 4px;text-align:${col.align === 'right' ? 'right' : 'left'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;font-size:14px;`;
+      td_el.style.cssText = `padding:6px 4px 2px;text-align:${col.align === 'right' ? 'right' : 'left'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;font-size:${fontSize};`;
 
       // Export-safe formatting (plain text, no HTML badges)
       const val = getCellValue(s, col.key);
       if (col.key === 'name') {
         td_el.textContent = s.school_name_cn || s.school_name || '';
         td_el.style.fontWeight = '600';
-        td_el.style.whiteSpace = 'normal';
-        td_el.style.maxWidth = '200px';
+        td_el.style.whiteSpace = 'nowrap';
       } else if (col.key === 'eqi' && val !== null) {
         const v = parseFloat(val);
         td_el.textContent = Math.round(v);
@@ -3225,6 +3232,18 @@ function buildExportTemplate(results, visCols) {
       tr.appendChild(td_el);
     });
     tbody.appendChild(tr);
+
+    // English name sub-row (full width)
+    const en = s.school_name || '';
+    if (en && s.school_name_cn) {
+      const enRow = document.createElement('tr');
+      const enTd = document.createElement('td');
+      enTd.colSpan = visCols.length;
+      enTd.style.cssText = `padding:0 4px 5px;font-size:10px;color:#aaa;line-height:1.2;border:none;border-bottom:1px solid ${i < rows.length - 1 ? '#f0f0f0' : 'transparent'};`;
+      enTd.textContent = en;
+      enRow.appendChild(enTd);
+      tbody.appendChild(enRow);
+    }
   });
   table.appendChild(tbody);
   div.appendChild(table);
