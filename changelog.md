@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026-03-27 — fix: Scholarships 数据修正 + 荣誉板块重构
+
+### Why
+Scholarships Presented 在 PDF 中是百分比（22%=毕业生中通过 Scholarship 考试的比例），之前错误地解析为整数（22 个）。同时荣誉板块展示顺序和解释文案需要优化。
+
+### What
+1. 修正 extract_metro_ncea.py：一次读取 10 个值而非 8+2，scholarships 存为 REAL 百分比
+2. 荣誉指标按含金量排序：NZQA Scholarship > Excellence > Merit
+3. 每个指标加 [?] 问号弹窗解释含义
+4. 学科排名从 tag 标签改为 mini 表格，更易阅读
+5. 重建数据库表并重新导入
+
+### How
+修改解析逻辑统一处理 10 个百分比值，schema 中 scholarships 从 INTEGER 改为 REAL
+
+---
+
 ## 2026-03-27 — fix: Metro NCEA 板块 UI 优化
 
 ### Why

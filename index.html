@@ -1821,45 +1821,58 @@ function renderMetroNcea(data) {
 
   const title = en ? 'Honours & Recognition (2023 Graduates)' : '荣誉与认证 (2023年毕业生)';
 
-  // Honours row with explanations
+  // Tooltip helper
+  const tip = (text) => `<span style="cursor:help;color:var(--text-muted);font-size:11px;margin-left:4px" title="${text}">?</span>`;
+
+  // Honours row — order: Scholarship > Excellence > Merit (by prestige)
   let honoursHtml = '';
   if (hasHonours) {
     const items = [];
     if (s.scholarships != null) {
-      items.push(`<div style="flex:1;min-width:140px">
-        <div style="font-size:20px;font-weight:700">${s.scholarships}</div>
-        <div style="font-size:12px;color:var(--text-muted)">${en ? 'Scholarships' : '奖学金考试'}</div>
-        <div style="font-size:10px;color:var(--text-muted);margin-top:2px">${en ? 'NZQA Scholarship exams achieved' : 'NZQA 奖学金考试通过数'}</div>
-      </div>`);
-    }
-    if (s.outstanding_merit != null) {
-      items.push(`<div style="flex:1;min-width:140px">
-        <div style="font-size:20px;font-weight:700">${s.outstanding_merit}%</div>
-        <div style="font-size:12px;color:var(--text-muted)">${en ? 'Merit Endorsed' : '杰出成绩'}</div>
-        <div style="font-size:10px;color:var(--text-muted);margin-top:2px">${en ? 'NCEA L3 endorsed with Merit' : 'NCEA L3 成绩优秀认证'}</div>
+      const tipText = en
+        ? 'NZQA Scholarship: NZ\\'s highest secondary school academic exam, beyond NCEA. % of graduates who passed at least one Scholarship subject.'
+        : 'NZQA Scholarship: 新西兰中学最高学术考试，在 NCEA 之上额外加试。数值为毕业生中通过至少一科 Scholarship 的比例。';
+      items.push(`<div style="flex:1;min-width:130px">
+        <div style="font-size:20px;font-weight:700">${s.scholarships}%</div>
+        <div style="font-size:12px;color:var(--text-muted)">${en ? 'NZQA Scholarship' : 'NZQA 学术奖'}${tip(tipText)}</div>
       </div>`);
     }
     if (s.distinction != null) {
-      items.push(`<div style="flex:1;min-width:140px">
+      const tipText = en
+        ? 'NCEA Level 3 endorsed with Excellence: graduate achieved 50+ credits at Excellence grade. Indicates top academic performance across most subjects.'
+        : 'NCEA L3 卓越认证: 毕业生在 L3 阶段累计 50+ 学分达到 Excellence 等级，表示大部分科目成绩卓越。';
+      items.push(`<div style="flex:1;min-width:130px">
         <div style="font-size:20px;font-weight:700">${s.distinction}%</div>
-        <div style="font-size:12px;color:var(--text-muted)">${en ? 'Excellence Endorsed' : '优等生'}</div>
-        <div style="font-size:10px;color:var(--text-muted);margin-top:2px">${en ? 'NCEA L3 endorsed with Excellence' : 'NCEA L3 成绩卓越认证'}</div>
+        <div style="font-size:12px;color:var(--text-muted)">${en ? 'Excellence' : '卓越认证'}${tip(tipText)}</div>
+      </div>`);
+    }
+    if (s.outstanding_merit != null) {
+      const tipText = en
+        ? 'NCEA Level 3 endorsed with Merit: graduate achieved 50+ credits at Merit or above. Students with Excellence endorsement are counted separately.'
+        : 'NCEA L3 优秀认证: 毕业生在 L3 阶段累计 50+ 学分达到 Merit 或以上。获得卓越认证的学生另算，两者不重叠。';
+      items.push(`<div style="flex:1;min-width:130px">
+        <div style="font-size:20px;font-weight:700">${s.outstanding_merit}%</div>
+        <div style="font-size:12px;color:var(--text-muted)">${en ? 'Merit' : '优秀认证'}${tip(tipText)}</div>
       </div>`);
     }
     honoursHtml = `<div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px">${items.join('')}</div>`;
   }
 
-  // Subject rankings
+  // Subject rankings as mini-table
   let rankHtml = '';
   if (hasRankings) {
-    const rankTitle = en ? 'Top Subjects in Auckland (Metro 2025)' : '优势学科 — Auckland Top 10 (Metro 2025)';
-    rankHtml = `<div style="margin-top:14px">
-      <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:6px">${rankTitle}</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">`;
+    const rankTipText = en
+      ? 'Ranking among all Auckland high schools for this subject. % = proportion of students taking this subject at Level 3 who achieved Level 3.'
+      : '该校在全 Auckland 高中该学科的排名。百分比 = 参加该科 Level 3 考试并达标的学生比例。';
+    const rankTitle = en ? 'Top Subjects in Auckland' : 'Auckland 优势学科';
+    let rows = '';
     for (const r of data.subject_rankings) {
-      rankHtml += `<span style="background:var(--bg);padding:4px 10px;border-radius:4px;font-size:12px;border:1px solid var(--border)">#${r.rank} ${r.subject} <b>${r.level3_pct}%</b></span>`;
+      rows += `<tr><td style="padding:4px 8px;font-weight:600;color:var(--text-muted)">#${r.rank}</td><td style="padding:4px 8px">${r.subject}</td><td style="padding:4px 8px;text-align:right;font-weight:600">${r.level3_pct}%</td></tr>`;
     }
-    rankHtml += '</div></div>';
+    rankHtml = `<div style="margin-top:14px">
+      <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:6px">${rankTitle}${tip(rankTipText)}</div>
+      <table style="width:100%;font-size:12px;border-collapse:collapse"><tbody>${rows}</tbody></table>
+    </div>`;
   }
 
   return `<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">

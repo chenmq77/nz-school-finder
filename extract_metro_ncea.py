@@ -87,7 +87,7 @@ GOLDEN_DATA = {
         "l1_pct": 5.0,
         "l2_pct": 13.0,
         "l3_pct": 3.0,
-        "scholarships": 22,
+        "scholarships": 22.0,
         "outstanding_merit": 3.0,
         "distinction": 26.0,
     },
@@ -193,9 +193,10 @@ def extract_core_table(doc):
             school_name = " ".join(name_parts)
             school_name = re.sub(r'\s+', ' ', school_name).strip()
 
-            # Now collect 8 numeric values (roll, leavers, ue%, below_l1%, l1%, l2%, l3%, scholarships)
+            # Collect 10 numeric values:
+            # roll(int), leavers(int), ue%, below_l1%, l1%, l2%, l3%, scholarships%, merit%, distinction%
             values = []
-            while i < len(lines) and len(values) < 8:
+            while i < len(lines) and len(values) < 10:
                 val_line = lines[i].strip()
                 if not val_line:
                     i += 1
@@ -211,7 +212,7 @@ def extract_core_table(doc):
                 else:
                     break
 
-            if len(values) == 8:
+            if len(values) == 10:
                 school = {
                     "school_name": school_name,
                     "region": current_region,
@@ -222,29 +223,10 @@ def extract_core_table(doc):
                     "l1_pct": float(values[4]),
                     "l2_pct": float(values[5]),
                     "l3_pct": float(values[6]),
-                    "scholarships": values[7],
+                    "scholarships": float(values[7]),       # percentage, not count
+                    "outstanding_merit": float(values[8]),
+                    "distinction": float(values[9]),
                 }
-                # Next 2 values: outstanding_merit and distinction
-                extra_values = []
-                while i < len(lines) and len(extra_values) < 2:
-                    val_line = lines[i].strip()
-                    if not val_line:
-                        i += 1
-                        continue
-                    val_line_clean = val_line.replace(' ', '')
-                    if re.match(r'^\d+%$', val_line_clean):
-                        extra_values.append(float(val_line_clean.replace('%', '')))
-                        i += 1
-                    else:
-                        break
-
-                if len(extra_values) == 2:
-                    school["outstanding_merit"] = extra_values[0]
-                    school["distinction"] = extra_values[1]
-                else:
-                    school["outstanding_merit"] = None
-                    school["distinction"] = None
-
                 schools.append(school)
             else:
                 # Could not parse 8 values — this is an error
@@ -496,7 +478,7 @@ def create_tables(conn):
             l1_pct               REAL,
             l2_pct               REAL,
             l3_pct               REAL,
-            scholarships         INTEGER,
+            scholarships         REAL,
             outstanding_merit    REAL,
             distinction          REAL,
             region               TEXT,
