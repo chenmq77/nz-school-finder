@@ -17,6 +17,7 @@ import sys
 import urllib.parse
 
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "schools.db")
+DATA_YEAR_DEFAULT = 2023  # Default NCEA data year for Metro 2025
 HOST = "localhost"
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
 
@@ -41,9 +42,12 @@ def search_schools(keyword, limit=50):
         total = cur.fetchone()[0]
         # 再查数据（限制返回数量）
         cur.execute(
-            "SELECT school_number, school_name, school_name_cn, school_type, authority, "
-            "gender_of_students, town_city, total_school_roll "
-            "FROM schools WHERE school_name LIKE ? OR school_name_cn LIKE ? ORDER BY school_name LIMIT ?",
+            "SELECT s.school_number, s.school_name, s.school_name_cn, s.school_type, s.authority, "
+            "s.gender_of_students, s.town_city, s.total_school_roll, "
+            "(SELECT n.ue_percentage FROM school_ncea_summary n "
+            " WHERE n.school_number = CAST(s.school_number AS INTEGER) "
+            " ORDER BY n.data_year DESC LIMIT 1) AS ue_percentage "
+            "FROM schools s WHERE s.school_name LIKE ? OR s.school_name_cn LIKE ? ORDER BY s.school_name LIMIT ?",
             (f"%{keyword}%", f"%{keyword}%", limit),
         )
         return [dict(row) for row in cur.fetchall()], total
@@ -333,7 +337,10 @@ def filter_schools(params):
             f"(SELECT percentage FROM school_performance p "
             f" WHERE p.school_number = CAST(s.school_number AS INTEGER) "
             f" AND p.metric = 'ncea3' AND p.group_name = 'Total' "
-            f" ORDER BY p.year DESC LIMIT 1) AS ncea_l3 "
+            f" ORDER BY p.year DESC LIMIT 1) AS ncea_l3, "
+            f"(SELECT n.ue_percentage FROM school_ncea_summary n "
+            f" WHERE n.school_number = CAST(s.school_number AS INTEGER) "
+            f" ORDER BY n.data_year DESC LIMIT 1) AS ue_percentage "
             f"FROM schools s "
             f"LEFT JOIN school_web_data w ON CAST(s.school_number AS INTEGER) = w.school_number "
             f"WHERE {where} ORDER BY {order_by} LIMIT ? OFFSET ?",
@@ -348,6 +355,59 @@ def filter_schools(params):
             "limit": limit,
             "pages": (total + limit - 1) // limit,
         }
+    finally:
+        conn.close()
+
+
+def fetch_school_ncea(school_number):
+    """Get NCEA summary + subject rankings from Metro 2025 data."""
+    conn = get_connection()
+    try:
+        cur = conn.cursor()
+
+        # Get NCEA summary
+        cur.execute("""
+            SELECT data_year, ue_percentage, below_l1_pct, l1_pct, l2_pct, l3_pct,
+                   school_leavers, school_roll_july2024, scholarships,
+                   outstanding_merit, distinction, region, source
+            FROM school_ncea_summary
+            WHERE school_number = ?
+            ORDER BY data_year DESC LIMIT 1
+        """, (int(school_number),))
+        row = cur.fetchone()
+
+        ncea_summary = None
+        if row:
+            ncea_summary = {
+                "data_year": row["data_year"],
+                "ue_percentage": row["ue_percentage"],
+                "below_l1_pct": row["below_l1_pct"],
+                "l1_pct": row["l1_pct"],
+                "l2_pct": row["l2_pct"],
+                "l3_pct": row["l3_pct"],
+                "school_leavers": row["school_leavers"],
+                "school_roll_july2024": row["school_roll_july2024"],
+                "scholarships": row["scholarships"],
+                "outstanding_merit": row["outstanding_merit"],
+                "distinction": row["distinction"],
+                "region": row["region"],
+                "source": row["source"],
+            }
+
+        # Get subject rankings for the same data_year as summary
+        ranking_year = row["data_year"] if row else DATA_YEAR_DEFAULT
+        cur.execute("""
+            SELECT subject, rank, level3_pct
+            FROM school_subject_ranking
+            WHERE school_number = ? AND data_year = ?
+            ORDER BY rank ASC
+        """, (int(school_number), ranking_year))
+        subject_rankings = [
+            {"subject": r["subject"], "rank": r["rank"], "level3_pct": r["level3_pct"]}
+            for r in cur.fetchall()
+        ]
+
+        return {"ncea_summary": ncea_summary, "subject_rankings": subject_rankings}
     finally:
         conn.close()
 
@@ -499,6 +559,9 @@ class SchoolFinderHandler(http.server.SimpleHTTPRequestHandler):
             self._handle_schools(params)
         elif path == "/api/search":
             self._handle_search(params)
+        elif path.startswith("/api/school/") and path.endswith("/ncea"):
+            school_number = path.split("/")[-2]
+            self._handle_school_ncea(school_number)
         elif path.startswith("/api/school/") and path.endswith("/performance"):
             school_number = path.split("/")[-2]
             self._handle_school_performance(school_number)
@@ -549,6 +612,10 @@ class SchoolFinderHandler(http.server.SimpleHTTPRequestHandler):
             self._json_response(school)
         else:
             self._json_response({"error": "School not found"}, 404)
+
+    def _handle_school_ncea(self, school_number):
+        data = fetch_school_ncea(school_number)
+        self._json_response(data)
 
     def _handle_school_performance(self, school_number):
         data = fetch_school_performance(school_number)

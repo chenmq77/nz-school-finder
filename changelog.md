@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-03-27 — feat: 从 Metro Schools 2025 PDF 提取 NCEA 数据并集成到系统
+
+### Why
+系统缺少 University Entrance (UE) 大学入学率数据。Metro Magazine Schools 2025 报告包含 Auckland 91 所高中的 2023 NCEA 详细成绩（UE 率、各级别达标率、奖学金、学科 Top10 排名），可以显著增强学校对比能力。
+
+### What
+1. **新建 `extract_metro_ncea.py`** — PDF 数据提取脚本，PyMuPDF 解析核心数据表（第 31-33 页）和学科 Top10 排名（第 7-9 页），包含 MD5 校验、三层学校名匹配（精确→标准化→手动映射）、事务式导入、golden data 自动校验
+2. **新建 2 张数据库表** — `school_ncea_summary`（91 所学校的 UE、离校生分布、奖学金等）和 `school_subject_ranking`（11 学科 × 10 校排名）
+3. **server.py API 改造** — `/api/schools` 增加 `ue_percentage` 字段；新增 `/api/school/{num}/ncea` 端点
+4. **index.html 前端改造** — 列表页新增"大学入学率(UE)"可配置列；详情页新增 Metro NCEA 板块（UE 大数字、离校生分布条形图、奖学金统计、学科排名标签）
+
+### How
+- PDF 文本提取用 PyMuPDF，正则解析结构化表格数据
+- 学校名匹配通过 KNOWN_REGIONS 集合区分区域标题和学校名
+- 多行学校名（如 "Sir Edmund Hillary Collegiate Senior School"）通过 look-ahead 合并
+- 导入策略：WAL 模式 + DELETE-before-INSERT 幂等 + 分布交叉校验 + golden data 断言
+
+---
+
 ## 2026-03-26 — 修复颜色系统：消除重复定义 + 统一 EQI 千里江山配色
 
 ### Why

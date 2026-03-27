@@ -166,6 +166,7 @@ const TRANSLATIONS = {
     col_intl_total:       { en: "Total/Year", cn: "总费用/年" },
     col_group_intl:       { en: "International", cn: "国际生" },
     col_ncea_l3:          { en: "NCEA L3", cn: "NCEA L3" },
+    col_ue:               { en: "UE Rate", cn: "大学入学率" },
     col_curriculum:       { en: "Curriculum", cn: "课程体系" },
     col_fee:              { en: "Fee/Year", cn: "学费/年" },
     col_subjects:         { en: "Subjects", cn: "学科" },

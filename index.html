@@ -1154,6 +1154,8 @@ document.body.style.transition = 'opacity 0.15s';
     <div class="section" id="sectionF">
       <div class="section-header collapsible" onclick="toggleSection('F')">
         <div class="section-title" id="titleF"></div>
+        <span style="flex:1"></span>
+        <button class="col-chooser-btn" onclick="event.stopPropagation();exportStudentFeeCard()" style="font-size:11px;padding:2px 8px;margin-right:8px">导出</button>
         <span class="section-toggle open" id="toggleF">&#9660;</span>
       </div>
       <div class="section-body" id="bodyF"></div>
@@ -1657,13 +1659,14 @@ function renderSectionA(s) {
   document.getElementById('bodyA').innerHTML = `
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
       <img id="schoolLogo" src="" alt="" referrerPolicy="no-referrer" style="display:none;width:48px;height:48px;object-fit:contain;flex-shrink:0">
-      <div>
+      <div style="flex:1">
         <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
           <span class="school-main-name">${mainName}</span>
           <span class="school-number">No. ${esc(safe(s.school_number))}</span>
           ${subName}
         </div>
       </div>
+      <button class="col-chooser-btn" onclick="exportAllCards()" style="font-size:12px;padding:4px 12px;white-space:nowrap;display:none">${t('col_export')}</button>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px">
       <div class="info-row"><span class="info-label">${t('school_type')}</span><span class="info-value">${esc(typeLabel)}</span></div>
@@ -1779,31 +1782,85 @@ async function loadWebData(schoolNum) {
 
 /* ── NCEA Performance (Section H) ───────────────── */
 let _cachedPerformance = null;
+let _cachedNcea = null;
 
 async function loadPerformanceData(schoolNum) {
   document.getElementById('sectionH').style.display = 'none';
+  document.getElementById('bodyH').innerHTML = '';
+  _cachedNcea = null;
+  _cachedPerformance = null;
   try {
-    const res = await fetch(`/api/school/${schoolNum}/performance`);
-    if (!res.ok) return;
-    const data = await res.json();
-    if (!data || !data.performance) return;
-    _cachedPerformance = data;
-    renderPerformance(data);
+    const [perfRes, nceaRes] = await Promise.all([
+      fetch(`/api/school/${schoolNum}/performance`),
+      fetch(`/api/school/${schoolNum}/ncea`),
+    ]);
+    let perfData = null, nceaData = null;
+    if (perfRes.ok) { const d = await perfRes.json(); if (d && d.performance) perfData = d; }
+    if (nceaRes.ok) { const d = await nceaRes.json(); if (d && d.ncea_summary) nceaData = d; }
+    _cachedPerformance = perfData;
+    _cachedNcea = nceaData;
+    if (!perfData && !nceaData) return;
+    let html = '';
+    if (nceaData) html += renderMetroNcea(nceaData);
+    if (perfData) html += renderPerformanceHtml(perfData);
+    if (!html) return;
+    document.getElementById('sectionH').style.display = '';
+    document.getElementById('bodyH').innerHTML = html;
   } catch (e) { /* silently ignore */ }
 }
 
-function renderPerformance(data) {
-  const section = document.getElementById('sectionH');
-  section.style.display = '';
+function renderMetroNcea(data) {
+  const s = data.ncea_summary;
+  if (!s) return '';
+  const ue = s.ue_percentage;
+  const leavers = s.school_leavers;
+  const roll = s.school_roll_july2024;
+  const ueColor = ue >= 70 ? '#2a6560' : ue >= 40 ? '#7a5c3a' : '#8a3038';
+  const bars = [
+    { label: 'UE', pct: ue, color: '#2a6560' },
+    { label: 'L3', pct: s.l3_pct || 0, color: '#4a8a7a' },
+    { label: 'L2', pct: s.l2_pct || 0, color: '#7a5c3a' },
+    { label: 'L1', pct: s.l1_pct || 0, color: '#b88a5a' },
+    { label: '<L1', pct: s.below_l1_pct || 0, color: '#8a3038' },
+  ];
+  let distHtml = '<div style="display:flex;height:24px;border-radius:4px;overflow:hidden;margin:8px 0">';
+  for (const b of bars) {
+    if (b.pct > 0) distHtml += `<div title="${b.label}: ${b.pct}%" style="width:${b.pct}%;background:${b.color};display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:600">${b.pct >= 8 ? b.pct + '%' : ''}</div>`;
+  }
+  distHtml += '</div><div style="display:flex;gap:12px;font-size:11px;color:var(--text-muted);flex-wrap:wrap">';
+  for (const b of bars) distHtml += `<span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${b.color};margin-right:3px"></span>${b.label} ${b.pct}%</span>`;
+  distHtml += '</div>';
+  const extras = [];
+  if (s.scholarships != null) extras.push(`<span>🏅 ${_lang === 'en' ? 'Scholarships' : '奖学金'}: <b>${s.scholarships}</b></span>`);
+  if (s.outstanding_merit != null) extras.push(`<span>⭐ ${_lang === 'en' ? 'Outstanding Merit' : '杰出成绩'}: <b>${s.outstanding_merit}%</b></span>`);
+  if (s.distinction != null) extras.push(`<span>🎯 ${_lang === 'en' ? 'Distinction' : '优等生'}: <b>${s.distinction}%</b></span>`);
+  const extraHtml = extras.length ? `<div style="display:flex;gap:16px;flex-wrap:wrap;font-size:13px;margin-top:8px">${extras.join('')}</div>` : '';
+  let rankHtml = '';
+  if (data.subject_rankings && data.subject_rankings.length > 0) {
+    rankHtml = `<div style="margin-top:12px"><div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:6px">Metro 2025 Top 10</div><div style="display:flex;gap:8px;flex-wrap:wrap">`;
+    for (const r of data.subject_rankings) rankHtml += `<span style="background:var(--bg-secondary);padding:3px 8px;border-radius:4px;font-size:12px">#${r.rank} ${r.subject} <b>${r.level3_pct}%</b></span>`;
+    rankHtml += '</div></div>';
+  }
+  return `<div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+    <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:8px">
+      <span style="font-size:28px;font-weight:700;color:${ueColor}">${ue}%</span>
+      <span style="font-size:14px;color:var(--text-muted)">${_lang === 'en' ? 'University Entrance' : '大学入学率'} (2023)</span>
+    </div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">${_lang === 'en' ? 'School Leavers' : '离校生'}: ${leavers} &nbsp;|&nbsp; ${_lang === 'en' ? 'Roll (July 2024)' : '在校人数 (2024.7)'}: ${roll ? roll.toLocaleString() : '—'}</div>
+    <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin:8px 0 4px">${_lang === 'en' ? '2023 Leaver Distribution' : '2023 离校生分布'}</div>
+    ${distHtml}${extraHtml}${rankHtml}
+    <div style="font-size:10px;color:var(--text-muted);margin-top:8px;text-align:right">${_lang === 'en' ? 'Source: Metro Magazine Schools 2025' : '来源: Metro Magazine Schools 2025'}</div>
+  </div>`;
+}
 
+function renderPerformanceHtml(data) {
   const years = data.years || [];
   const latestYear = years[years.length - 1] || 2024;
   const perf = data.performance;
   const comp = data.comparison || {};
 
   if (!perf || !perf.ncea1) {
-    document.getElementById('bodyH').innerHTML = `<div style="color:var(--text-muted);padding:12px 0">${t('ncea_no_data')}</div>`;
-    return;
+    return '';
   }
 
   const colors = {
@@ -2009,7 +2066,7 @@ function renderPerformance(data) {
     </div>`;
 
   // ── Final layout: summary → table → chart ──
-  document.getElementById('bodyH').innerHTML = `
+  return `
     ${summaryHtml}
     <div class="ncea-table-wrap">${tableHtml}</div>
     <div style="margin-top:18px">
@@ -3136,6 +3193,7 @@ const TABLE_COLUMNS = [
   { key:'intl_homestay',tKey:'col_intl_homestay', fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'asc' },
   { key:'intl_total',   tKey:'col_intl_total',    fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'asc' },
   { key:'ncea_l3',      tKey:'col_ncea_l3',       fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
+  { key:'ue',           tKey:'col_ue',            fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
   // Activities group
   { key:'curriculum',   tKey:'col_curriculum',    fixed:false, default:false, gKey:'col_group_activities', sortable:false, align:'left' },
   { key:'subjects',     tKey:'col_subjects',      fixed:false, default:false, gKey:'col_group_activities', sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
@@ -3149,9 +3207,9 @@ const DEFAULT_COLS = TABLE_COLUMNS.filter(c => c.fixed || c.default).map(c => c.
 // Preset column configurations
 const COL_PRESETS = {
   compact:  ['name', 'suburb', 'school_level', 'gender', 'eqi', 'roll'],
-  intl:     ['name', 'eqi', 'roll', 'intl', 'eth_asian', 'intl_fee', 'intl_total', 'ncea_l3'],
+  intl:     ['name', 'eqi', 'roll', 'intl', 'eth_asian', 'intl_fee', 'intl_total', 'ncea_l3', 'ue'],
   local:    ['name', 'suburb', 'school_level', 'gender', 'eqi', 'roll', 'zone', 'ethnicity'],
-  full:     ['name', 'suburb', 'eqi', 'roll', 'intl_fee', 'curriculum', 'subjects', 'sports', 'arts', 'ethnicity'],
+  full:     ['name', 'suburb', 'eqi', 'roll', 'ue', 'intl_fee', 'curriculum', 'subjects', 'sports', 'arts', 'ethnicity'],
 };
 let _visibleCols = [];
 let _tableSort = { key: null, dir: null };
@@ -3233,6 +3291,7 @@ function getCellValue(s, key) {
       return homestay ? Math.round(tuition + homestay * 40) : null;
     }
     case 'ncea_l3': return s.ncea_l3 != null ? parseFloat(s.ncea_l3) : null;
+    case 'ue': return s.ue_percentage != null ? parseFloat(s.ue_percentage) : null;
     case 'fee': return s.intl_tuition_annual || null;
     case 'subjects': return s.subjects_count || null;
     case 'sports': return s.sports_count || null;
@@ -3291,6 +3350,7 @@ function formatCell(key, val, s) {
   if (key === 'fee' || key === 'intl_fee' || key === 'intl_total') return '$' + parseFloat(val).toLocaleString();
   if (key === 'intl_homestay') return '$' + parseFloat(val).toLocaleString() + '/w';
   if (key === 'ncea_l3') return parseFloat(val).toFixed(1) + '%';
+  if (key === 'ue') return Math.round(parseFloat(val)) + '%';
   if (key === 'ethnicity') {
     // Show largest ethnicity name + %
     const roll = parseInt(s.total_school_roll) || 0;
@@ -3745,6 +3805,7 @@ async function exportNceaCard() {
     <div style="font-size:12px;font-weight:600;color:#2563eb;margin-bottom:14px;">${esc(t('col_export_brand'))}</div>
     <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;">
       <span style="font-size:28px;font-weight:800;letter-spacing:-0.5px;">${esc(displayName)}</span>
+      <span style="font-size:14px;color:#999;">No. ${esc(s.school_number || '')}</span>
       <span style="font-size:20px;font-weight:700;color:#2563eb;">${t('section_ncea')}</span>
     </div>
     ${subName ? `<div style="font-size:12px;color:#999;margin-top:4px;">${esc(subName)}</div>` : ''}
@@ -3803,6 +3864,158 @@ function svgToPngDataUrl(svgUrl) {
     img.onerror = () => resolve('');
     img.src = svgUrl;
   });
+}
+
+/* ── Export Student + Fees Card ── */
+async function exportStudentFeeCard() {
+  const s = _cachedSchool || {};
+  const w = _cachedWebData || {};
+  const roll = parseInt(s.total_school_roll) || 0;
+  if (!roll) { showToast(t('no_data')); return; }
+
+  const cnName = s.school_name_cn || '';
+  const enName = s.school_name || '';
+  const displayName = cnName || enName;
+  const subName = cnName ? enName : '';
+
+  // Parse ethnicity data
+  const ethnicities = [
+    { label: _lang === 'en' ? 'Asian' : '亚裔', val: parseInt(s.asian) || 0 },
+    { label: _lang === 'en' ? 'European' : '欧裔', val: parseInt(s.european_pakeha) || 0 },
+    { label: 'MELAA', val: parseInt(s.melaa) || 0 },
+    { label: _lang === 'en' ? 'Maori' : '毛利裔', val: parseInt(s.maori) || 0 },
+    { label: _lang === 'en' ? 'Pacific' : '太平洋裔', val: parseInt(s.pacific) || 0 },
+    { label: _lang === 'en' ? 'Other' : '其他', val: parseInt(s.other) || 0 },
+  ].sort((a, b) => b.val - a.val);
+  const maxEth = ethnicities[0]?.val || 1;
+
+  const intl = parseInt(s.international) || 0;
+  const intlPct = roll > 0 ? (intl / roll * 100).toFixed(1) : '0';
+
+  // Fee data
+  const hasFees = w.intl_tuition_annual;
+  const tuition = w.intl_tuition_annual ? Number(w.intl_tuition_annual) : 0;
+  const homestay = w.intl_homestay_weekly ? Number(w.intl_homestay_weekly) : 0;
+  const totalFee = tuition && homestay ? Math.round(tuition + homestay * 40) : 0;
+  const feeYear = w.intl_fees_year || '';
+
+  const div = document.createElement('div');
+  div.style.cssText = 'position:fixed;left:-9999px;top:0;width:621px;min-height:830px;background:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:40px 32px 24px;box-sizing:border-box;color:#1a1a1a;display:flex;flex-direction:column;';
+
+  // Header
+  const header = document.createElement('div');
+  header.style.cssText = 'margin-bottom:28px;';
+  header.innerHTML = `
+    <div style="font-size:12px;font-weight:600;color:#2563eb;margin-bottom:14px;">${esc(t('col_export_brand'))}</div>
+    <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;">
+      <span style="font-size:28px;font-weight:800;letter-spacing:-0.5px;">${esc(displayName)}</span>
+      <span style="font-size:14px;color:#999;">No. ${esc(s.school_number || '')}</span>
+      <span style="font-size:20px;font-weight:700;color:#2563eb;">${t('section_f')}</span>
+    </div>
+    ${subName ? `<div style="font-size:12px;color:#999;margin-top:4px;">${esc(subName)}</div>` : ''}
+  `;
+  div.appendChild(header);
+
+  // Student numbers
+  const stats = document.createElement('div');
+  stats.style.cssText = 'display:flex;gap:16px;margin-bottom:20px;';
+  stats.innerHTML = `
+    <div style="flex:2;background:#f0f5ff;border-radius:8px;padding:14px 18px;">
+      <div style="font-size:12px;color:#666;">${t('total_students')}</div>
+      <div style="font-size:32px;font-weight:800;color:#1e3a5f;margin-top:4px;">${roll.toLocaleString()}</div>
+    </div>
+    <div style="flex:1;background:#f8f9fa;border-radius:8px;padding:14px 18px;">
+      <div style="font-size:12px;color:#666;">${t('intl_students')}</div>
+      <div style="font-size:24px;font-weight:700;margin-top:4px;">${intl.toLocaleString()}</div>
+      <div style="font-size:11px;color:#888;margin-top:2px;">${intlPct}%</div>
+    </div>
+  `;
+  div.appendChild(stats);
+
+  // Ethnicity bars (gradient colors matching frontend)
+  const ethGradient = ['#1D3560','#254D78','#31769F','#4088B0','#7AB0C8','#9EC6D8'];
+  const ethSection = document.createElement('div');
+  ethSection.style.cssText = 'margin-bottom:20px;';
+  let ethHtml = `<div style="font-size:13px;font-weight:600;margin-bottom:12px;">${_lang === 'en' ? 'Ethnicity' : '族裔分布'}</div>`;
+  ethnicities.forEach((e, i) => {
+    const pct = roll > 0 ? (e.val / roll * 100) : 0;
+    const barW = Math.max(2, (e.val / maxEth) * 100);
+    const barColor = ethGradient[Math.min(i, ethGradient.length - 1)];
+    ethHtml += `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <div style="width:70px;text-align:right;font-size:12px;color:#555;flex-shrink:0;">${e.label}</div>
+        <div style="flex:1;height:18px;background:#eee;border-radius:3px;overflow:hidden;">
+          <div style="width:${barW}%;height:100%;background:${barColor};border-radius:3px;"></div>
+        </div>
+        <div style="width:50px;text-align:right;font-size:12px;font-weight:600;">${e.val.toLocaleString()}</div>
+        <div style="width:40px;text-align:right;font-size:11px;color:#888;">${pct.toFixed(0)}%</div>
+      </div>`;
+  });
+  ethSection.innerHTML = ethHtml;
+  div.appendChild(ethSection);
+
+  // Fees section (if available)
+  if (hasFees) {
+    const feeSection = document.createElement('div');
+    feeSection.style.cssText = 'border-top:1px solid #eee;padding-top:16px;';
+    let feeHtml = `<div style="font-size:13px;font-weight:600;color:#2563eb;margin-bottom:12px;">${t('section_e')}${feeYear ? ` (${feeYear})` : ''}</div>`;
+    feeHtml += `<div style="display:flex;gap:12px;">`;
+    feeHtml += `<div style="flex:1;font-size:13px;"><span style="color:#666;">${t('tuition')}</span><div style="font-size:20px;font-weight:700;margin-top:2px;">$${tuition.toLocaleString()}</div></div>`;
+    if (homestay) {
+      const homestayAnnual = Math.round(homestay * 46);
+      feeHtml += `<div style="flex:1;font-size:13px;"><span style="color:#666;">${t('homestay')}</span><div style="font-size:20px;font-weight:700;margin-top:2px;">$${homestay.toLocaleString()}<span style="font-size:13px;font-weight:400">/w</span></div><div style="font-size:11px;color:#888;margin-top:2px;">($${homestayAnnual.toLocaleString()} /46w)</div></div>`;
+    }
+    if (totalFee) {
+      feeHtml += `<div style="flex:1;font-size:13px;"><span style="color:#666;">${_lang === 'en' ? 'Est. Total/Year' : '预估总费用/年'}</span><div style="font-size:20px;font-weight:700;margin-top:2px;color:#2563eb;">$${totalFee.toLocaleString()}</div></div>`;
+    }
+    feeHtml += `</div>`;
+    feeHtml += `<div style="margin-top:14px;font-size:11px;line-height:1.7;color:#888;">`
+      + (_lang === 'en'
+        ? `Other costs may include: uniform, stationery, school trips, insurance, etc. All amounts in NZD (1 NZD ≈ 4+ CNY).`
+        : `其他费用还包括：校服、文具、校外活动、保险等。以上均为新西兰元（NZD），汇率约 1 NZD ≈ 4+ 人民币。`)
+      + `</div>`;
+    feeSection.innerHTML = feeHtml;
+    div.appendChild(feeSection);
+  }
+
+  // Bottom spacer
+  // Footer spacer - push footer to bottom
+  const spacer = document.createElement('div'); spacer.style.cssText = 'flex:1;'; div.appendChild(spacer);
+
+  div.appendChild(buildExportFooter());
+
+  const btn = document.querySelector('#sectionF .col-chooser-btn');
+  await exportDivAsImage(div, `nz-school-${s.school_number || 'x'}-students-${new Date().toISOString().split('T')[0]}.png`, btn);
+}
+
+/* ── Export All Cards ── */
+async function exportAllCards() {
+  const allBtn = document.querySelector('#bodyA .col-chooser-btn');
+  if (allBtn) { allBtn.textContent = t('col_export_loading'); allBtn.disabled = true; }
+
+  try {
+    // 1. School overview card
+    const bodyA = document.getElementById('bodyA');
+    if (bodyA && bodyA.innerHTML.trim()) {
+      await exportSchoolCard();
+      await new Promise(r => setTimeout(r, 500)); // brief delay between downloads
+    }
+
+    // 2. NCEA card
+    const bodyH = document.getElementById('bodyH');
+    if (bodyH && bodyH.innerHTML.trim()) {
+      await exportNceaCard();
+      await new Promise(r => setTimeout(r, 500));
+    }
+
+    // 3. Student + fees card
+    const bodyF = document.getElementById('bodyF');
+    if (bodyF && bodyF.innerHTML.trim()) {
+      await exportStudentFeeCard();
+    }
+  } finally {
+    if (allBtn) { allBtn.textContent = t('col_export'); allBtn.disabled = false; }
+  }
 }
 
 /* ── Export Xiaohongshu School Card (Page 1: Cover) ── */
@@ -3943,7 +4156,7 @@ async function exportSchoolCard() {
       '<div style="margin-top:6px;text-align:center;font-size:20px;color:#bbb;letter-spacing:1px">nz-school-finder</div>' +
     '</div>';
 
-  await exportDivAsImage(div, 'nz-school-' + schoolNum + '-cover.png', null);
+  await exportDivAsImage(div, 'nz-school-' + schoolNum + '-cover-' + new Date().toISOString().split('T')[0] + '.png', null);
 }
 
 function renderListCards(results, total, page, pages) {
