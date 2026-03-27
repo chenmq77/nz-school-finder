@@ -1862,27 +1862,33 @@ function renderMetroNcea(data) {
     honoursHtml = `<div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:10px">${items.join('')}</div>`;
   }
 
-  // Subject rankings as mini-table with column headers
+  // Subject rankings as natural language
   let rankHtml = '';
   if (hasRankings) {
-    const rankTitle = en ? 'Top-Ranked Subjects in Auckland' : '奥克兰排名领先的学科';
-    const colRank = en ? 'Auckland Rank' : '奥克兰排名';
-    const colSubject = en ? 'Subject' : '学科';
-    const colPct = en ? 'L3 Pass Rate' : 'L3 达标率';
-    let rows = '';
-    for (const r of data.subject_rankings) {
-      rows += `<tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 8px;font-weight:600;color:var(--text-muted)">#${r.rank}</td><td style="padding:5px 8px">${r.subject}</td><td style="padding:5px 8px;text-align:right;font-weight:600">${r.level3_pct}%</td></tr>`;
-    }
-    rankHtml = `<div style="margin-top:16px">
-      <div style="font-size:12px;font-weight:600;margin-bottom:6px">${rankTitle}</div>
-      <table style="width:100%;font-size:12px;border-collapse:collapse">
-        <thead><tr style="border-bottom:2px solid var(--border)">
-          <th style="padding:4px 8px;text-align:left;font-weight:500;color:var(--text-muted)">${colRank}</th>
-          <th style="padding:4px 8px;text-align:left;font-weight:500;color:var(--text-muted)">${colSubject}</th>
-          <th style="padding:4px 8px;text-align:right;font-weight:500;color:var(--text-muted)">${colPct}</th>
-        </tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
+    const SUBJECT_CN = {
+      'Engineering and Manufacturing': '工程与制造学科',
+      'Field Māori': '毛利文化学科',
+      'Health and Physical Education': '健康与体育学科',
+      'English and Communication Skills': '英语与沟通学科',
+      'Languages': '语言学科',
+      'Sciences': '科学学科',
+      'Mathematics and Statistics': '数学与统计学科',
+      'Social Sciences': '社会科学学科',
+      'Te Reo Māori': '毛利语学科',
+      'Technology': '技术学科',
+      'The Arts': '艺术学科',
+    };
+    const intro = en
+      ? 'Among all Auckland high schools in NCEA Level 3 pass rate rankings:'
+      : '各学科在全奥克兰高中 NCEA L3 通过率排名中:';
+    const parts = data.subject_rankings.map(r => {
+      const name = en ? r.subject : (SUBJECT_CN[r.subject] || r.subject + '学科');
+      const rank = en ? `#${r.rank}` : `第${r.rank}名`;
+      return `<b>${name}</b> ${rank}`;
+    });
+    rankHtml = `<div style="margin-top:14px">
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">${intro}</div>
+      <div style="font-size:13px;line-height:1.8">${parts.join(en ? ', ' : '，')}</div>
     </div>`;
   }
 
