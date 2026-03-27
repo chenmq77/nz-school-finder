@@ -1,5 +1,28 @@
 # Changelog
 
+## 2026-03-27 — refactor: Alpine.js 渐进迁移 (Phase 1)
+
+### Why
+index.html 4400+ 行单文件，代码无模块化，全局变量 9 个，innerHTML 拼接 69 处，相同模式重复多次（折叠面板 7 个、导出函数 3 个、i18n 判断 34 处）。需要拆分模块并引入轻量响应式框架。
+
+### What
+1. 引入 Alpine.js (CDN) + ES modules，零构建步骤
+2. 抽出 6 个 JS 模块文件（共 706 行）:
+   - js/utils.js — esc, safe, showToast 等工具函数
+   - js/i18n.js — t, td, bilingual 翻译函数
+   - js/api.js — 统一 fetch 封装 + AbortController + 错误处理
+   - js/table.js — 列定义、getCellValue、formatCell、排序逻辑
+   - js/ncea.js — Metro NCEA 荣誉板块 + 加载逻辑
+   - js/export.js — 共享导出基础设施（html2canvas 封装）
+3. 7 个折叠面板从 onclick="toggleSection()" 迁移到 Alpine x-data="{ open }"
+4. server.py 增加 /js/ 和 /css/ 静态文件路由
+5. 所有模块通过 window.* 桥接，现有代码不受影响
+
+### How
+渐进式迁移：每个模块先抽出、桥接、测试，确保原有功能不断。index.html 中的原始代码暂时保留作为 fallback。
+
+---
+
 ## 2026-03-27 — fix: Scholarships 数据修正 + 荣誉板块重构
 
 ### Why

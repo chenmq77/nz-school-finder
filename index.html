@@ -1011,6 +1011,22 @@ body {
 </style>
 <script src="translations.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" defer></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<script type="module">
+  // Bridge: expose ES module functions to global scope for backward compatibility
+  import { esc, safe, hasValue, ensureHttp, safeUrl, showToast } from './js/utils.js';
+  import { t, td, bilingual, getLang, setLang, initLang, isEn } from './js/i18n.js';
+  import { apiFetch, apiFetchAll, searchSchools, fetchSchools, fetchSchool, fetchSchoolWeb, fetchSchoolNceaAll, fetchStats, abortAll } from './js/api.js';
+  import * as tableModule from './js/table.js';
+  import * as nceaModule from './js/ncea.js';
+  import { exportDivAsImage, buildExportFooter, exportFilename } from './js/export.js';
+  window._utils = { esc, safe, hasValue, ensureHttp, safeUrl, showToast };
+  window._i18n = { t, td, bilingual, getLang, setLang, initLang, isEn };
+  window._api = { apiFetch, apiFetchAll, searchSchools, fetchSchools, fetchSchool, fetchSchoolWeb, fetchSchoolNceaAll, fetchStats, abortAll };
+  window._table = tableModule;
+  window._ncea = nceaModule;
+  window._export = { exportDivAsImage, buildExportFooter, exportFilename };
+</script>
 </head>
 <body>
 <script>
@@ -1127,75 +1143,72 @@ document.body.style.transition = 'opacity 0.15s';
   <div class="school-detail" id="schoolDetail">
 
     <!-- 学校概览 -->
-    <div class="section" id="sectionA">
-      <div class="section-header collapsible" onclick="toggleSection('A')">
+    <div class="section" id="sectionA" x-data="{ open: true }">
+      <div class="section-header collapsible" @click="open = !open">
         <div class="section-title" id="titleA"></div>
         <span style="flex:1"></span>
-        <button class="col-chooser-btn" onclick="event.stopPropagation();exportSchoolCard()" style="font-size:11px;padding:2px 8px;margin-right:8px">导出卡片</button>
-        <span class="section-toggle open" id="toggleA">&#9660;</span>
+        <button class="col-chooser-btn" @click.stop="exportSchoolCard()" style="font-size:11px;padding:2px 8px;margin-right:8px">导出卡片</button>
+        <span class="section-toggle" :class="{ open }" id="toggleA">&#9660;</span>
       </div>
-      <div class="section-body" id="bodyA"></div>
+      <div class="section-body" :class="{ collapsed: !open }" id="bodyA"></div>
     </div>
 
     <!-- NCEA 升学成绩 -->
-    <div class="section" id="sectionH" style="display:none">
-      <div class="section-header collapsible" onclick="toggleSection('H')">
+    <div class="section" id="sectionH" style="display:none" x-data="{ open: true }">
+      <div class="section-header collapsible" @click="open = !open">
         <div class="section-title" id="titleH"></div>
         <span style="flex:1"></span>
-        <button class="col-chooser-btn" onclick="event.stopPropagation();exportNceaCard()" style="font-size:11px;padding:2px 8px;margin-right:8px">导出卡片</button>
-        <span class="section-toggle open" id="toggleH">&#9660;</span>
+        <button class="col-chooser-btn" @click.stop="exportNceaCard()" style="font-size:11px;padding:2px 8px;margin-right:8px">导出卡片</button>
+        <span class="section-toggle" :class="{ open }" id="toggleH">&#9660;</span>
       </div>
-      <div class="section-body" id="bodyH"></div>
+      <div class="section-body" :class="{ collapsed: !open }" id="bodyH"></div>
     </div>
 
-    <!-- B section removed — address + zone now in A -->
-
     <!-- 学生构成 -->
-    <div class="section" id="sectionF">
-      <div class="section-header collapsible" onclick="toggleSection('F')">
+    <div class="section" id="sectionF" x-data="{ open: true }">
+      <div class="section-header collapsible" @click="open = !open">
         <div class="section-title" id="titleF"></div>
         <span style="flex:1"></span>
-        <button class="col-chooser-btn" onclick="event.stopPropagation();exportStudentFeeCard()" style="font-size:11px;padding:2px 8px;margin-right:8px">导出卡片</button>
-        <span class="section-toggle open" id="toggleF">&#9660;</span>
+        <button class="col-chooser-btn" @click.stop="exportStudentFeeCard()" style="font-size:11px;padding:2px 8px;margin-right:8px">导出卡片</button>
+        <span class="section-toggle" :class="{ open }" id="toggleF">&#9660;</span>
       </div>
-      <div class="section-body" id="bodyF"></div>
+      <div class="section-body" :class="{ collapsed: !open }" id="bodyF"></div>
     </div>
 
     <!-- 课程与学科 -->
-    <div class="section" id="sectionC">
-      <div class="section-header collapsible" onclick="toggleSection('C')">
+    <div class="section" id="sectionC" x-data="{ open: true }">
+      <div class="section-header collapsible" @click="open = !open">
         <div class="section-title" id="titleC"></div>
-        <span class="section-toggle open" id="toggleC">&#9660;</span>
+        <span class="section-toggle" :class="{ open }" id="toggleC">&#9660;</span>
       </div>
-      <div class="section-body" id="bodyC"></div>
+      <div class="section-body" :class="{ collapsed: !open }" id="bodyC"></div>
     </div>
 
-
     <!-- 课外活动 -->
-    <div class="section" id="sectionD">
-      <div class="section-header collapsible" onclick="toggleSection('D')">
+    <div class="section" id="sectionD" x-data="{ open: true }">
+      <div class="section-header collapsible" @click="open = !open">
         <div class="section-title" id="titleD"></div>
-        <span class="section-toggle open" id="toggleD">&#9660;</span>
+        <span class="section-toggle" :class="{ open }" id="toggleD">&#9660;</span>
       </div>
-      <div class="section-body" id="bodyD"></div>
+      <div class="section-body" :class="{ collapsed: !open }" id="bodyD"></div>
     </div>
 
     <!-- 国际生费用 -->
-    <div class="section" id="sectionE">
-      <div class="section-header collapsible" onclick="toggleSection('E')">
+    <div class="section" id="sectionE" x-data="{ open: true }">
+      <div class="section-header collapsible" @click="open = !open">
         <div class="section-title" id="titleE"></div>
-        <span class="section-toggle open" id="toggleE">&#9660;</span>
+        <span class="section-toggle" :class="{ open }" id="toggleE">&#9660;</span>
       </div>
-      <div class="section-body" id="bodyE"></div>
+      <div class="section-body" :class="{ collapsed: !open }" id="bodyE"></div>
     </div>
 
-    <!-- 联络信息 -->
-    <div class="section" id="sectionG">
-      <div class="section-header collapsible" onclick="toggleSection('G')">
+    <!-- 联络信息 (默认折叠) -->
+    <div class="section" id="sectionG" x-data="{ open: false }">
+      <div class="section-header collapsible" @click="open = !open">
         <div class="section-title" id="titleG"></div>
-        <span class="section-toggle" id="toggleG">&#9660;</span>
+        <span class="section-toggle" :class="{ open }" id="toggleG">&#9660;</span>
       </div>
-      <div class="section-body collapsed" id="bodyG"></div>
+      <div class="section-body" :class="{ collapsed: !open }" id="bodyG"></div>
     </div>
 
   </div><!-- /school-detail -->
@@ -2411,6 +2424,8 @@ function showDetailError(msg) {
   });
 }
 
+// toggleSection() — replaced by Alpine.js x-data="{ open }" on each section
+// Kept as fallback; remove after full migration verification
 function toggleSection(key) {
   const body = document.getElementById('body' + key);
   const toggle = document.getElementById('toggle' + key);
