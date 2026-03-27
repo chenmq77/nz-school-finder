@@ -19,7 +19,10 @@ from typing import Optional
 
 # ── Constants ─────────────────────────────────────────
 
-DB_PATH = Path(__file__).resolve().parent.parent.parent / "schools.db"
+DB_PATH = Path(os.environ.get(
+    "SCHOOLS_DB",
+    str(Path(__file__).resolve().parent.parent.parent / "schools.db")
+))
 LOG_DIR = Path(__file__).resolve().parent.parent / "logs"
 RATE_LIMIT_SECONDS = 2
 

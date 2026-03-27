@@ -269,7 +269,10 @@ def ensure_school_fees_table(db_path):
 if __name__ == "__main__":
     base_dir = os.path.dirname(os.path.abspath(__file__))
     csv_path = os.path.join(base_dir, "directory.csv")
-    db_path  = os.path.join(base_dir, "schools.db")
+    db_path  = os.environ.get(
+        "SCHOOLS_DB",
+        os.path.join(base_dir, "schools.db")
+    )
 
     import_data(csv_path, db_path)
     ensure_school_fees_table(db_path)

@@ -10,6 +10,7 @@ Usage:
 """
 
 import argparse
+import os
 import random
 import sqlite3
 import time
@@ -17,7 +18,10 @@ from pathlib import Path
 
 from .ncea_crawler import METRICS, scrape_school
 
-DB_PATH = Path(__file__).resolve().parent.parent / "schools.db"
+DB_PATH = Path(os.environ.get(
+    "SCHOOLS_DB",
+    str(Path(__file__).resolve().parent.parent / "schools.db")
+))
 
 TARGET_SCHOOLS = [
     (6930, "Botany Downs Secondary College"),

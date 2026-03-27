@@ -12,7 +12,10 @@ import sys
 import unicodedata
 
 # ── 常量 ──────────────────────────────────────────────
-DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "schools.db")
+DB_PATH = os.environ.get(
+    "SCHOOLS_DB",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "schools.db")
+)
 WIDTH = 72  # 终端显示宽度
 BAR_MAX = 35  # 条形图最大字符宽度
 

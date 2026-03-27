@@ -15,13 +15,17 @@ Usage:
 import argparse
 import hashlib
 import json
+import os
 import random
 import sqlite3
 import time
 from datetime import datetime
 from pathlib import Path
 
-DB_PATH = Path(__file__).resolve().parent.parent / "schools.db"
+DB_PATH = Path(os.environ.get(
+    "SCHOOLS_DB",
+    str(Path(__file__).resolve().parent.parent / "schools.db")
+))
 
 BASE_URL = "https://www.educationcounts.govt.nz/find-school/school"
 METRICS = {

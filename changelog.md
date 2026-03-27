@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-03-27 — refactor: 数据库路径支持环境变量，适配 worktree 共享
+
+### Why
+SQLite 数据库 `schools.db` 放在项目目录内，不同 git worktree 各自独立，无法共享同一份数据。
+
+### What
+所有 `DB_PATH` 定义改为优先读取环境变量 `SCHOOLS_DB`，未设置时 fallback 到原来的相对路径（向后兼容）。
+
+### How
+修改 5 个文件中的 `DB_PATH`：`school_finder.py`、`init_db.py`、`crawlers/templates/base.py`、`crawlers/batch_ncea.py`、`crawlers/ncea_crawler.py`。用法：`export SCHOOLS_DB="$HOME/.local/share/nz-school-finder/schools.db"`
+
+---
+
 ## 2026-03-27 — refactor: Alpine.js 渐进迁移 (Phase 1)
 
 ### Why
