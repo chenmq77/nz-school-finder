@@ -205,6 +205,30 @@ body {
   color: var(--primary);
   background: var(--primary-light);
 }
+.subject-tag.school-course {
+  border-style: dashed;
+  background: transparent;
+}
+a.subject-tag.has-link {
+  text-decoration: none;
+  cursor: pointer;
+  border-color: var(--primary-lightest);
+  color: var(--primary-dark);
+  background: var(--primary-light);
+}
+a.subject-tag.has-link::after {
+  content: ' ↗';
+  font-size: 9px;
+  opacity: 0.5;
+}
+a.subject-tag.has-link:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light);
+}
+a.subject-tag.has-link:hover::after {
+  opacity: 1;
+}
 .subject-tag .cn {
   color: var(--text-muted);
   font-size: 11px;
@@ -359,7 +383,7 @@ body {
   <!-- ════════════════════════════════════════════════════ -->
   <div class="section-title">
     <h2>Learning Areas / 学习领域</h2>
-    <span class="subtitle">10 areas, 81 subjects (NZQA)</span>
+    <span class="subtitle">10 areas &middot; <span style="color:var(--primary)">NZQA official</span> + <span style="color:var(--text-muted)">school courses</span></span>
     <a class="source-link" href="https://www2.nzqa.govt.nz/ncea/subjects/select-subject/" target="_blank" rel="noopener">NZQA Source &rarr;</a>
   </div>
 
@@ -391,6 +415,8 @@ body {
 //  NZ Curriculum: 8 Learning Areas
 // ════════════════════════════════════════════════════════════
 
+const NZ = 'https://www2.nzqa.govt.nz/ncea/subjects/select-subject/';
+
 const LEARNING_AREAS = [
   {
     key: 'english',
@@ -398,11 +424,12 @@ const LEARNING_AREAS = [
     nameCn: '英语',
     icon: 'Aa',
     subjects: [
-      { name: 'English', cn: '英语' },
-      { name: 'English Language', cn: '英语语言学' },
-      { name: 'English for Academic Purposes', cn: '学术英语' },
-      { name: 'Media Studies', cn: '媒体研究' },
-      { name: 'Te Reo Matatini', cn: '毛利语读写', teReo: true },
+      { name: 'English', cn: '英语', nzqa: true, url: NZ+'english/' },
+      { name: 'English Language', cn: '英语语言学', nzqa: true, url: NZ+'english-language/' },
+      { name: 'English for Academic Purposes', cn: '学术英语', nzqa: true, url: NZ+'english-for-academic-purposes/' },
+      { name: 'ESOL', cn: '英语为第二语言' },
+      { name: 'Media Studies', cn: '媒体研究', nzqa: true, url: NZ+'media-studies/' },
+      { name: 'Te Reo Matatini', cn: '毛利语读写', nzqa: true, teReo: true, url: NZ+'te-reo-matatini/' },
     ]
   },
   {
@@ -411,17 +438,21 @@ const LEARNING_AREAS = [
     nameCn: '艺术',
     icon: '\u266B',
     subjects: [
-      { name: 'Art History', cn: '艺术史' },
-      { name: 'Dance', cn: '舞蹈' },
-      { name: 'Design and Visual Communication', cn: '设计与视觉传达' },
-      { name: 'Drama', cn: '戏剧' },
-      { name: 'Music', cn: '音乐' },
-      { name: 'Visual Arts', cn: '视觉艺术' },
-      { name: 'M\u0101ori Performing Arts', cn: '毛利表演艺术' },
-      { name: 'Ng\u0101 Mahi a te R\u0113hia', cn: '毛利休闲艺术', teReo: true },
-      { name: 'Te Ao Haka', cn: '毛利舞蹈文化', teReo: true },
-      { name: 'Toi Ataata', cn: '毛利视觉艺术', teReo: true },
-      { name: 'Toi Puoro', cn: '毛利音乐', teReo: true },
+      { name: 'Art History', cn: '艺术史', nzqa: true, url: NZ+'art-history/' },
+      { name: 'Dance', cn: '舞蹈', nzqa: true, url: NZ+'dance/' },
+      { name: 'Design', cn: '设计' },
+      { name: 'Design and Visual Communication', cn: '设计与视觉传达', nzqa: true, url: NZ+'design-and-visual-communication/' },
+      { name: 'Drama', cn: '戏剧', nzqa: true, url: NZ+'drama/' },
+      { name: 'Music', cn: '音乐', nzqa: true, url: NZ+'music/' },
+      { name: 'Painting', cn: '绘画' },
+      { name: 'Photography', cn: '摄影' },
+      { name: 'Sculpture', cn: '雕塑' },
+      { name: 'Visual Arts', cn: '视觉艺术', nzqa: true, url: NZ+'visual-arts/' },
+      { name: 'M\u0101ori Performing Arts', cn: '毛利表演艺术', nzqa: true, url: NZ+'maori-performing-arts/' },
+      { name: 'Ng\u0101 Mahi a te R\u0113hia', cn: '毛利休闲艺术', nzqa: true, teReo: true, url: NZ+'nga-mahi-a-te-rehia/' },
+      { name: 'Te Ao Haka', cn: '毛利舞蹈文化', nzqa: true, teReo: true, url: NZ+'te-ao-haka/' },
+      { name: 'Toi Ataata', cn: '毛利视觉艺术', nzqa: true, teReo: true, url: NZ+'toi-ataata/' },
+      { name: 'Toi Puoro', cn: '毛利音乐', nzqa: true, teReo: true, url: NZ+'toi-puoro/' },
     ]
   },
   {
@@ -430,11 +461,11 @@ const LEARNING_AREAS = [
     nameCn: '健康与体育',
     icon: '\u2764',
     subjects: [
-      { name: 'Health', cn: '健康教育' },
-      { name: 'Health Studies', cn: '健康研究', note: 'Level 1' },
-      { name: 'Home Economics', cn: '家政学' },
-      { name: 'Physical Education', cn: '体育' },
-      { name: 'Hauora', cn: '毛利健康学', teReo: true },
+      { name: 'Health', cn: '健康教育', nzqa: true, url: NZ+'health/' },
+      { name: 'Health Studies', cn: '健康研究', nzqa: true, url: NZ+'health-studies/', note: 'Level 1' },
+      { name: 'Home Economics', cn: '家政学', nzqa: true, url: NZ+'home-economics/' },
+      { name: 'Physical Education', cn: '体育', nzqa: true, url: NZ+'physical-education/' },
+      { name: 'Hauora', cn: '毛利健康学', nzqa: true, teReo: true, url: NZ+'hauora/' },
     ]
   },
   {
@@ -443,23 +474,23 @@ const LEARNING_AREAS = [
     nameCn: '语言学习',
     icon: '\uD83C\uDF0D',
     subjects: [
-      { name: 'Chinese (Mandarin)', cn: '中文（普通话）' },
-      { name: 'Cook Islands M\u0101ori', cn: '库克群岛毛利语' },
-      { name: 'French', cn: '法语' },
-      { name: 'Gagana S\u0101moa', cn: '萨摩亚语' },
-      { name: 'Gagana Tokelau', cn: '托克劳语' },
-      { name: 'German', cn: '德语' },
-      { name: 'Japanese', cn: '日语' },
-      { name: 'Korean', cn: '韩语' },
-      { name: 'Latin', cn: '拉丁语' },
-      { name: 'Lea Faka-Tonga', cn: '汤加语' },
-      { name: 'NZ Sign Language', cn: '新西兰手语' },
-      { name: 'Samoan', cn: '萨摩亚语（英语授课）' },
-      { name: 'Spanish', cn: '西班牙语' },
-      { name: 'Te Reo M\u0101ori', cn: '毛利语' },
-      { name: 'Te Reo M\u0101ori K\u016Bki \u2018\u0100irani', cn: '库克群岛毛利语（毛利授课）', teReo: true },
-      { name: 'Te Reo Rangatira', cn: '高级毛利语', teReo: true },
-      { name: 'Vagahau Niue', cn: '纽埃语' },
+      { name: 'Chinese (Mandarin)', cn: '中文（普通话）', nzqa: true, url: NZ+'chinese/' },
+      { name: 'Cook Islands M\u0101ori', cn: '库克群岛毛利语', nzqa: true, url: NZ+'cook-islands-maori/' },
+      { name: 'French', cn: '法语', nzqa: true, url: NZ+'french/' },
+      { name: 'Gagana S\u0101moa', cn: '萨摩亚语', nzqa: true, url: NZ+'gagana-samoa/' },
+      { name: 'Gagana Tokelau', cn: '托克劳语', nzqa: true, url: NZ+'gagana-tokelau/' },
+      { name: 'German', cn: '德语', nzqa: true, url: NZ+'german/' },
+      { name: 'Japanese', cn: '日语', nzqa: true, url: NZ+'japanese/' },
+      { name: 'Korean', cn: '韩语', nzqa: true, url: NZ+'korean/' },
+      { name: 'Latin', cn: '拉丁语', nzqa: true, url: NZ+'latin/' },
+      { name: 'Lea Faka-Tonga', cn: '汤加语', nzqa: true, url: NZ+'lea-faka-tonga/' },
+      { name: 'NZ Sign Language', cn: '新西兰手语', nzqa: true, url: NZ+'new-zealand-sign-language/' },
+      { name: 'Samoan', cn: '萨摩亚语（英语授课）', nzqa: true, url: NZ+'samoan/' },
+      { name: 'Spanish', cn: '西班牙语', nzqa: true, url: NZ+'spanish/' },
+      { name: 'Te Reo M\u0101ori', cn: '毛利语', nzqa: true, url: NZ+'te-reo-maori/' },
+      { name: 'Te Reo M\u0101ori K\u016Bki \u2018\u0100irani', cn: '库克群岛毛利语（毛利授课）', nzqa: true, teReo: true, url: NZ+'te-reo-maori-kuki-airani/' },
+      { name: 'Te Reo Rangatira', cn: '高级毛利语', nzqa: true, teReo: true, url: NZ+'te-reo-rangatira/' },
+      { name: 'Vagahau Niue', cn: '纽埃语', nzqa: true, url: NZ+'vagahau-niue/' },
     ]
   },
   {
@@ -468,12 +499,12 @@ const LEARNING_AREAS = [
     nameCn: '数学与统计',
     icon: '\u03C0',
     subjects: [
-      { name: 'Mathematics and Statistics', cn: '数学与统计' },
+      { name: 'Mathematics and Statistics', cn: '数学与统计', nzqa: true, url: NZ+'mathematics-and-statistics/' },
       { name: 'Calculus', cn: '微积分' },
-      { name: 'Numeracy', cn: '数学素养' },
       { name: 'Statistics', cn: '统计学' },
-      { name: 'P\u0101ngarau', cn: '毛利数学', teReo: true },
-      { name: 'Te Reo P\u0101ngarau', cn: '毛利数学语言', teReo: true },
+      { name: 'Numeracy', cn: '数学素养', nzqa: true, url: NZ+'numeracy/' },
+      { name: 'P\u0101ngarau', cn: '毛利数学', nzqa: true, teReo: true, url: NZ+'pangarau/' },
+      { name: 'Te Reo P\u0101ngarau', cn: '毛利数学语言', nzqa: true, teReo: true, url: NZ+'te-reo-pangarau/' },
     ]
   },
   {
@@ -482,15 +513,16 @@ const LEARNING_AREAS = [
     nameCn: '科学',
     icon: '\u269A',
     subjects: [
-      { name: 'Agricultural and Horticultural Science', cn: '农业与园艺科学' },
-      { name: 'Biology', cn: '生物' },
-      { name: 'Chemistry', cn: '化学' },
-      { name: 'Chemistry and Biology', cn: '化学与生物', note: 'Level 1' },
-      { name: 'Earth and Space Science', cn: '地球与太空科学' },
-      { name: 'Physics', cn: '物理' },
-      { name: 'Physics, Earth and Space Science', cn: '物理与地球太空科学', note: 'Level 1' },
-      { name: 'Science', cn: '科学综合' },
-      { name: 'P\u016Btaiao', cn: '毛利科学', teReo: true },
+      { name: 'Agricultural and Horticultural Science', cn: '农业与园艺科学', nzqa: true, url: NZ+'agricultural-and-horticultural-science/' },
+      { name: 'Biology', cn: '生物', nzqa: true, url: NZ+'biology/' },
+      { name: 'Chemistry', cn: '化学', nzqa: true, url: NZ+'chemistry/' },
+      { name: 'Chemistry and Biology', cn: '化学与生物', nzqa: true, url: NZ+'chemistry-and-biology/', note: 'Level 1' },
+      { name: 'Earth and Space Science', cn: '地球与太空科学', nzqa: true, url: NZ+'earth-and-space-science/' },
+      { name: 'Horticulture', cn: '园艺' },
+      { name: 'Physics', cn: '物理', nzqa: true, url: NZ+'physics/' },
+      { name: 'Physics, Earth and Space Science', cn: '物理与地球太空科学', nzqa: true, url: NZ+'physics-earth-and-space-science/', note: 'Level 1' },
+      { name: 'Science', cn: '科学综合', nzqa: true, url: NZ+'science/' },
+      { name: 'P\u016Btaiao', cn: '毛利科学', nzqa: true, teReo: true, url: NZ+'putaiao/' },
     ]
   },
   {
@@ -499,21 +531,23 @@ const LEARNING_AREAS = [
     nameCn: '社会科学',
     icon: '\uD83C\uDFDB',
     subjects: [
-      { name: 'Accounting', cn: '会计' },
-      { name: 'Business Studies', cn: '商业研究' },
-      { name: 'Classical Studies', cn: '古典学' },
-      { name: 'Commerce', cn: '商学', note: 'Level 1' },
-      { name: 'Economics', cn: '经济学' },
-      { name: 'Education for Sustainability', cn: '可持续发展教育' },
-      { name: 'Geography', cn: '地理' },
-      { name: 'History', cn: '历史' },
-      { name: 'Legal Studies', cn: '法律研究' },
-      { name: 'Pacific Studies', cn: '太平洋研究' },
-      { name: 'Psychology', cn: '心理学' },
-      { name: 'Religious Studies', cn: '宗教研究' },
-      { name: 'Social Studies', cn: '社会研究' },
-      { name: 'Sociology', cn: '社会学' },
-      { name: 'Tikanga \u0101-Iwi', cn: '毛利社会学', teReo: true },
+      { name: 'Accounting', cn: '会计', nzqa: true, url: NZ+'accounting/' },
+      { name: 'Business Studies', cn: '商业研究', nzqa: true, url: NZ+'business-studies/' },
+      { name: 'Classical Studies', cn: '古典学', nzqa: true, url: NZ+'classical-studies/' },
+      { name: 'Commerce', cn: '商学', nzqa: true, url: NZ+'commerce/', note: 'Level 1' },
+      { name: 'Economics', cn: '经济学', nzqa: true, url: NZ+'economics/' },
+      { name: 'Education for Sustainability', cn: '可持续发展教育', nzqa: true, url: NZ+'education-for-sustainability/' },
+      { name: 'Geography', cn: '地理', nzqa: true, url: NZ+'geography/' },
+      { name: 'History', cn: '历史', nzqa: true, url: NZ+'history/' },
+      { name: 'Legal Studies', cn: '法律研究', nzqa: true, url: NZ+'legal-studies/' },
+      { name: 'Pacific Studies', cn: '太平洋研究', nzqa: true, url: NZ+'pacific-studies/' },
+      { name: 'Philosophy', cn: '哲学' },
+      { name: 'Psychology', cn: '心理学', nzqa: true, url: NZ+'psychology/' },
+      { name: 'Religious Studies', cn: '宗教研究', nzqa: true, url: NZ+'religious-studies/' },
+      { name: 'Social Studies', cn: '社会研究', nzqa: true, url: NZ+'social-studies/' },
+      { name: 'Sociology', cn: '社会学', nzqa: true, url: NZ+'sociology/' },
+      { name: 'Tourism', cn: '旅游' },
+      { name: 'Tikanga \u0101-Iwi', cn: '毛利社会学', nzqa: true, teReo: true, url: NZ+'tikanga-a-iwi/' },
     ]
   },
   {
@@ -522,11 +556,16 @@ const LEARNING_AREAS = [
     nameCn: '技术',
     icon: '\u2699',
     subjects: [
-      { name: 'Digital Technologies', cn: '数字技术' },
-      { name: 'Design and Visual Communication', cn: '设计与视觉传达' },
-      { name: 'Materials and Processing Technology', cn: '材料与加工技术', note: 'Level 1' },
-      { name: 'Technology', cn: '技术综合' },
-      { name: 'Hangarau', cn: '毛利技术', teReo: true },
+      { name: 'Design and Visual Communication', cn: '设计与视觉传达', nzqa: true, url: NZ+'design-and-visual-communication/' },
+      { name: 'Digital Technologies', cn: '数字技术', nzqa: true, url: NZ+'digital-technologies/' },
+      { name: 'Electronics', cn: '电子技术' },
+      { name: 'Food Technology', cn: '食品技术' },
+      { name: 'Hard Materials Technology', cn: '硬材料技术' },
+      { name: 'Materials and Processing Technology', cn: '材料与加工技术', nzqa: true, url: NZ+'materials-and-processing-technology/', note: 'Level 1' },
+      { name: 'Product Design', cn: '产品设计' },
+      { name: 'Technology', cn: '技术综合', nzqa: true, url: NZ+'technology/' },
+      { name: 'Textiles Technology', cn: '纺织技术' },
+      { name: 'Hangarau', cn: '毛利技术', nzqa: true, teReo: true, url: NZ+'hangarau/' },
     ]
   },
   {
@@ -535,24 +574,28 @@ const LEARNING_AREAS = [
     nameCn: '毛利世界观',
     icon: '\u2726',
     subjects: [
-      { name: 'Field M\u0101ori', cn: '毛利实地研究', teReo: true },
+      { name: 'Field M\u0101ori', cn: '毛利实地研究', nzqa: true, teReo: true, url: NZ+'field-maori/' },
+      { name: 'Tikanga M\u0101ori', cn: '毛利文化习俗', teReo: true },
+      { name: 'Whakairo', cn: '毛利雕刻', teReo: true },
     ]
   },
   {
     key: 'vocational',
-    name: 'Vocational & Other',
-    nameCn: '职业与其他',
+    name: 'Vocational & Applied',
+    nameCn: '职业与应用',
     icon: '\uD83D\uDCBC',
     subjects: [
-      { name: 'Adult Education', cn: '成人教育' },
-      { name: 'Agribusiness', cn: '农业商务' },
-      { name: 'Business and Management', cn: '商业管理' },
-      { name: 'Core Skills', cn: '核心技能' },
-      { name: 'Driver Licence (Class 1)', cn: '驾照（1类）' },
-      { name: 'Early Childhood Education', cn: '幼儿教育' },
-      { name: 'Literacy - Reading', cn: '读写素养（阅读）' },
-      { name: 'Literacy - Writing', cn: '读写素养（写作）' },
-      { name: 'Supported Learning', cn: '辅助学习' },
+      { name: 'Construction', cn: '建筑' },
+      { name: 'Early Childhood Education', cn: '幼儿教育', nzqa: true, url: NZ+'early-childhood-education/' },
+      { name: 'Hospitality', cn: '酒店餐饮' },
+      { name: 'Agribusiness', cn: '农业商务', nzqa: true, url: NZ+'agribusiness/' },
+      { name: 'Business and Management', cn: '商业管理', nzqa: true, url: NZ+'business-and-management/' },
+      { name: 'Adult Education', cn: '成人教育', nzqa: true, url: NZ+'adult-education/' },
+      { name: 'Core Skills', cn: '核心技能', nzqa: true, url: NZ+'core-skills/' },
+      { name: 'Driver Licence (Class 1)', cn: '驾照（1类）', nzqa: true, url: NZ+'driver-licence/' },
+      { name: 'Literacy - Reading', cn: '读写素养（阅读）', nzqa: true, url: NZ+'literacy-reading/' },
+      { name: 'Literacy - Writing', cn: '读写素养（写作）', nzqa: true, url: NZ+'literacy-writing/' },
+      { name: 'Supported Learning', cn: '辅助学习', nzqa: true, url: NZ+'supported-learning/' },
     ]
   }
 ];
@@ -683,9 +726,15 @@ function renderAreaCards() {
   const grid = document.getElementById('area-grid');
   grid.innerHTML = LEARNING_AREAS.map(area => {
     const subjectTags = area.subjects.map(s => {
-      const cls = s.teReo ? 'subject-tag te-reo' : 'subject-tag';
+      let cls = 'subject-tag';
+      if (s.teReo) cls += ' te-reo';
+      else if (!s.nzqa) cls += ' school-course';
       const noteStr = s.note ? ` <span class="cn">(${esc(s.note)})</span>` : '';
-      return `<li class="${cls}">${esc(s.name)} <span class="cn">${esc(s.cn)}</span>${noteStr}</li>`;
+      const content = `${esc(s.name)} <span class="cn">${esc(s.cn)}</span>${noteStr}`;
+      if (s.url) {
+        return `<li><a class="${cls} has-link" href="${s.url}" target="_blank" rel="noopener">${content}</a></li>`;
+      }
+      return `<li class="${cls}">${content}</li>`;
     }).join('');
 
     return `
