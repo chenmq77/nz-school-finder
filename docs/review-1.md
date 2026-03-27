@@ -1,42 +1,45 @@
-# Requirement Challenge — Round 1 of 8
+# Requirement Challenge — Round 1 of 20
 
 **Model**: gpt-5.4-xhigh-fast
-**Date**: 2026-03-26 22:04:09
+**Date**: 2026-03-27 13:28:25
 
 ---
 
 ### VERDICT: CHANGES_REQUESTED
 
-### SCORE: 5
+### SCORE: 6
 
 ### COMPLETENESS
-- [School-level extraction]: PARTIAL — the core table on pages 31-33 is covered, but the schema does not cleanly represent that some values are for 2023 while `school_roll` is explicitly for July 2024.
-- [Subject ranking extraction]: PARTIAL — the 11 top-10 subject rankings are included, but tie handling, non-ranked schools, and validation expectations are not defined.
-- [Comparison-system integration]: PARTIAL — list and detail pages are described, but the proposal does not define an actual multi-school comparison flow even though the requirement is to strengthen comparison capability.
-- [School matching and referential integrity]: GAP — the proposal says all PDF schools should map to `schools`, but the acceptance target is only `>95%`, and no final policy exists for unmatched schools.
-- [Regional/trend data scope]: GAP — pages 3-6 are listed as extractable data, but the proposal neither models them nor explicitly marks them out of scope.
-- [Operational robustness]: GAP — reruns, transactions, partial failures, import auditability, and dependency failure behavior are not specified.
+- Official taxonomy alignment: PARTIAL — the proposal says it will align to NZQA, but it does not define the exact authoritative source, snapshot/versioning strategy, or how "complete" will be verified.
+- Course discovery flow: PARTIAL — the overview-to-school-list flow is covered, but unique-school counting rules, zero-count meaning, and the filtered-list contract are not defined.
+- Unmatched course handling: PARTIAL — capture is covered, but the storage target conflicts with the stated user decision, and deduplication/review mechanics are missing.
+- Vocational pathway display: PARTIAL — independent display is covered, but the exact card metrics, empty states, and data provenance are unclear.
+- Delivery and backfill: GAP — the plan does not explain how to avoid showing incomplete or misleading data before recrawl/backfill finishes.
 
 ### ISSUES
-1. [critical] Data model semantics — the proposed `school_ncea_summary.year` suggests a single time period, but the row mixes 2023 outcomes with a July 2024 roll count. This will create misleading API semantics unless metric periods are separated or explicitly modeled.
-2. [critical] Mapping/completeness — the requirement says the PDF schools must be associated to the existing `schools` table, but the proposal accepts only `>95%` matching and does not define what happens to the remaining schools. Define whether import must fail, quarantine unmatched rows, or require manual mapping before release.
-3. [major] Source-of-truth conflict — the system already has `school_performance` data for NCEA levels for 11 schools, but the proposal does not define which source wins when the Metro PDF differs. The API and UI need a canonical precedence rule per field.
-4. [major] Scope ambiguity — the source overview includes regional summary/trend pages and the requirement mentions a comparison system, yet the proposal only specifies list/detail behavior and silently drops regional aggregates. Release-1 scope needs an explicit boundary.
-5. [major] Import reliability — no idempotent import strategy, transaction boundary, rollback behavior, or import report is defined. A rerun or partial failure in SQLite could leave the dataset in an inconsistent state.
-6. [minor] Schema/testability — `outstanding_merit` and `distinction` are typed as `TEXT` while comments imply percentages, and “data matches PDF” is not measurable. Use explicit numeric/raw-value rules and define concrete validation checks.
-7. [question] For user — should release 1 include regional summary/trend insights and a dedicated comparison-page experience, or is the business priority limited to school-level summary data on list/detail pages only?
+1. [critical] Data semantics — the proposal never defines whether subject counts mean distinct schools or raw course rows, so one school could be counted multiple times when several course variants map to the same subject — define aggregation rules and validate them with examples.
+2. [major] External dependency — "align with NZQA official classification" is not operationalized: the exact NZQA source, extraction method, update cadence, and fallback when the source changes are missing — pin an authoritative dataset or snapshot and version it.
+3. [major] Requirement alignment — the design creates `unmatched_subjects`, but the stated user decision says unmatched records go to a raw table; the proposal does not reconcile this contradiction — choose one canonical storage model and document why.
+4. [major] Architecture integrity — `subject_pool` still allows invalid parent-child relationships and deeper nesting, so the promised two-level Learning Area → Subject hierarchy is not actually enforced — add validation or migration rules that reject invalid structures.
+5. [major] Operational workflow — scenario 4 says manual review exists, but there is no defined review mechanism, deduplication policy, or resolution flow for repeated unmatched rows across recrawls — define the minimum review operations and dedupe keys.
+6. [major] Scope/data mismatch — the vocational pathway cards now include "student statistics", but the original requirement only asked for independent display and the proposal does not specify what statistics exist in current tables — either reduce the card scope to supported metrics or define exact field meanings and sources.
+7. [major] Release sequencing — the overview page can be shipped before recrawl/backfill, which means the UI may present incomplete counts while claiming NZQA completeness — gate rollout on coverage thresholds or show a clear partial-data status.
+8. [minor] Scope creep — the search bar is newly introduced without corresponding requirement, bilingual search behavior, or acceptance criteria — treat it as optional after the core overview flow is stable.
+9. [question] For user — should zero-count NZQA subjects be visible as part of the official taxonomy, or hidden until at least one school is mapped?
+10. [question] For user — do you want unmatched courses stored in a dedicated review table or appended to an existing raw ingestion table, and how much manual review overhead is acceptable at ~50 schools?
+11. [question] For user — what exact metric should appear on each vocational pathway card: school count only, vocational achievement rate, or another business-defined KPI?
 
 ### SCENARIOS_ASSESSMENT
-- [Scenario 1: data extraction and import]: NEEDS_WORK — the happy path is present, but rerun behavior, unmatched-school resolution, import atomicity, and hard pass/fail rules are missing.
-- [Scenario 2: list-page UE comparison]: NEEDS_WORK — the column and sorting behavior are sketched, but null ordering, source labeling, and mixed-year labeling are undefined.
-- [Scenario 3: school detail NCEA view]: NEEDS_WORK — the displayed metrics are identified, but non-top10 subject behavior, conflicting legacy values, and user-facing provenance are not specified.
-- [Scenario 4: school-to-school comparison flow]: MISSING — the proposal does not define how the new data improves the actual comparison experience beyond a sortable list column.
-- [Scenario 5: regional/trend summary usage]: MISSING — pages 3-6 are acknowledged in the source data, but there is no user flow, schema, or API for them.
+- Parent finds schools by course: NEEDS_WORK — the happy path is clear, but count semantics, zero-data meaning, and the filtered school-list contract are still undefined.
+- Parent explores NZQA course system: NEEDS_WORK — the hierarchy display is covered, but "complete NZQA classification" is not measurable without a fixed authoritative source and update rule.
+- Parent explores vocational pathways: NEEDS_WORK — independent display is covered, but the card contents, statistical definitions, and fallback behavior for missing data are unclear.
+- Crawler encounters unmatched course: NEEDS_WORK — saving unmatched rows is covered, but review tooling, deduplication, and mapping resolution are missing.
+- Partial-data rollout after taxonomy/mapping changes: MISSING — there is no scenario for what parents see while only part of the school set has been re-crawled.
 
 ### ARCHITECTURE_ASSESSMENT
-- Fitness: 5/10
-- Risks: [mixed-period data stored under one year key, unresolved precedence against existing `school_performance` values, fragile school-name matching without a strict remediation workflow, non-idempotent/partial SQLite imports, unclear product scope for regional summaries and comparison UX]
-- Suggestions: [separate metric periods or add explicit field-level period metadata, define a source-of-truth rule before API/UI integration, add transactional upsert plus unmatched-school audit/reporting, specify exact UI behavior for nulls/non-top10/ties and make it testable, get explicit product sign-off on whether regional pages 3-6 are in scope for release 1]
+- Fitness: 6/10
+- Risks: [inflated or inconsistent school counts, unresolved unmatched-storage decision, fragile NZQA dependency handling, invalid hierarchy data, duplicate unmatched rows during recurring crawls, misleading partial-data UI before backfill completes]
+- Suggestions: [define a versioned authoritative NZQA taxonomy source, specify distinct-school counting and school-list filter behavior, resolve raw-table vs dedicated-table storage, enforce the two-level hierarchy with validation, define a minimal unmatched-review workflow, limit vocational cards to data that already exists or explicitly model new metrics, gate release on recrawl/backfill coverage or show data freshness status]
 
 ### SUMMARY
-The proposal is directionally reasonable for extracting school-level Metro data, but it is not yet a production-ready specification. The biggest gaps are semantic correctness of the data model, the unresolved handling of unmatched schools and overlapping existing data, and unclear release boundaries around comparison UX and regional summary content. Once those decisions are made explicit and testable, the architecture can be implemented with much lower delivery and data-quality risk.
+The proposal is directionally strong and mostly aligned with the original goal, but it is not yet precise enough to be implementation-safe. The biggest gaps are around data semantics, authoritative taxonomy sourcing, contradictory unmatched-course storage decisions, and rollout behavior while data is still being remapped and backfilled. Tightening those areas would make the architecture much more reliable and testable without materially increasing scope.

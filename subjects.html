@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NCEA Subject Framework / NCEA 课程体系</title>
+<style>
+/* ── 千里江山图配色系统 ── */
+:root {
+  --primary: #4166B0;
+  --primary-light: #d8e2f2;
+  --primary-dark: #2e4a80;
+  --primary-lightest: #b0c4e0;
+  --primary-muted: #7a96c4;
+  --blue-1: #1D3560; --blue-2: #254D78; --blue-3: #31769F; --blue-4: #4088B0;
+  --blue-5: #7AB0C8; --blue-6: #8CBBD0; --blue-7: #9EC6D8; --blue-8: #B0D1E0; --blue-9: #C2DCE8;
+  --teal-1: #3d8e86; --teal-2: #5da39d; --teal-3: #88bfb8; --teal-4: #a4c9cc; --teal-5: #b0d0cc; --teal-6: #d0e4e0;
+  --gold-1: #927D41; --gold-2: #B3A259; --gold-3: #CCBC80; --gold-4: #DDD0A0;
+  --success: #3d8e86; --success-light: #d4ece9;
+  --warning: #c04851; --warning-light: #f0d4d6;
+  --neutral: #d4a574; --neutral-light: #f0e4d4;
+  --bg: #F0EDE8; --card-bg: #F8F6F2; --text: #202124; --text-secondary: #5f6368; --text-muted: #9aa0a6;
+  --border: #D8D5D0; --border-light: rgba(0,0,0,0.06);
+  --radius: 8px;
+  --shadow: 0 1px 2px 0 rgba(0,0,0,0.1);
+  --shadow-md: 0 1px 3px 0 rgba(0,0,0,0.15), 0 1px 2px -1px rgba(0,0,0,0.1);
+  --shadow-lg: 0 1px 2px 0 rgba(60,64,67,0.3), 0 2px 6px 2px rgba(60,64,67,0.15);
+  --transition: 0.2s ease;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Google Sans', Roboto, -apple-system, BlinkMacSystemFont, 'Noto Sans SC', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── Header ── */
+.header {
+  background: var(--card-bg);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid var(--border);
+}
+.header-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand {
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--text);
+  text-decoration: none;
+}
+.brand span { color: var(--primary); font-weight: 500; }
+.header-links {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.header-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 13px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: var(--transition);
+}
+.header-links a:hover { background: var(--border-light); color: var(--primary); }
+
+/* ── Container ── */
+.container { max-width: 1100px; margin: 0 auto; padding: 0 20px 40px; }
+
+/* ── Page Title ── */
+.page-title {
+  padding: 28px 0 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+.page-title h1 {
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.page-title p {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.page-title a { color: var(--primary); text-decoration: none; }
+.page-title a:hover { text-decoration: underline; }
+
+/* ── Section Title ── */
+.section-title {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 32px 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--primary);
+}
+.section-title h2 {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--primary-dark);
+}
+.section-title .subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+.section-title .source-link {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--primary-muted);
+  text-decoration: none;
+}
+.section-title .source-link:hover { text-decoration: underline; color: var(--primary); }
+
+/* ── Card Grid ── */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+/* ── Learning Area Card ── */
+.area-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: var(--transition);
+}
+.area-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-lightest);
+}
+.area-card-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.area-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.area-card-header .area-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+}
+.area-card-header .area-name-cn {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+.area-card-header .area-count {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.area-card-body {
+  padding: 10px 16px 14px;
+}
+.subject-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.subject-tag {
+  display: inline-block;
+  padding: 3px 10px;
+  font-size: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  background: var(--bg);
+  transition: var(--transition);
+  cursor: default;
+  line-height: 1.5;
+}
+.subject-tag:hover {
+  border-color: var(--primary-lightest);
+  color: var(--primary);
+  background: var(--primary-light);
+}
+.subject-tag.school-course {
+  border-style: dashed;
+  background: transparent;
+}
+a.subject-tag.has-link {
+  text-decoration: none;
+  cursor: pointer;
+  border-color: var(--primary-lightest);
+  color: var(--primary-dark);
+  background: var(--primary-light);
+}
+a.subject-tag.has-link::after {
+  content: ' ↗';
+  font-size: 9px;
+  opacity: 0.5;
+}
+a.subject-tag.has-link:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light);
+}
+a.subject-tag.has-link:hover::after {
+  opacity: 1;
+}
+.subject-tag .cn {
+  color: var(--text-muted);
+  font-size: 11px;
+  margin-left: 2px;
+}
+.subject-tag.te-reo {
+  border-style: dashed;
+  color: var(--text-muted);
+}
+.subject-tag.te-reo:hover {
+  border-color: var(--teal-3);
+  color: var(--teal-1);
+  background: var(--teal-6);
+}
+
+/* ── Vocational Pathway Card ── */
+.pathway-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: var(--transition);
+}
+.pathway-card:hover {
+  box-shadow: var(--shadow-md);
+}
+.pathway-card-header {
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--border-light);
+}
+.pathway-card-header .pathway-icon {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+.pathway-card-header .pathway-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+}
+.pathway-card-header .pathway-name-cn {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+.pathway-card-body {
+  padding: 10px 16px 14px;
+}
+.sector-list {
+  list-style: none;
+}
+.sector-list li {
+  font-size: 12px;
+  color: var(--text-secondary);
+  padding: 2px 0;
+  line-height: 1.5;
+}
+.sector-list li::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+.sector-list li .cn {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+.pathway-card .pathway-link {
+  display: block;
+  padding: 8px 16px;
+  font-size: 11px;
+  color: var(--primary-muted);
+  text-decoration: none;
+  border-top: 1px solid var(--border-light);
+  text-align: right;
+}
+.pathway-card .pathway-link:hover { color: var(--primary); }
+
+/* ── Color accents per Learning Area ── */
+.area-card[data-area="english"] .area-icon { background: var(--blue-9); color: var(--blue-1); }
+.area-card[data-area="arts"] .area-icon { background: #f0d4e8; color: #8a3070; }
+.area-card[data-area="health"] .area-icon { background: var(--success-light); color: var(--success); }
+.area-card[data-area="languages"] .area-icon { background: var(--gold-4); color: var(--gold-1); }
+.area-card[data-area="maths"] .area-icon { background: var(--primary-light); color: var(--primary); }
+.area-card[data-area="science"] .area-icon { background: var(--teal-6); color: var(--teal-1); }
+.area-card[data-area="social"] .area-icon { background: var(--neutral-light); color: var(--neutral-dark); }
+.area-card[data-area="technology"] .area-icon { background: #e0d8f0; color: #5a3d8a; }
+.area-card[data-area="maori"] .area-icon { background: var(--warning-light); color: var(--warning-dark); }
+.area-card[data-area="vocational"] .area-icon { background: var(--neutral-light); color: var(--gold-1); }
+
+/* ── Color accents per Vocational Pathway ── */
+.pathway-card[data-pathway="construction"] { border-top: 3px solid var(--neutral); }
+.pathway-card[data-pathway="construction"] .sector-list li::before { background: var(--neutral); }
+.pathway-card[data-pathway="creative"] { border-top: 3px solid #8a3070; }
+.pathway-card[data-pathway="creative"] .sector-list li::before { background: #8a3070; }
+.pathway-card[data-pathway="manufacturing"] { border-top: 3px solid var(--blue-3); }
+.pathway-card[data-pathway="manufacturing"] .sector-list li::before { background: var(--blue-3); }
+.pathway-card[data-pathway="primary"] { border-top: 3px solid var(--success); }
+.pathway-card[data-pathway="primary"] .sector-list li::before { background: var(--success); }
+.pathway-card[data-pathway="services"] { border-top: 3px solid var(--gold-1); }
+.pathway-card[data-pathway="services"] .sector-list li::before { background: var(--gold-1); }
+.pathway-card[data-pathway="social"] { border-top: 3px solid var(--primary); }
+.pathway-card[data-pathway="social"] .sector-list li::before { background: var(--primary); }
+
+/* ── Footer ── */
+.page-footer {
+  margin-top: 40px;
+  padding: 16px 0;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.page-footer a { color: var(--primary-muted); text-decoration: none; }
+.page-footer a:hover { text-decoration: underline; }
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  .card-grid { grid-template-columns: 1fr; }
+  .section-title { flex-wrap: wrap; }
+  .section-title .source-link { margin-left: 0; }
+  .header-inner { flex-wrap: wrap; gap: 8px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<div class="header">
+  <div class="header-inner">
+    <a href="index.html" class="brand">NZ <span>School Finder</span></a>
+    <div class="header-links">
+      <a href="index.html">Schools / 学校列表</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── Main Content ── -->
+<div class="container">
+
+  <div class="page-title">
+    <h1>NCEA Subject Framework / NCEA 课程体系</h1>
+    <p>Data source / 数据来源: <a href="https://www2.nzqa.govt.nz/ncea/subjects/select-subject/" target="_blank" rel="noopener">NZQA Official Subjects</a> &amp; <a href="https://newzealandcurriculum.tahurangi.education.govt.nz/" target="_blank" rel="noopener">NZ Curriculum</a> &middot; Snapshot 2026-03</p>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  SECTION 1: NCEA Learning Areas & Subjects          -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <div class="section-title">
+    <h2>Learning Areas / 学习领域</h2>
+    <span class="subtitle">10 areas &middot; <span style="color:var(--primary)">NZQA official</span> + <span style="color:var(--text-muted)">school courses</span></span>
+    <a class="source-link" href="https://www2.nzqa.govt.nz/ncea/subjects/select-subject/" target="_blank" rel="noopener">NZQA Source &rarr;</a>
+  </div>
+
+  <div class="card-grid" id="area-grid"></div>
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!--  SECTION 2: NCEA Vocational Pathways                -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <div class="section-title">
+    <h2>Vocational Pathways / 职业路径</h2>
+    <span class="subtitle">6 pathways (NZQA)</span>
+    <a class="source-link" href="https://www2.nzqa.govt.nz/ncea/understanding-secondary-quals/vocational-pathways/" target="_blank" rel="noopener">NZQA Source &rarr;</a>
+  </div>
+
+  <div class="card-grid" id="pathway-grid"></div>
+
+  <!-- ── Footer ── -->
+  <div class="page-footer">
+    NCEA Subject Framework &middot; NZ School Finder &middot;
+    Data: <a href="https://www2.nzqa.govt.nz/ncea/subjects/" target="_blank" rel="noopener">NZQA</a> &middot; Snapshot 2026-03
+  </div>
+
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+//  NZQA Learning Areas → Subjects (Snapshot 2026-03)
+//  Source: https://www2.nzqa.govt.nz/ncea/subjects/select-subject/
+//  NZ Curriculum: 8 Learning Areas
+// ════════════════════════════════════════════════════════════
+
+const NZ = 'https://www2.nzqa.govt.nz/ncea/subjects/select-subject/';
+
+const LEARNING_AREAS = [
+  {
+    key: 'english',
+    name: 'English',
+    nameCn: '英语',
+    icon: 'Aa',
+    subjects: [
+      { name: 'English', cn: '英语', nzqa: true, url: NZ+'english/' },
+      { name: 'English Language', cn: '英语语言学', nzqa: true, url: NZ+'english-language/' },
+      { name: 'English for Academic Purposes', cn: '学术英语', nzqa: true, url: NZ+'english-for-academic-purposes/' },
+      { name: 'ESOL', cn: '英语为第二语言' },
+      { name: 'Media Studies', cn: '媒体研究', nzqa: true, url: NZ+'media-studies/' },
+      { name: 'Te Reo Matatini', cn: '毛利语读写', nzqa: true, teReo: true, url: NZ+'te-reo-matatini/' },
+    ]
+  },
+  {
+    key: 'arts',
+    name: 'The Arts',
+    nameCn: '艺术',
+    icon: '\u266B',
+    subjects: [
+      { name: 'Art History', cn: '艺术史', nzqa: true, url: NZ+'art-history/' },
+      { name: 'Dance', cn: '舞蹈', nzqa: true, url: NZ+'dance/' },
+      { name: 'Design', cn: '设计' },
+      { name: 'Design and Visual Communication', cn: '设计与视觉传达', nzqa: true, url: NZ+'design-and-visual-communication/' },
+      { name: 'Drama', cn: '戏剧', nzqa: true, url: NZ+'drama/' },
+      { name: 'Music', cn: '音乐', nzqa: true, url: NZ+'music/' },
+      { name: 'Painting', cn: '绘画' },
+      { name: 'Photography', cn: '摄影' },
+      { name: 'Sculpture', cn: '雕塑' },
+      { name: 'Visual Arts', cn: '视觉艺术', nzqa: true, url: NZ+'visual-arts/' },
+      { name: 'M\u0101ori Performing Arts', cn: '毛利表演艺术', nzqa: true, url: NZ+'maori-performing-arts/' },
+      { name: 'Ng\u0101 Mahi a te R\u0113hia', cn: '毛利休闲艺术', nzqa: true, teReo: true, url: NZ+'nga-mahi-a-te-rehia/' },
+      { name: 'Te Ao Haka', cn: '毛利舞蹈文化', nzqa: true, teReo: true, url: NZ+'te-ao-haka/' },
+      { name: 'Toi Ataata', cn: '毛利视觉艺术', nzqa: true, teReo: true, url: NZ+'toi-ataata/' },
+      { name: 'Toi Puoro', cn: '毛利音乐', nzqa: true, teReo: true, url: NZ+'toi-puoro/' },
+    ]
+  },
+  {
+    key: 'health',
+    name: 'Health & Physical Education',
+    nameCn: '健康与体育',
+    icon: '\u2764',
+    subjects: [
+      { name: 'Health', cn: '健康教育', nzqa: true, url: NZ+'health/' },
+      { name: 'Health Studies', cn: '健康研究', nzqa: true, url: NZ+'health-studies/', note: 'Level 1' },
+      { name: 'Home Economics', cn: '家政学', nzqa: true, url: NZ+'home-economics/' },
+      { name: 'Physical Education', cn: '体育', nzqa: true, url: NZ+'physical-education/' },
+      { name: 'Hauora', cn: '毛利健康学', nzqa: true, teReo: true, url: NZ+'hauora/' },
+    ]
+  },
+  {
+    key: 'languages',
+    name: 'Learning Languages',
+    nameCn: '语言学习',
+    icon: '\uD83C\uDF0D',
+    subjects: [
+      { name: 'Chinese (Mandarin)', cn: '中文（普通话）', nzqa: true, url: NZ+'chinese/' },
+      { name: 'Cook Islands M\u0101ori', cn: '库克群岛毛利语', nzqa: true, url: NZ+'cook-islands-maori/' },
+      { name: 'French', cn: '法语', nzqa: true, url: NZ+'french/' },
+      { name: 'Gagana S\u0101moa', cn: '萨摩亚语', nzqa: true, url: NZ+'gagana-samoa/' },
+      { name: 'Gagana Tokelau', cn: '托克劳语', nzqa: true, url: NZ+'gagana-tokelau/' },
+      { name: 'German', cn: '德语', nzqa: true, url: NZ+'german/' },
+      { name: 'Japanese', cn: '日语', nzqa: true, url: NZ+'japanese/' },
+      { name: 'Korean', cn: '韩语', nzqa: true, url: NZ+'korean/' },
+      { name: 'Latin', cn: '拉丁语', nzqa: true, url: NZ+'latin/' },
+      { name: 'Lea Faka-Tonga', cn: '汤加语', nzqa: true, url: NZ+'lea-faka-tonga/' },
+      { name: 'NZ Sign Language', cn: '新西兰手语', nzqa: true, url: NZ+'new-zealand-sign-language/' },
+      { name: 'Samoan', cn: '萨摩亚语（英语授课）', nzqa: true, url: NZ+'samoan/' },
+      { name: 'Spanish', cn: '西班牙语', nzqa: true, url: NZ+'spanish/' },
+      { name: 'Te Reo M\u0101ori', cn: '毛利语', nzqa: true, url: NZ+'te-reo-maori/' },
+      { name: 'Te Reo M\u0101ori K\u016Bki \u2018\u0100irani', cn: '库克群岛毛利语（毛利授课）', nzqa: true, teReo: true, url: NZ+'te-reo-maori-kuki-airani/' },
+      { name: 'Te Reo Rangatira', cn: '高级毛利语', nzqa: true, teReo: true, url: NZ+'te-reo-rangatira/' },
+      { name: 'Vagahau Niue', cn: '纽埃语', nzqa: true, url: NZ+'vagahau-niue/' },
+    ]
+  },
+  {
+    key: 'maths',
+    name: 'Mathematics & Statistics',
+    nameCn: '数学与统计',
+    icon: '\u03C0',
+    subjects: [
+      { name: 'Mathematics and Statistics', cn: '数学与统计', nzqa: true, url: NZ+'mathematics-and-statistics/' },
+      { name: 'Calculus', cn: '微积分' },
+      { name: 'Statistics', cn: '统计学' },
+      { name: 'Numeracy', cn: '数学素养', nzqa: true, url: NZ+'numeracy/' },
+      { name: 'P\u0101ngarau', cn: '毛利数学', nzqa: true, teReo: true, url: NZ+'pangarau/' },
+      { name: 'Te Reo P\u0101ngarau', cn: '毛利数学语言', nzqa: true, teReo: true, url: NZ+'te-reo-pangarau/' },
+    ]
+  },
+  {
+    key: 'science',
+    name: 'Science',
+    nameCn: '科学',
+    icon: '\u269A',
+    subjects: [
+      { name: 'Agricultural and Horticultural Science', cn: '农业与园艺科学', nzqa: true, url: NZ+'agricultural-and-horticultural-science/' },
+      { name: 'Biology', cn: '生物', nzqa: true, url: NZ+'biology/' },
+      { name: 'Chemistry', cn: '化学', nzqa: true, url: NZ+'chemistry/' },
+      { name: 'Chemistry and Biology', cn: '化学与生物', nzqa: true, url: NZ+'chemistry-and-biology/', note: 'Level 1' },
+      { name: 'Earth and Space Science', cn: '地球与太空科学', nzqa: true, url: NZ+'earth-and-space-science/' },
+      { name: 'Horticulture', cn: '园艺' },
+      { name: 'Physics', cn: '物理', nzqa: true, url: NZ+'physics/' },
+      { name: 'Physics, Earth and Space Science', cn: '物理与地球太空科学', nzqa: true, url: NZ+'physics-earth-and-space-science/', note: 'Level 1' },
+      { name: 'Science', cn: '科学综合', nzqa: true, url: NZ+'science/' },
+      { name: 'P\u016Btaiao', cn: '毛利科学', nzqa: true, teReo: true, url: NZ+'putaiao/' },
+    ]
+  },
+  {
+    key: 'social',
+    name: 'Social Sciences',
+    nameCn: '社会科学',
+    icon: '\uD83C\uDFDB',
+    subjects: [
+      { name: 'Accounting', cn: '会计', nzqa: true, url: NZ+'accounting/' },
+      { name: 'Business Studies', cn: '商业研究', nzqa: true, url: NZ+'business-studies/' },
+      { name: 'Classical Studies', cn: '古典学', nzqa: true, url: NZ+'classical-studies/' },
+      { name: 'Commerce', cn: '商学', nzqa: true, url: NZ+'commerce/', note: 'Level 1' },
+      { name: 'Economics', cn: '经济学', nzqa: true, url: NZ+'economics/' },
+      { name: 'Education for Sustainability', cn: '可持续发展教育', nzqa: true, url: NZ+'education-for-sustainability/' },
+      { name: 'Geography', cn: '地理', nzqa: true, url: NZ+'geography/' },
+      { name: 'History', cn: '历史', nzqa: true, url: NZ+'history/' },
+      { name: 'Legal Studies', cn: '法律研究', nzqa: true, url: NZ+'legal-studies/' },
+      { name: 'Pacific Studies', cn: '太平洋研究', nzqa: true, url: NZ+'pacific-studies/' },
+      { name: 'Philosophy', cn: '哲学' },
+      { name: 'Psychology', cn: '心理学', nzqa: true, url: NZ+'psychology/' },
+      { name: 'Religious Studies', cn: '宗教研究', nzqa: true, url: NZ+'religious-studies/' },
+      { name: 'Social Studies', cn: '社会研究', nzqa: true, url: NZ+'social-studies/' },
+      { name: 'Sociology', cn: '社会学', nzqa: true, url: NZ+'sociology/' },
+      { name: 'Tourism', cn: '旅游' },
+      { name: 'Tikanga \u0101-Iwi', cn: '毛利社会学', nzqa: true, teReo: true, url: NZ+'tikanga-a-iwi/' },
+    ]
+  },
+  {
+    key: 'technology',
+    name: 'Technology',
+    nameCn: '技术',
+    icon: '\u2699',
+    subjects: [
+      { name: 'Design and Visual Communication', cn: '设计与视觉传达', nzqa: true, url: NZ+'design-and-visual-communication/' },
+      { name: 'Digital Technologies', cn: '数字技术', nzqa: true, url: NZ+'digital-technologies/' },
+      { name: 'Electronics', cn: '电子技术' },
+      { name: 'Food Technology', cn: '食品技术' },
+      { name: 'Hard Materials Technology', cn: '硬材料技术' },
+      { name: 'Materials and Processing Technology', cn: '材料与加工技术', nzqa: true, url: NZ+'materials-and-processing-technology/', note: 'Level 1' },
+      { name: 'Product Design', cn: '产品设计' },
+      { name: 'Technology', cn: '技术综合', nzqa: true, url: NZ+'technology/' },
+      { name: 'Textiles Technology', cn: '纺织技术' },
+      { name: 'Hangarau', cn: '毛利技术', nzqa: true, teReo: true, url: NZ+'hangarau/' },
+    ]
+  },
+  {
+    key: 'maori',
+    name: 'Te Ao M\u0101ori',
+    nameCn: '毛利世界观',
+    icon: '\u2726',
+    subjects: [
+      { name: 'Field M\u0101ori', cn: '毛利实地研究', nzqa: true, teReo: true, url: NZ+'field-maori/' },
+      { name: 'Tikanga M\u0101ori', cn: '毛利文化习俗', teReo: true },
+      { name: 'Whakairo', cn: '毛利雕刻', teReo: true },
+    ]
+  },
+  {
+    key: 'vocational',
+    name: 'Vocational & Applied',
+    nameCn: '职业与应用',
+    icon: '\uD83D\uDCBC',
+    subjects: [
+      { name: 'Construction', cn: '建筑' },
+      { name: 'Early Childhood Education', cn: '幼儿教育', nzqa: true, url: NZ+'early-childhood-education/' },
+      { name: 'Hospitality', cn: '酒店餐饮' },
+      { name: 'Agribusiness', cn: '农业商务', nzqa: true, url: NZ+'agribusiness/' },
+      { name: 'Business and Management', cn: '商业管理', nzqa: true, url: NZ+'business-and-management/' },
+      { name: 'Adult Education', cn: '成人教育', nzqa: true, url: NZ+'adult-education/' },
+      { name: 'Core Skills', cn: '核心技能', nzqa: true, url: NZ+'core-skills/' },
+      { name: 'Driver Licence (Class 1)', cn: '驾照（1类）', nzqa: true, url: NZ+'driver-licence/' },
+      { name: 'Literacy - Reading', cn: '读写素养（阅读）', nzqa: true, url: NZ+'literacy-reading/' },
+      { name: 'Literacy - Writing', cn: '读写素养（写作）', nzqa: true, url: NZ+'literacy-writing/' },
+      { name: 'Supported Learning', cn: '辅助学习', nzqa: true, url: NZ+'supported-learning/' },
+    ]
+  }
+];
+
+// ════════════════════════════════════════════════════════════
+//  NZQA Vocational Pathways (6 Pathways + Sectors)
+//  Source: https://www2.nzqa.govt.nz/ncea/understanding-secondary-quals/vocational-pathways/
+// ════════════════════════════════════════════════════════════
+
+const VOCATIONAL_PATHWAYS = [
+  {
+    key: 'construction',
+    name: 'Construction & Infrastructure',
+    nameCn: '建筑与基础设施',
+    icon: '\uD83C\uDFD7',
+    sourceUrl: 'https://youthguarantee.education.govt.nz/initiatives/vocational-pathways/learning-and-working-in-construction-and-infrastructure-industries/',
+    sectors: [
+      { name: 'Access Trades', cn: '高空作业' },
+      { name: 'Civil Infrastructure', cn: '市政基础设施' },
+      { name: 'Construction Services', cn: '建筑服务' },
+      { name: 'Electricity Supply', cn: '电力供应' },
+      { name: 'Electrotechnology', cn: '电气技术' },
+      { name: 'Finishing Trades', cn: '装修行业' },
+      { name: 'Gas Infrastructure', cn: '燃气设施' },
+      { name: 'Off Site Construction', cn: '预制构件' },
+      { name: 'On Site Construction', cn: '现场施工' },
+      { name: 'Plumbing & Gasfitting', cn: '水暖与燃气' },
+      { name: 'Water Services', cn: '供水服务' },
+    ]
+  },
+  {
+    key: 'creative',
+    name: 'Creative Industries',
+    nameCn: '创意产业',
+    icon: '\uD83C\uDFA8',
+    sourceUrl: 'https://youthguarantee.education.govt.nz/initiatives/vocational-pathways/learning-and-working-in-the-creative-industries/',
+    sectors: [
+      { name: 'Art & Design', cn: '艺术与设计' },
+      { name: 'Broadcast, Screen & Interactive Media', cn: '影视与互动媒体' },
+      { name: 'Enabling Technologies', cn: '信息技术' },
+      { name: 'Expressive Arts', cn: '表演艺术' },
+      { name: 'Sports, Recreation & Culture', cn: '体育休闲与文化' },
+      { name: 'Taonga Practitioners', cn: '毛利传统艺术' },
+    ]
+  },
+  {
+    key: 'manufacturing',
+    name: 'Manufacturing & Technology',
+    nameCn: '制造与技术',
+    icon: '\u2699\uFE0F',
+    sourceUrl: 'https://youthguarantee.education.govt.nz/initiatives/vocational-pathways/learning-and-working-in-manufacturing-and-technology-industries/',
+    sectors: [
+      { name: 'Engineering', cn: '工程' },
+      { name: 'Logistics', cn: '物流' },
+      { name: 'Manufacturing', cn: '制造业' },
+    ]
+  },
+  {
+    key: 'primary',
+    name: 'Primary Industries',
+    nameCn: '初级产业',
+    icon: '\uD83C\uDF3F',
+    sourceUrl: 'https://youthguarantee.education.govt.nz/initiatives/vocational-pathways/learning-and-working-in-the-primary-industries/',
+    sectors: [
+      { name: 'Apiculture', cn: '养蜂业' },
+      { name: 'Arable', cn: '种植业' },
+      { name: 'Dairy Farming', cn: '奶牛养殖' },
+      { name: 'Equine & Racing', cn: '马术与赛马' },
+      { name: 'Forestry', cn: '林业' },
+      { name: 'Fruit', cn: '水果种植' },
+      { name: 'Grapes & Wine', cn: '葡萄与酿酒' },
+      { name: 'Nursery & Gardening', cn: '苗圃与园艺' },
+      { name: 'Seafood', cn: '水产' },
+      { name: 'Sheep, Beef, Deer & Wool', cn: '畜牧业' },
+      { name: 'Vegetables', cn: '蔬菜种植' },
+      { name: 'Veterinary & Animal Care', cn: '兽医与动物护理' },
+    ]
+  },
+  {
+    key: 'services',
+    name: 'Services Industries',
+    nameCn: '服务业',
+    icon: '\uD83C\uDF7D',
+    sourceUrl: 'https://youthguarantee.education.govt.nz/initiatives/vocational-pathways/learning-and-working-in-the-service-industries/',
+    sectors: [
+      { name: 'Aviation & Airport Services', cn: '航空服务' },
+      { name: 'Business & Professional Services', cn: '商业专业服务' },
+      { name: 'Cleaning Services', cn: '清洁服务' },
+      { name: 'Contact Centres', cn: '客服中心' },
+      { name: 'Financial & Advisory Services', cn: '金融咨询' },
+      { name: 'Government & Security Services', cn: '政府与安保' },
+      { name: 'Hospitality & Food Services', cn: '餐饮酒店' },
+      { name: 'Real Estate', cn: '房地产' },
+      { name: 'Retail & Distribution', cn: '零售与分销' },
+      { name: 'Tourism & Travel', cn: '旅游' },
+    ]
+  },
+  {
+    key: 'social',
+    name: 'Social & Community Services',
+    nameCn: '社会与社区服务',
+    icon: '\uD83E\uDD1D',
+    sourceUrl: 'https://youthguarantee.education.govt.nz/initiatives/vocational-pathways/learning-and-working-in-social-and-community-service-industries/',
+    sectors: [
+      { name: 'Beauty & Nail Services', cn: '美容美甲' },
+      { name: 'Emergency Services', cn: '应急服务' },
+      { name: 'Education & Support', cn: '教育服务' },
+      { name: 'Funeral Services', cn: '殡葬服务' },
+      { name: 'Health, Care & Disability', cn: '医疗护理' },
+      { name: 'Public Order & Safety', cn: '公共安全' },
+      { name: 'Social Services', cn: '社会工作' },
+      { name: 'Youth Services', cn: '青少年服务' },
+    ]
+  }
+];
+
+// ════════════════════════════════════════════════════════════
+//  Render
+// ════════════════════════════════════════════════════════════
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function renderAreaCards() {
+  const grid = document.getElementById('area-grid');
+  grid.innerHTML = LEARNING_AREAS.map(area => {
+    const subjectTags = area.subjects.map(s => {
+      let cls = 'subject-tag';
+      if (s.teReo) cls += ' te-reo';
+      else if (!s.nzqa) cls += ' school-course';
+      const noteStr = s.note ? ` <span class="cn">(${esc(s.note)})</span>` : '';
+      const content = `${esc(s.name)} <span class="cn">${esc(s.cn)}</span>${noteStr}`;
+      if (s.url) {
+        return `<li><a class="${cls} has-link" href="${s.url}" target="_blank" rel="noopener">${content}</a></li>`;
+      }
+      return `<li class="${cls}">${content}</li>`;
+    }).join('');
+
+    return `
+      <div class="area-card" data-area="${area.key}">
+        <div class="area-card-header">
+          <div class="area-icon">${area.icon}</div>
+          <div>
+            <div class="area-name">${esc(area.name)}</div>
+            <div class="area-name-cn">${esc(area.nameCn)}</div>
+          </div>
+          <div class="area-count">${area.subjects.length} subjects</div>
+        </div>
+        <div class="area-card-body">
+          <ul class="subject-list">${subjectTags}</ul>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderPathwayCards() {
+  const grid = document.getElementById('pathway-grid');
+  grid.innerHTML = VOCATIONAL_PATHWAYS.map(p => {
+    const sectorItems = p.sectors.map(s =>
+      `<li>${esc(s.name)} <span class="cn">${esc(s.cn)}</span></li>`
+    ).join('');
+
+    return `
+      <div class="pathway-card" data-pathway="${p.key}">
+        <div class="pathway-card-header">
+          <div class="pathway-icon">${p.icon}</div>
+          <div class="pathway-name">${esc(p.name)}</div>
+          <div class="pathway-name-cn">${esc(p.nameCn)}</div>
+        </div>
+        <div class="pathway-card-body">
+          <ul class="sector-list">${sectorItems}</ul>
+        </div>
+        <a class="pathway-link" href="${p.sourceUrl}" target="_blank" rel="noopener">NZQA Details &rarr;</a>
+      </div>`;
+  }).join('');
+}
+
+// ── Init ──
+renderAreaCards();
+renderPathwayCards();
+</script>
+
+</body>
+</html>

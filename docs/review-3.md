@@ -1,7 +1,7 @@
-# Requirement Challenge — Round 3 of 8
+# Requirement Challenge — Round 3 of 20
 
 **Model**: gpt-5.4-xhigh-fast
-**Date**: 2026-03-26 22:50:59
+**Date**: 2026-03-27 15:34:09
 
 ---
 
@@ -10,28 +10,28 @@
 ### SCORE: 7
 
 ### COMPLETENESS
-- Import workflow and rollback safety: COVERED — The happy path, failure path, rerun model, and transactional rollback are clearly defined for the core import flow.
-- Data semantics and validation rules: GAP — The proposal still contains a logical contradiction around UE versus the mutually exclusive level buckets, so the validation contract is not yet reliable.
-- School identity resolution: PARTIAL — Exact/normalized/manual mapping is defined, but ambiguous multi-match cases in the existing `schools` table are not handled.
-- UI/API behavior for partial data: PARTIAL — List-page null handling is clear, but detail-page behavior for schools outside Metro coverage and subjects not in Top 10 is still underspecified.
-- External dependency control: PARTIAL — The parser depends on a very specific PDF layout and file version, but there is no explicit checksum/version guard or failure rule for source-file drift.
+- Parent browse and filter flow: COVERED — Overview tree, school counts, zero-count behavior, and click-through to filtered school list are defined clearly enough.
+- NZQA taxonomy alignment: PARTIAL — the source is named, but there is no measurable definition of what "fully aligned" means at a given snapshot date.
+- Unmatched review and backfill loop: PARTIAL — capture and review are defined, but the reviewed mapping outcome does not automatically become reusable matching logic.
+- Boundary conditions: PARTIAL — zero-count subjects are handled, but API failure, fully empty datasets, and duplicate raw-name normalization are still unspecified.
+- Vocational pathways display: PARTIAL — the UI is simple and in scope, but the business rule for listing "related subjects" is not fully locked down.
 
 ### ISSUES
-1. [critical] Data semantics — The line "`Below L1 + L1 + L2 + L3`, mutually exclusive, adding UE approximately 100%" is internally wrong because UE is not a separate mutually exclusive bucket from highest NCEA level; if implemented as written, valid data can fail validation and users can be misled — redefine the rule as `Below L1 + L1 + L2 + L3 ~= 100` with a rounding tolerance, and document the intended UE relationship separately.
-2. [major] Matching — The matching strategy does not say what happens when an exact or normalized school name maps to multiple rows in `schools`; in a 2577-school dataset this can silently attach Metro data to the wrong school — treat multi-candidate matches as a hard failure and emit an explicit ambiguous-match report for manual resolution.
-3. [major] Dependency risk — The design assumes one exact PDF structure and file version, but there is no guard against the wrong PDF, a revised Metro release, or extraction differences across PyMuPDF versions — pin the input filename/checksum and fail fast if the source file or extraction preconditions do not match the expected baseline.
-4. [major] Detail-page contract — `school_subject_ranking` only stores positive Top 10 hits, but the UI/API behavior for a subject with no row is undefined, so consumers cannot tell "not in Metro Top 10" from "data missing / parse failed" — define an explicit response contract and rendering rule for absent rankings and out-of-coverage schools.
-5. [question] For user — When a school has no Metro row, or a subject has no Top 10 ranking, should the product show explicit labels such as "Not covered by Metro 2025" / "Not in Top 10", or should those values stay hidden/blank?
+1. [critical] Crawler workflow persistence — `status='mapped'` in `unmatched_subjects` does not change future matching behavior, so a re-crawl will still classify the same raw course name as unmatched unless `GLOBAL_SUBJECT_MAPPING` or another persistent alias source is updated as part of the workflow.
+2. [major] Acceptance criteria — the proposal says "align with NZQA official classification" but does not define a verifiable snapshot date, source artifact, or expected group/subject set, so the core requirement cannot be objectively tested or regression-checked.
+3. [minor] Boundary conditions — raw-name normalization rules are undefined before `UNIQUE(school_number, raw_name)`, and frontend behavior for API errors or a fully empty response is not specified, which can create noisy review data and ambiguous UI behavior.
+4. [question] For user — Should vocational pathway cards really include hardcoded "related subjects," and if yes, who is the business owner that approves those subject lists and bilingual descriptions?
 
 ### SCENARIOS_ASSESSMENT
-- Scenario 1 (data extraction and import): NEEDS_WORK — The operational flow is strong, but ambiguous school matches and the incorrect UE validation relationship still make the import spec unsafe.
-- Scenario 2 (list page UE column): WELL_DEFINED — The display, null state, and sort behavior are clear and measurable for Release 1.
-- Scenario 3 (detail page NCEA overview): NEEDS_WORK — Core fields are listed, but subject-ranking empty states and no-coverage messaging are not defined well enough for implementation consistency.
+- Scenario 1: WELL_DEFINED — user path, count logic, clickability, and zero-data handling are concrete.
+- Scenario 2: NEEDS_WORK — the browsing experience is clear, but the proposal still lacks a measurable definition of complete NZQA alignment.
+- Scenario 3: NEEDS_WORK — the display approach is simple, but the content source and approval rule for pathway-to-subject information are still unclear.
+- Scenario 4: NEEDS_WORK — unmatched capture and review are covered, but the approved mapping result does not yet feed the matcher for future crawls.
 
 ### ARCHITECTURE_ASSESSMENT
 - Fitness: 7
-- Risks: [invalid validation caused by the UE/bucket contradiction; silent wrong-school linkage on ambiguous names; parser brittleness if the PDF file/version changes; unclear API semantics for non-ranked subjects and non-covered schools]
-- Suggestions: [change validation to `Below L1 + L1 + L2 + L3 ~= 100` with explicit tolerance and separate UE checks; add hard-fail handling for ambiguous matches, not just unmatched ones; lock the source PDF by filename/checksum and document parser prerequisites; define API/UI semantics for "not covered" versus "not ranked" versus "missing data"]
+- Risks: review decisions for unmatched subjects are not persisted into reusable matching logic, NZQA alignment cannot be objectively validated, duplicate unmatched rows may accumulate without normalization, hardcoded pathway content may drift without a content owner
+- Suggestions: make approved mappings update a persistent alias source used by crawlers, define a versioned NZQA snapshot/checklist for acceptance testing, normalize raw course names before deduplication and define empty/error states, confirm whether pathway cards should list related subjects at all and who approves that content
 
 ### SUMMARY
-The proposal is close to implementation-ready and is appropriately scoped for Release 1, but it is not fully converged yet. The remaining problems are not broad architecture rewrites; they are precision issues that can still cause incorrect imports or ambiguous UI behavior: the UE validation rule is logically wrong as written, ambiguous school-name collisions are not handled, and partial-data semantics for Top 10 rankings and Metro coverage need to be made explicit. Once those points are fixed, this should be ready to approve.
+The proposal is close and appropriately simplified for the stated SQLite plus vanilla JS scope, but it is not fully approvable yet. The main remaining blocker is a real architecture gap in the unmatched review-to-backfill loop: reviewed mappings do not become future matching rules. After that, the biggest remaining requirement gap is testability of NZQA alignment, plus one user-side content decision around vocational pathway subject lists.

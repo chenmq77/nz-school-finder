@@ -573,6 +573,8 @@ class SchoolFinderHandler(http.server.SimpleHTTPRequestHandler):
             self._handle_school(school_number)
         elif path == "/" or path == "/index.html":
             self._serve_file("index.html", "text/html; charset=utf-8")
+        elif path == "/subjects" or path == "/subjects.html":
+            self._serve_file("subjects.html", "text/html; charset=utf-8")
         elif path == "/translations.js":
             self._serve_file("translations.js", "application/javascript; charset=utf-8")
         elif path == "/colors.css":
