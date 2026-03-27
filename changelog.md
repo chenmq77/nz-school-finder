@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026-03-27 — fix: Metro NCEA 板块 UI 优化
+
+### Why
+Metro NCEA 板块存在 3 个问题：(1) 使用了 emoji 图标 (2) 中文模式下部分文本仍显示英文 (3) 与原有 NCEA 达标率数据放在一起容易混淆（两组数据统计口径不同：离校生分布 vs 在校生达标率）。
+
+### What
+1. 移除所有 emoji，改用纯文本 + 分隔符
+2. 完善中英双语支持（用 `_lang === 'en'` 条件判断所有文本）
+3. Metro 数据用独立卡片样式（bg-secondary 圆角背景）与 Performance 数据视觉分离
+4. 条形图标签改为"最高成就"语义（如 "最高: Level 3"），避免与达标率的 L3 混淆
+5. 两组数据同时存在时显示"统计口径不同，不可直接对比"提示
+
+### How
+重写 `renderMetroNcea()` 函数 + 在 `loadPerformanceData()` 中增加条件提示逻辑
+
+---
+
 ## 2026-03-27 — feat: 从 Metro Schools 2025 PDF 提取 NCEA 数据并集成到系统
 
 ### Why
