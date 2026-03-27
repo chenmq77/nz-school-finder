@@ -1819,59 +1819,70 @@ function renderMetroNcea(data) {
   const hasRankings = data.subject_rankings && data.subject_rankings.length > 0;
   if (!hasHonours && !hasRankings) return '';
 
-  const title = en ? 'Honours & Recognition (2023 Graduates)' : '荣誉与认证 (2023年毕业生)';
+  const title = en ? 'Academic Honours (2023 Graduates)' : '学术荣誉与毕业成绩 (2023届毕业生)';
 
-  // Tooltip helper
-  const tip = (text) => `<span style="cursor:help;color:var(--text-muted);font-size:11px;margin-left:4px" title="${text}">?</span>`;
+  // Info icon helper — styled as a circle (i), not a plain "?"
+  const infoIcon = (text) => `<span style="cursor:help;display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:var(--text-muted);color:var(--bg);font-size:9px;font-weight:700;margin-left:5px;vertical-align:middle;opacity:0.5" title="${text}">i</span>`;
 
   // Honours row — order: Scholarship > Excellence > Merit (by prestige)
+  // Each card has: big number, main label (self-explanatory), subtitle (plain language)
   let honoursHtml = '';
   if (hasHonours) {
     const items = [];
     if (s.scholarships != null) {
       const tipText = en
-        ? 'NZQA Scholarship: New Zealand highest secondary school academic exam, beyond NCEA. % of graduates who passed at least one Scholarship subject.'
-        : 'NZQA Scholarship: 新西兰中学最高学术考试，在 NCEA 之上额外加试。数值为毕业生中通过至少一科 Scholarship 的比例。';
-      items.push(`<div style="flex:1;min-width:130px">
-        <div style="font-size:20px;font-weight:700">${s.scholarships}%</div>
-        <div style="font-size:12px;color:var(--text-muted)">${en ? 'NZQA Scholarship' : 'NZQA 学术奖'}${tip(tipText)}</div>
+        ? 'NZQA Scholarship is a separate exam beyond NCEA, taken only by top students. This percentage shows how many graduates passed.'
+        : 'NZQA Scholarship 是在 NCEA 之上的额外学术考试，只有顶尖学生参加。';
+      items.push(`<div style="flex:1;min-width:150px">
+        <div style="font-size:22px;font-weight:700">${s.scholarships}%</div>
+        <div style="font-size:12px;font-weight:600">${en ? 'Scholarship Exam Pass Rate' : '高难度奖学金考试通过率'}${infoIcon(tipText)}</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:2px;line-height:1.3">${en ? 'Passed NZ\'s most challenging academic exam' : '通过新西兰最高难度学术考试的毕业生占比'}</div>
       </div>`);
     }
     if (s.distinction != null) {
       const tipText = en
-        ? 'NCEA Level 3 endorsed with Excellence: graduate achieved 50+ credits at Excellence grade. Indicates top academic performance across most subjects.'
-        : 'NCEA L3 卓越认证: 毕业生在 L3 阶段累计 50+ 学分达到 Excellence 等级，表示大部分科目成绩卓越。';
-      items.push(`<div style="flex:1;min-width:130px">
-        <div style="font-size:20px;font-weight:700">${s.distinction}%</div>
-        <div style="font-size:12px;color:var(--text-muted)">${en ? 'Excellence' : '卓越认证'}${tip(tipText)}</div>
+        ? 'NCEA Level 3 endorsed with Excellence means 50+ credits scored Excellence. Students counted here are NOT also counted in Merit.'
+        : 'NCEA L3 卓越认证要求 50+ 学分达到 Excellence。与优良率不重叠。';
+      items.push(`<div style="flex:1;min-width:150px">
+        <div style="font-size:22px;font-weight:700">${s.distinction}%</div>
+        <div style="font-size:12px;font-weight:600">${en ? 'Excellence Rate' : '毕业成绩优等率'}${infoIcon(tipText)}</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:2px;line-height:1.3">${en ? 'Most subjects scored Excellence' : '多数科目达到优等的毕业生比例'}</div>
       </div>`);
     }
     if (s.outstanding_merit != null) {
       const tipText = en
-        ? 'NCEA Level 3 endorsed with Merit: graduate achieved 50+ credits at Merit or above. Students with Excellence endorsement are counted separately.'
-        : 'NCEA L3 优秀认证: 毕业生在 L3 阶段累计 50+ 学分达到 Merit 或以上。获得卓越认证的学生另算，两者不重叠。';
-      items.push(`<div style="flex:1;min-width:130px">
-        <div style="font-size:20px;font-weight:700">${s.outstanding_merit}%</div>
-        <div style="font-size:12px;color:var(--text-muted)">${en ? 'Merit' : '优秀认证'}${tip(tipText)}</div>
+        ? 'NCEA Level 3 endorsed with Merit means 50+ credits scored Merit or above. Students with Excellence are counted separately.'
+        : 'NCEA L3 优秀认证要求 50+ 学分达到 Merit 以上。获卓越认证的学生另算。';
+      items.push(`<div style="flex:1;min-width:150px">
+        <div style="font-size:22px;font-weight:700">${s.outstanding_merit}%</div>
+        <div style="font-size:12px;font-weight:600">${en ? 'Merit Rate' : '毕业成绩良好率'}${infoIcon(tipText)}</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:2px;line-height:1.3">${en ? 'Most subjects scored Merit or above' : '多数科目达到良好的毕业生比例'}</div>
       </div>`);
     }
-    honoursHtml = `<div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px">${items.join('')}</div>`;
+    honoursHtml = `<div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:10px">${items.join('')}</div>`;
   }
 
-  // Subject rankings as mini-table
+  // Subject rankings as mini-table with column headers
   let rankHtml = '';
   if (hasRankings) {
-    const rankTipText = en
-      ? 'Ranking among all Auckland high schools for this subject. % = proportion of students taking this subject at Level 3 who achieved Level 3.'
-      : '该校在全 Auckland 高中该学科的排名。百分比 = 参加该科 Level 3 考试并达标的学生比例。';
-    const rankTitle = en ? 'Top Subjects in Auckland' : 'Auckland 优势学科';
+    const rankTitle = en ? 'Top-Ranked Subjects in Auckland' : '奥克兰排名领先的学科';
+    const colRank = en ? 'Auckland Rank' : '奥克兰排名';
+    const colSubject = en ? 'Subject' : '学科';
+    const colPct = en ? 'L3 Pass Rate' : 'L3 达标率';
     let rows = '';
     for (const r of data.subject_rankings) {
-      rows += `<tr><td style="padding:4px 8px;font-weight:600;color:var(--text-muted)">#${r.rank}</td><td style="padding:4px 8px">${r.subject}</td><td style="padding:4px 8px;text-align:right;font-weight:600">${r.level3_pct}%</td></tr>`;
+      rows += `<tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 8px;font-weight:600;color:var(--text-muted)">#${r.rank}</td><td style="padding:5px 8px">${r.subject}</td><td style="padding:5px 8px;text-align:right;font-weight:600">${r.level3_pct}%</td></tr>`;
     }
-    rankHtml = `<div style="margin-top:14px">
-      <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:6px">${rankTitle}${tip(rankTipText)}</div>
-      <table style="width:100%;font-size:12px;border-collapse:collapse"><tbody>${rows}</tbody></table>
+    rankHtml = `<div style="margin-top:16px">
+      <div style="font-size:12px;font-weight:600;margin-bottom:6px">${rankTitle}</div>
+      <table style="width:100%;font-size:12px;border-collapse:collapse">
+        <thead><tr style="border-bottom:2px solid var(--border)">
+          <th style="padding:4px 8px;text-align:left;font-weight:500;color:var(--text-muted)">${colRank}</th>
+          <th style="padding:4px 8px;text-align:left;font-weight:500;color:var(--text-muted)">${colSubject}</th>
+          <th style="padding:4px 8px;text-align:right;font-weight:500;color:var(--text-muted)">${colPct}</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
     </div>`;
   }
 
