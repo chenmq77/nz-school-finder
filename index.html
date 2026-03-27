@@ -1017,9 +1017,11 @@ body {
   import { esc, safe, hasValue, ensureHttp, safeUrl, showToast } from './js/utils.js';
   import { t, td, bilingual, getLang, setLang, initLang, isEn } from './js/i18n.js';
   import { apiFetch, apiFetchAll, searchSchools, fetchSchools, fetchSchool, fetchSchoolWeb, fetchSchoolNceaAll, fetchStats, abortAll } from './js/api.js';
+  import * as tableModule from './js/table.js';
   window._utils = { esc, safe, hasValue, ensureHttp, safeUrl, showToast };
   window._i18n = { t, td, bilingual, getLang, setLang, initLang, isEn };
   window._api = { apiFetch, apiFetchAll, searchSchools, fetchSchools, fetchSchool, fetchSchoolWeb, fetchSchoolNceaAll, fetchStats, abortAll };
+  window._table = tableModule;
 </script>
 </head>
 <body>
