@@ -1019,11 +1019,13 @@ body {
   import { apiFetch, apiFetchAll, searchSchools, fetchSchools, fetchSchool, fetchSchoolWeb, fetchSchoolNceaAll, fetchStats, abortAll } from './js/api.js';
   import * as tableModule from './js/table.js';
   import * as nceaModule from './js/ncea.js';
+  import { exportDivAsImage, buildExportFooter, exportFilename } from './js/export.js';
   window._utils = { esc, safe, hasValue, ensureHttp, safeUrl, showToast };
   window._i18n = { t, td, bilingual, getLang, setLang, initLang, isEn };
   window._api = { apiFetch, apiFetchAll, searchSchools, fetchSchools, fetchSchool, fetchSchoolWeb, fetchSchoolNceaAll, fetchStats, abortAll };
   window._table = tableModule;
   window._ncea = nceaModule;
+  window._export = { exportDivAsImage, buildExportFooter, exportFilename };
 </script>
 </head>
 <body>
