@@ -1,39 +1,44 @@
-# Requirement Challenge — Round 2 of 8
+# Requirement Challenge — Round 2 of 20
 
 **Model**: gpt-5.4-xhigh-fast
-**Date**: 2026-03-26 22:19:52
+**Date**: 2026-03-27 13:36:36
 
 ---
 
-我已经拿到任务文档，正在按其中的评审维度逐项挑战提案，重点核对场景覆盖、边界条件、架构支撑和只能由用户拍板的决策点。### VERDICT: CHANGES_REQUESTED
+### VERDICT: CHANGES_REQUESTED
 
 ### SCORE: 6
 
 ### COMPLETENESS
-- [school-level extraction scope]: PARTIAL — The proposal covers summary-table extraction and subject Top 10 ingestion, but key field semantics and units are still not fully locked down.
-- [end-user flows]: PARTIAL — List-page UE and detail-page NCEA views are defined, but the detail UI depends on unresolved assumptions about what the level metrics actually mean.
-- [failure and boundary handling]: PARTIAL — Unmatched names and transaction rollback are covered, but true orphan schools, Top 10 tie cases, and non-interactive import behavior are not specified.
-- [dependency and parser resilience]: PARTIAL — The design clearly depends on PyMuPDF and a stable PDF text layout, but there is no fallback or resilience strategy if extraction output is inconsistent.
-- [acceptance criteria]: GAP — A 10-school sample check is not enough to prove correctness for 80+ schools plus 11 subject ranking tables.
-- [scope control]: COVERED — Regional summaries, historical trends, and comparison views are explicitly deferred, so Release 1 scope is mostly controlled.
+- [Core browse-and-click flow]: COVERED — The parent journey from overview tree to filtered school list is defined, and `school_count` is explicitly based on `COUNT(DISTINCT school_number)`.
+- [NZQA taxonomy alignment]: PARTIAL — The two-level structure is modeled, but the proposal does not define how junior courses, composite school-defined courses, or non-NZQA labels are treated.
+- [Crawler matching and review loop]: PARTIAL — Unmatched capture exists, but fuzzy-match rules, reviewer decision criteria, and the closed-loop backfill process are not defined.
+- [Vocational Pathways behavior]: PARTIAL — The display is specified, but the proposal adds a strong subject linkage that is still semantically unclear against the “independent dimension” requirement.
+- [Migration and data integrity]: GAP — There is no concrete plan for reconciling existing `school_subjects` data, preventing duplicate school-subject rows, or safely transitioning current 14-school data to the new taxonomy.
+- [Partial coverage communication]: GAP — The proposal says “no special handling,” but it does not define how to prevent users from misreading counts as full-market coverage while only a subset of schools is indexed.
 
 ### ISSUES
-1. [critical] Data semantics — The proposal assumes the Below L1 / L1 / L2 / L3 values can be shown as a "leaver distribution" and also stores `outstanding_merit` / `distinction` as percentages, but the source labels do not yet prove those are mutually exclusive buckets or percentage-based fields — this risks storing and presenting incorrect data.
-2. [critical] Matching strategy — Scenario 1 says matching is exact -> normalized -> fuzzy, while the architecture section says exact -> normalized -> manual mapping only — the core join strategy is contradictory, and false-positive school matches are not safeguarded.
-3. [major] Testability — "10 schools sampled" is too weak for a parser/import pipeline of this size — the plan is missing deterministic reconciliation checks such as expected row counts, percentage range assertions, duplicate detection, and per-page import totals.
-4. [major] Schema consistency — The tables include a `source` column and the import deletes by `source`, but the primary key is only `(school_number, data_year)` — the model cannot actually support multiple sources for the same school/year even though the design suggests it can.
-5. [minor] Dependency/operations — The extraction plan is tightly coupled to fixed PDF pages and text parsing behavior, and "script pauses" is not defined for automated or repeatable runs — this makes the workflow brittle operationally.
-6. [question] For user — If a Metro school still cannot be matched to any existing `schools` row after manual review, should Release 1 add that school to master data, exclude it entirely, or allow an unlinked NCEA record?
+1. [critical] Scope boundary — The proposal never defines whether junior courses, school-specific composite courses, or marketing labels should be excluded, mapped to NZQA subjects, or split across multiple subjects — without this boundary, taxonomy alignment and school counts are not reliable.
+2. [critical] Data workflow — Manual review stops at `unmatched_subjects`, but there is no closed-loop process to reprocess skipped records and backfill `school_subjects` after a mapping decision — the core “store then periodically review” requirement is not operational yet.
+3. [major] Partial-data UX — Showing `N schools` without an explicit indexed-school denominator and last-updated context can still mislead users while coverage is only 14 schools and expanding — greyed-out zero counts do not solve this for nonzero counts.
+4. [major] Architecture fit — `subject_pathway` introduces a strong many-to-many coupling between pathways and subjects even though the requirement describes pathways as an independent dimension — this may be unnecessary scope growth unless explicitly confirmed.
+5. [major] Data model — `UNIQUE(school_number, raw_name)` plus `INSERT OR IGNORE` loses recurrence and freshness information for persistent unmatched rows — reviewers cannot see whether an issue is still active, frequent, or already fading.
+6. [major] Testability — Fuzzy-match thresholds, normalization rules, precedence between synonym mapping and fuzzy match, and false-positive safeguards are undefined — acceptance cannot be measured objectively.
+7. [minor] Frontend/API behavior — Empty states, API failure behavior, ordering of groups/subjects, and Chinese fallback behavior when `name_cn` is missing are not specified.
+8. [question] For user — Should vocational pathways remain informational cards only, or do you explicitly want them to drive subject-to-school navigation through a curated `subject_pathway` mapping?
+9. [question] For user — Should the overview represent only strict NZQA/NCEA subjects, or should junior/composite school course names also be surfaced through mapping rules for better discoverability?
 
 ### SCENARIOS_ASSESSMENT
-- [scenario 1: data extraction and import]: NEEDS_WORK — The overall flow is sensible, but the unresolved metric semantics, contradictory matching policy, and weak validation make the import path unsafe.
-- [scenario 2: list page UE column]: WELL_DEFINED — Display, null fallback, and sorting expectations are concrete and testable.
-- [scenario 3: detail page NCEA overview]: NEEDS_WORK — The UI shape is clear, but the meaning of the level metrics and the unit of merit/distinction must be confirmed before the display can be trusted.
+- [scenario 1]: NEEDS_WORK — The drill-down is clear, but the meaning of the count is still ambiguous because the indexed-school coverage is not surfaced.
+- [scenario 2]: NEEDS_WORK — The taxonomy tree is defined, but the handling of non-NZQA or school-specific course names is missing, which weakens the promise of “official” alignment.
+- [scenario 3]: NEEDS_WORK — The UI is clear, but the business meaning and source of pathway-to-subject mappings are still unclear and may conflict with the original independence requirement.
+- [scenario 4]: NEEDS_WORK — Capturing unmatched courses is covered, but status semantics and the post-review reprocessing workflow are incomplete.
+- [scenario 5]: NEEDS_WORK — “No special handling” is too weak as an acceptance definition because it does not prevent misleading interpretation of partial coverage.
 
 ### ARCHITECTURE_ASSESSMENT
-- Fitness: 6
-- Risks: [misinterpreted PDF metrics, false school-name joins, parser fragility from PDF text/layout variance, schema inconsistency around `source`, insufficient validation allowing silent bad imports]
-- Suggestions: [confirm the exact semantics and units of every numeric field from the PDF before freezing schema/UI, choose one matching workflow with explicit human-review rules and an audit trail, add reconciliation and assertion-based import validation, align the schema with either a single-source or multi-source strategy, define the product rule for unmatched schools after manual review]
+- Fitness: 6/10
+- Risks: Undefined inclusion boundary for real-world course names, no closed-loop remap/backfill process, misleading subject counts under partial coverage, unnecessary coupling via `subject_pathway`, loss of unmatched recurrence/freshness data, and ambiguous fuzzy-matching behavior.
+- Suggestions: Define strict inclusion/exclusion rules for non-NZQA and composite course names; add a review-to-reprocess workflow for unmatched items; expose coverage metadata such as indexed school count and last updated date; confirm whether pathway-to-subject mapping is truly in scope before keeping `subject_pathway`; add audit fields such as `first_seen_at`, `last_seen_at`, `occurrence_count`, `match_type`, or `confidence`; specify frontend/API error, empty, sorting, and bilingual fallback behavior.
 
 ### SUMMARY
-The proposal is close to a workable Release 1 and has good scope discipline, but it is not yet safe to approve because the biggest risks are still at the data-definition and school-matching layers. Until the team confirms the exact meaning of the imported metrics, resolves the matching-strategy contradiction, and upgrades validation from sample-based checking to full import reconciliation, the architecture could successfully run while still importing or displaying incorrect school performance data.
+The proposal is directionally solid and much more concrete than a raw requirement, but it is not approval-ready because the most important operational boundaries are still unresolved: what exactly counts as an NZQA-aligned subject in messy school data, how manual review actually feeds corrected data back into production counts, and how the UI avoids overstating coverage while only a subset of schools is indexed. Resolve those points and explicitly confirm the intended role of vocational pathways, and the design will be much closer to a sound, testable implementation.

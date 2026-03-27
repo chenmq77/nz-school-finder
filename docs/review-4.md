@@ -1,7 +1,7 @@
-# Requirement Challenge — Round 4 of 8
+# Requirement Challenge — Round 4 of 20
 
 **Model**: gpt-5.4-xhigh-fast
-**Date**: 2026-03-26 23:02:01
+**Date**: 2026-03-27 15:53:18
 
 ---
 
@@ -10,26 +10,28 @@
 ### SCORE: 7
 
 ### COMPLETENESS
-- Core extraction workflow: COVERED — source pages, matching order, transaction behavior, and validation checks are concrete enough to implement.
-- Cross-section data consistency: GAP — the spec does not state whether every school appearing in subject Top 10 pages must also exist in `school_ncea_summary`, or what to do if that invariant fails.
-- UI/API boundary behavior: PARTIAL — list/detail rendering rules are mostly defined, but the exact backend contract for no-data and partial-data responses is still implicit.
-- Release scope versus original comparison goal: GAP — Release 1 excludes compare-page integration even though the original requirement frames this as an enhancement to the comparison system.
+- Parent course discovery flow: COVERED — overview tree, zero-count behavior, count calculation, and drill-down to a filtered school list are all described.
+- Vocational pathways display: COVERED — informational-only scope, data source, and deferred mapping boundary are clear.
+- NZQA taxonomy fidelity: PARTIAL — the proposal says official order, level-specific markers, and Te Reo medium variants matter, but the data model does not yet define how those are stored or validated.
+- Crawler matching requirement: PARTIAL — synonym and abbreviation support is covered via aliases, but the original "improve fuzzy matching" requirement has effectively been narrowed to exact match plus manual alias review.
+- Partial-data communication: GAP — counts are based only on crawled schools, but the UI/API behavior does not say how users are warned that this is not a complete market view.
 
 ### ISSUES
-1. [critical] API contract / data integrity — `/api/school/{num}/ncea` is underspecified for no-summary, no-ranking, and ranking-only cases — define exact response shape/status codes and whether rankings are valid without a summary row.
-2. [major] Data semantics — the UI only requires a generic source label, but the dataset mixes `2023` NCEA outcomes with `July 2024` roll data — require explicit year/date labeling in the UI so users do not compare mixed-vintage numbers as if they were from the same period.
-3. [minor] Operability — checksum validation protects the input file before import, but the imported checksum/file version/timestamp is not persisted — storing import provenance would make later troubleshooting and re-verification much easier.
-4. [question] For user — Is Release 1 allowed to stop at list/detail integration, or must NCEA data also appear in the compare workflow to satisfy the original "comparison system" objective?
+1. [critical] Data modeling — `subject_alias.alias` is globally unique, so one school-specific custom course name can be forced to map to a single subject for every school; this creates a real false-positive risk as coverage expands. Add school-scoped aliases or an ambiguity path that falls back to `unmatched_subjects`.
+2. [major] Requirement alignment — the original requirement asked for fuzzy matching improvements, but the proposal explicitly chooses "No fuzzy". If that is intentional, it needs explicit scope sign-off; otherwise add a minimal deterministic matching layer beyond aliases.
+3. [major] Taxonomy modeling — official NZQA ordering, level-only subjects, and Te Reo medium equivalents are mentioned as required behaviors, but there are no explicit schema fields or seed rules that make those behaviors testable and repeatable.
+4. [question] For user — should subject counts be explicitly labeled as "tracked/crawled schools only" to avoid implying full-market coverage, or is that product trade-off intentionally acceptable?
 
 ### SCENARIOS_ASSESSMENT
-- [Scenario 1: Data extraction and import]: NEEDS_WORK — the main import path is strong, but it still needs an explicit rule for summary-versus-ranking consistency and how that rule is validated.
-- [Scenario 2: List page UE column]: WELL_DEFINED — display behavior, missing-data rendering, and sorting intent are clear enough for implementation.
-- [Scenario 3: Detail page NCEA overview]: NEEDS_WORK — panel visibility rules are clear, but the backend contract for no-data/partial-data cases and the mixed-year presentation are not fully defined.
+- Parent finds schools by course: NEEDS_WORK — the happy path is clear, but the filtered school-list contract and subset-coverage messaging are still implicit.
+- Parent explores NZQA course system: NEEDS_WORK — the tree structure is defined, but subject placement for medium variants and level-specific subjects is still under-specified.
+- Parent explores vocational pathways: WELL_DEFINED — scope, data source, and deferred boundaries are consistent.
+- Crawler unmatched -> review -> backfill: NEEDS_WORK — the loop is clear, but global aliasing can incorrectly convert school-specific labels into permanent cross-school mappings.
 
 ### ARCHITECTURE_ASSESSMENT
-- Fitness: 7
-- Risks: [undefined no-data/partial-data API contract, silent hiding of ranking-only schools, mixed-year metrics being misread by users, scope reduction not yet explicitly approved]
-- Suggestions: [define exact `/api/school/{num}/ncea` response shapes and status codes, enforce or explicitly support ranking-only records during import, label `2023 NCEA` and `July 2024 roll` explicitly in the UI, get explicit user sign-off on excluding compare-page delivery from Release 1]
+- Fitness: 7/10
+- Risks: [global alias collisions across schools, incomplete taxonomy metadata for official ordering and variants, user misreading subset counts as complete coverage, reduced first-pass recall if matching is alias-only]
+- Suggestions: [allow school-scoped or ambiguous aliases, add explicit taxonomy metadata or seed rules for order/level/medium variants, decide and document subset-coverage labeling, either formalize "no fuzzy" as a signed-off scope change or add minimal heuristic matching]
 
 ### SUMMARY
-The proposal is close and most previously critical gaps appear resolved, especially around UE validation, checksum guarding, and ambiguous school matching. The remaining blockers are now boundary and contract issues rather than extraction logic: the spec still needs a precise no-data/partial-data API contract, an explicit rule for summary-versus-ranking consistency, and a clear user decision on whether excluding compare-page integration is acceptable for this release.
+The proposal is close and much stronger than earlier rounds, with the main flows, storage additions, and closed-loop review process now largely coherent. The remaining blockers are not broad rework items, but they are material: alias scope is too coarse for school-specific names, the stated matching strategy no longer cleanly matches the original fuzzy-matching requirement, and taxonomy edge cases are not yet modeled explicitly enough to guarantee a faithful NZQA-aligned overview.
