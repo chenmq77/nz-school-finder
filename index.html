@@ -1016,8 +1016,10 @@ body {
   // Bridge: expose ES module functions to global scope for backward compatibility
   import { esc, safe, hasValue, ensureHttp, safeUrl, showToast } from './js/utils.js';
   import { t, td, bilingual, getLang, setLang, initLang, isEn } from './js/i18n.js';
+  import { apiFetch, apiFetchAll, searchSchools, fetchSchools, fetchSchool, fetchSchoolWeb, fetchSchoolNceaAll, fetchStats, abortAll } from './js/api.js';
   window._utils = { esc, safe, hasValue, ensureHttp, safeUrl, showToast };
   window._i18n = { t, td, bilingual, getLang, setLang, initLang, isEn };
+  window._api = { apiFetch, apiFetchAll, searchSchools, fetchSchools, fetchSchool, fetchSchoolWeb, fetchSchoolNceaAll, fetchStats, abortAll };
 </script>
 </head>
 <body>
