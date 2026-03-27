@@ -1801,15 +1801,8 @@ async function loadPerformanceData(schoolNum) {
     _cachedNcea = nceaData;
     if (!perfData && !nceaData) return;
     let html = '';
-    if (nceaData) html += renderMetroNcea(nceaData);
-    // When both datasets exist, add a "not comparable" note
-    if (nceaData && perfData) {
-      const noteText = _lang === 'en'
-        ? 'Note: The pass rates below measure a different cohort (enrolled students by year level) and are not directly comparable to the leaver outcomes above.'
-        : '注意: 下方的达标率统计的是在校学生（按年级），与上方的离校生数据统计口径不同，不可直接对比。';
-      html += `<div style="font-size:11px;color:var(--text-muted);padding:8px 12px;background:var(--bg-secondary);border-radius:4px;margin-bottom:12px">${noteText}</div>`;
-    }
     if (perfData) html += renderPerformanceHtml(perfData);
+    if (nceaData) html += renderMetroNcea(nceaData);
     if (!html) return;
     document.getElementById('sectionH').style.display = '';
     document.getElementById('bodyH').innerHTML = html;
@@ -1820,57 +1813,58 @@ function renderMetroNcea(data) {
   const s = data.ncea_summary;
   if (!s) return '';
   const en = _lang === 'en';
-  const ue = s.ue_percentage;
-  const leavers = s.school_leavers;
-  const roll = s.school_roll_july2024;
-  const ueColor = ue >= 70 ? '#2a6560' : ue >= 40 ? '#7a5c3a' : '#8a3038';
 
-  // Bar labels use "highest qualification" semantics to avoid confusion with pass rates
-  const bars = [
-    { label: 'UE',  full: en ? 'University Entrance' : '大学入学', pct: ue, color: '#2a6560' },
-    { label: 'L3',  full: en ? 'Highest: Level 3' : '最高: Level 3', pct: s.l3_pct || 0, color: '#4a8a7a' },
-    { label: 'L2',  full: en ? 'Highest: Level 2' : '最高: Level 2', pct: s.l2_pct || 0, color: '#7a5c3a' },
-    { label: 'L1',  full: en ? 'Highest: Level 1' : '最高: Level 1', pct: s.l1_pct || 0, color: '#b88a5a' },
-    { label: '<L1', full: en ? 'Below Level 1' : '未达 Level 1', pct: s.below_l1_pct || 0, color: '#8a3038' },
-  ];
+  // Check if there's anything to show (scholarships, merit, distinction, or rankings)
+  const hasHonours = s.scholarships != null || s.outstanding_merit != null || s.distinction != null;
+  const hasRankings = data.subject_rankings && data.subject_rankings.length > 0;
+  if (!hasHonours && !hasRankings) return '';
 
-  let distHtml = '<div style="display:flex;height:24px;border-radius:4px;overflow:hidden;margin:8px 0">';
-  for (const b of bars) {
-    if (b.pct > 0) distHtml += `<div title="${b.full}: ${b.pct}%" style="width:${b.pct}%;background:${b.color};display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:600">${b.pct >= 8 ? b.pct + '%' : ''}</div>`;
+  const title = en ? 'Honours & Recognition (2023 Graduates)' : '荣誉与认证 (2023年毕业生)';
+
+  // Honours row with explanations
+  let honoursHtml = '';
+  if (hasHonours) {
+    const items = [];
+    if (s.scholarships != null) {
+      items.push(`<div style="flex:1;min-width:140px">
+        <div style="font-size:20px;font-weight:700">${s.scholarships}</div>
+        <div style="font-size:12px;color:var(--text-muted)">${en ? 'Scholarships' : '奖学金考试'}</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:2px">${en ? 'NZQA Scholarship exams achieved' : 'NZQA 奖学金考试通过数'}</div>
+      </div>`);
+    }
+    if (s.outstanding_merit != null) {
+      items.push(`<div style="flex:1;min-width:140px">
+        <div style="font-size:20px;font-weight:700">${s.outstanding_merit}%</div>
+        <div style="font-size:12px;color:var(--text-muted)">${en ? 'Merit Endorsed' : '杰出成绩'}</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:2px">${en ? 'NCEA L3 endorsed with Merit' : 'NCEA L3 成绩优秀认证'}</div>
+      </div>`);
+    }
+    if (s.distinction != null) {
+      items.push(`<div style="flex:1;min-width:140px">
+        <div style="font-size:20px;font-weight:700">${s.distinction}%</div>
+        <div style="font-size:12px;color:var(--text-muted)">${en ? 'Excellence Endorsed' : '优等生'}</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:2px">${en ? 'NCEA L3 endorsed with Excellence' : 'NCEA L3 成绩卓越认证'}</div>
+      </div>`);
+    }
+    honoursHtml = `<div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px">${items.join('')}</div>`;
   }
-  distHtml += '</div><div style="display:flex;gap:12px;font-size:11px;color:var(--text-muted);flex-wrap:wrap">';
-  for (const b of bars) distHtml += `<span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${b.color};margin-right:3px"></span>${b.label} ${b.pct}%</span>`;
-  distHtml += '</div>';
-
-  // Scholarships / Merit / Distinction — no emoji
-  const extras = [];
-  if (s.scholarships != null) extras.push(`<span>${en ? 'Scholarships' : '奖学金'}: <b>${s.scholarships}</b></span>`);
-  if (s.outstanding_merit != null) extras.push(`<span>${en ? 'Outstanding Merit' : '杰出成绩'}: <b>${s.outstanding_merit}%</b></span>`);
-  if (s.distinction != null) extras.push(`<span>${en ? 'Distinction' : '优等生'}: <b>${s.distinction}%</b></span>`);
-  const extraHtml = extras.length ? `<div style="display:flex;gap:16px;flex-wrap:wrap;font-size:13px;margin-top:8px">${extras.join('<span style="color:var(--text-muted)">|</span>')}</div>` : '';
 
   // Subject rankings
   let rankHtml = '';
-  if (data.subject_rankings && data.subject_rankings.length > 0) {
-    rankHtml = `<div style="margin-top:12px"><div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:6px">${en ? 'Subject Top 10 (Metro 2025)' : '学科 Top 10 (Metro 2025)'}</div><div style="display:flex;gap:8px;flex-wrap:wrap">`;
-    for (const r of data.subject_rankings) rankHtml += `<span style="background:var(--bg-secondary);padding:3px 8px;border-radius:4px;font-size:12px">#${r.rank} ${r.subject} <b>${r.level3_pct}%</b></span>`;
+  if (hasRankings) {
+    const rankTitle = en ? 'Top Subjects in Auckland (Metro 2025)' : '优势学科 — Auckland Top 10 (Metro 2025)';
+    rankHtml = `<div style="margin-top:14px">
+      <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:6px">${rankTitle}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">`;
+    for (const r of data.subject_rankings) {
+      rankHtml += `<span style="background:var(--bg);padding:4px 10px;border-radius:4px;font-size:12px;border:1px solid var(--border)">#${r.rank} ${r.subject} <b>${r.level3_pct}%</b></span>`;
+    }
     rankHtml += '</div></div>';
   }
 
-  const cardTitle = en ? '2023 School Leaver Outcomes' : '2023 离校生升学概况';
-  const cohortNote = en
-    ? `Based on ${leavers} school leavers in 2023`
-    : `基于 ${leavers} 名 2023 年离校生`;
-
-  return `<div style="background:var(--bg-secondary);border-radius:8px;padding:16px;margin-bottom:12px">
-    <div style="font-size:13px;font-weight:600;margin-bottom:10px">${cardTitle}</div>
-    <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:4px">
-      <span style="font-size:28px;font-weight:700;color:${ueColor}">${ue}%</span>
-      <span style="font-size:14px;color:var(--text-muted)">${en ? 'University Entrance Rate' : '大学入学率'}</span>
-    </div>
-    <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">${cohortNote} &nbsp;|&nbsp; ${en ? 'Roll (July 2024)' : '在校人数 (2024.7)'}: ${roll ? roll.toLocaleString() : '—'}</div>
-    <div style="font-size:12px;font-weight:600;color:var(--text-muted);margin:8px 0 4px">${en ? 'Highest qualification on leaving' : '离校最高成就分布'}</div>
-    ${distHtml}${extraHtml}${rankHtml}
+  return `<div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+    <div style="font-size:13px;font-weight:600;margin-bottom:4px">${title}</div>
+    ${honoursHtml}${rankHtml}
     <div style="font-size:10px;color:var(--text-muted);margin-top:10px;text-align:right">${en ? 'Source: Metro Magazine Schools 2025' : '来源: Metro Magazine Schools 2025'}</div>
   </div>`;
 }
