@@ -1,0 +1,42 @@
+[
+  {
+    "school_name": "Mount Albert Grammar School",
+    "region": "Albert-Eden",
+    "match_result": "not_found"
+  },
+  {
+    "school_name": "Waitākere College",
+    "region": "Henderson-Massey",
+    "match_result": "not_found"
+  },
+  {
+    "school_name": "Whangaparāoa College",
+    "region": "Hibiscus and Bays",
+    "match_result": "not_found"
+  },
+  {
+    "school_name": "Māngere College",
+    "region": "Māngere-Ōtāhuhu",
+    "match_result": "not_found"
+  },
+  {
+    "school_name": "Tāmaki College",
+    "region": "Maungakiekie-Tāmaki",
+    "match_result": "not_found"
+  },
+  {
+    "school_name": "School",
+    "region": "Sir Edmund Hillary Collegiate Senior",
+    "match_result": "not_found"
+  },
+  {
+    "school_name": "Mount Roskill Grammar",
+    "region": "Puketāpapa",
+    "match_result": "not_found"
+  },
+  {
+    "school_name": "o Waiōrea",
+    "region": "Western Springs College-Ngā Puna",
+    "match_result": "not_found"
+  }
+]
