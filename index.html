@@ -1011,6 +1011,14 @@ body {
 </style>
 <script src="translations.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" defer></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<script type="module">
+  // Bridge: expose ES module functions to global scope for backward compatibility
+  import { esc, safe, hasValue, ensureHttp, safeUrl, showToast } from './js/utils.js';
+  import { t, td, bilingual, getLang, setLang, initLang, isEn } from './js/i18n.js';
+  window._utils = { esc, safe, hasValue, ensureHttp, safeUrl, showToast };
+  window._i18n = { t, td, bilingual, getLang, setLang, initLang, isEn };
+</script>
 </head>
 <body>
 <script>
