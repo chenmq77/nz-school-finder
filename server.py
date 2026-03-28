@@ -16,7 +16,10 @@ import sqlite3
 import sys
 import urllib.parse
 
-DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "schools.db")
+DB_PATH = os.environ.get(
+    "SCHOOLS_DB",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "schools.db")
+)
 DATA_YEAR_DEFAULT = 2023  # Default NCEA data year for Metro 2025
 HOST = "localhost"
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
