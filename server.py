@@ -359,7 +359,45 @@ def filter_schools(params):
             "clubs_asc": "CAST(w.activities_count AS INTEGER) ASC",
             "clubs_desc": "CAST(w.activities_count AS INTEGER) DESC",
         }
-        order_by = sort_map.get(sort, "s.school_name ASC")
+        raw_order = sort_map.get(sort, "s.school_name ASC")
+        # NULLS LAST: push NULL and non-numeric values (e.g. "not applicable") to end.
+        # For text sorts (name, suburb), skip — they sort fine alphabetically.
+        if sort.startswith("name") or sort.startswith("suburb"):
+            order_by = raw_order
+        else:
+            # Extract the raw column reference from sort key for NULL check
+            # (using sort_map values with CAST() is fragile — use source columns instead)
+            null_check_map = {
+                "eqi": "s.equity_index_eqi",
+                "roll": "s.total_school_roll",
+                "ncea_l3": "ncea_l3",
+                "ue": "ue_percentage",
+                "intl_fee": "intl_tuition_annual",
+                "intl_homestay": "intl_homestay_weekly",
+                "intl_total": "intl_tuition_annual",
+                "intl": "s.international",
+                "eth_european": "s.european_pakeha",
+                "eth_maori": "s.maori",
+                "eth_pacific": "s.pacific",
+                "eth_asian": "s.asian",
+                "eth_melaa": "s.melaa",
+                "eth_other": "s.other",
+                "subjects": "w.subjects_count",
+                "sports": "w.sports_count",
+                "arts": "w.music_count",
+                "clubs": "w.activities_count",
+            }
+            # Extract base key (e.g. "eqi_asc" -> "eqi", "eth_asian_desc" -> "eth_asian")
+            base_key = sort.rsplit("_asc", 1)[0].rsplit("_desc", 1)[0]
+            src_col = null_check_map.get(base_key)
+            if src_col:
+                order_by = (
+                    f"CASE WHEN ({src_col}) IS NULL OR "
+                    f"(typeof({src_col}) = 'text' AND SUBSTR(TRIM({src_col}),1,1) NOT BETWEEN '0' AND '9') "
+                    f"THEN 1 ELSE 0 END, {raw_order}"
+                )
+            else:
+                order_by = raw_order
 
         # 分页
         page = max(1, int(params.get("page", ["1"])[0]))
