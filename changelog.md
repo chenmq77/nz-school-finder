@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-03-28 — fix: NCEA 升学成绩展示区块三个 bug 修复
+
+### Why
+NCEA comparison 表中 schoolKey 用排除法识别，对于 Composite 类型学校（如 Te Kura o Te Kao）会误匹配；Region 行硬编码为 Auckland Region，非奥克兰学校不显示地区比较；无数据学校仍展示错误的 NCEA 区块。
+
+### What
+- Bug 1: `schoolKey` 改为用 `school.school_name` 精确匹配，不再使用不完整的排除法
+- Bug 2: Region 行改为动态查找 `comp` 中以 "Region" 结尾的 key，同时补充了 16 个新西兰地区的中文翻译
+- Bug 3: 学校自身在 comparison 中 L1/L2/L3 全为空时，直接 return '' 不展示 NCEA 区块
+
+### How
+1. `loadPerformanceData` 和 `renderPerformanceHtml` 增加 `schoolName` 参数，从调用处传入 `s.school_name`
+2. `schoolKey = Object.keys(comp).find(k => k === schoolName)` 精确匹配
+3. `regionKey = Object.keys(comp).find(k => k.endsWith('Region'))` 动态查找
+4. summary benchmarks 和 compRows 中的硬编码 `'Auckland Region'` 均替换为 `regionKey`
+5. `_compLabel` 增加 `_regionCn` 地区翻译映射表
+
+---
+
 ## 2026-03-28 — feat: NCEA 批量爬取改造（569 所中学）
 
 ### Why

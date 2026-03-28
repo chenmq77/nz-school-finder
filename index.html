@@ -1615,7 +1615,7 @@ function renderSchool(s) {
 
   // 加载爬取数据（C/D/E 区）
   loadWebData(s.school_number);
-  loadPerformanceData(s.school_number);
+  loadPerformanceData(s.school_number, s.school_name);
 }
 
 function renderEqiCompact(s) {
@@ -1797,7 +1797,7 @@ async function loadWebData(schoolNum) {
 let _cachedPerformance = null;
 let _cachedNcea = null;
 
-async function loadPerformanceData(schoolNum) {
+async function loadPerformanceData(schoolNum, schoolName) {
   document.getElementById('sectionH').style.display = 'none';
   document.getElementById('bodyH').innerHTML = '';
   _cachedNcea = null;
@@ -1814,7 +1814,7 @@ async function loadPerformanceData(schoolNum) {
     _cachedNcea = nceaData;
     if (!perfData && !nceaData) return;
     let html = '';
-    if (perfData) html += renderPerformanceHtml(perfData);
+    if (perfData) html += renderPerformanceHtml(perfData, schoolName);
     if (nceaData) html += renderMetroNcea(nceaData);
     if (!html) return;
     document.getElementById('sectionH').style.display = '';
@@ -1912,7 +1912,7 @@ function renderMetroNcea(data) {
   </div>`;
 }
 
-function renderPerformanceHtml(data) {
+function renderPerformanceHtml(data, schoolName) {
   const years = data.years || [];
   const latestYear = years[years.length - 1] || 2024;
   const perf = data.performance;
@@ -1930,18 +1930,38 @@ function renderPerformanceHtml(data) {
   };
 
   // ── Translate comparison group label ──
+  const _regionCn = {
+    'Auckland Region':'奥克兰地区','Canterbury Region':'坎特伯雷地区','Wellington Region':'惠灵顿地区',
+    'Waikato Region':'怀卡托地区','Bay of Plenty Region':'丰盛湾地区','Otago Region':'奥塔哥地区',
+    'Northland Region':'北部地区','Manawatū-Whanganui Region':'马纳瓦图-旺格努伊地区',
+    'Hawke\'s Bay Region':'霍克斯湾地区','Taranaki Region':'塔拉纳基地区',
+    'Southland Region':'南部地区','Nelson Region':'尼尔森地区',
+    'Gisborne Region':'吉斯伯恩地区','Marlborough Region':'马尔堡地区',
+    'West Coast Region':'西海岸地区','Tasman Region':'塔斯曼地区',
+  };
   const _compLabel = (k) => _lang === 'en' ? k : ({
-    'Auckland Region':'奥克兰地区','New Zealand':'全国平均',
+    'New Zealand':'全国平均',
     'Secondary (Year 9-15)':'同类中学',
     'State: Not integrated':'公立学校','State: Integrated':'公立整合学校',
     'Private: Fully Registered':'私立学校','Private: Provisionally Registered':'私立学校',
+    ..._regionCn,
   }[k] || k);
 
   // ── Identify school key and benchmark keys ──
-  const schoolKey = Object.keys(comp).find(k =>
-    comp[k].ncea1 && comp[k].ncea1[latestYear] !== undefined &&
-    !['Auckland Region','New Zealand','Secondary (Year 9-15)'].includes(k) &&
-    !k.startsWith('State') && !k.startsWith('Private'));
+  const schoolKey = schoolName && Object.keys(comp).find(k => k === schoolName);
+  // Bug 3: 如果学校自身的 comparison 数据全为空，不展示 NCEA 区块
+  if (schoolKey && comp[schoolKey]) {
+    const sd = comp[schoolKey];
+    const hasL1 = sd.ncea1 && sd.ncea1[latestYear] != null;
+    const hasL2 = sd.ncea2 && sd.ncea2[latestYear] != null;
+    const hasL3 = sd.ncea3 && sd.ncea3[latestYear] != null;
+    if (!hasL1 && !hasL2 && !hasL3) return '';
+  } else if (!schoolKey) {
+    // 找不到学校对应的 key，不展示
+    return '';
+  }
+
+  const regionKey = Object.keys(comp).find(k => k.endsWith('Region'));
   const sameTypeKey = Object.keys(comp).find(k => k.startsWith('State') || k.startsWith('Private'));
   const schoolL3 = schoolKey && comp[schoolKey].ncea3 && comp[schoolKey].ncea3[latestYear] != null
     ? comp[schoolKey].ncea3[latestYear] : null;
@@ -1972,7 +1992,7 @@ function renderPerformanceHtml(data) {
   if (summaryLevel) {
     const diffs = [];
     const benchmarks = [
-      { key: 'Auckland Region', short: () => _lang === 'en' ? 'Auckland' : '奥克兰' },
+      { key: regionKey, short: () => _lang === 'en' ? (regionKey || '').replace(' Region','') : _compLabel(regionKey || '') },
       { key: sameTypeKey, short: () => _lang === 'en' ? (sameTypeKey || '').replace(/:.*/,'').trim() : ({'State: Not integrated':'公立','State: Integrated':'公立整合','Private: Fully Registered':'私立'}[sameTypeKey] || sameTypeKey) },
       { key: 'New Zealand', short: () => _lang === 'en' ? 'NZ' : '全国' },
     ];
@@ -2002,7 +2022,7 @@ function renderPerformanceHtml(data) {
   // ── Comparison table with deltas ──
   const compRows = [
     { key: schoolKey, isSchool: true },
-    { key: 'Auckland Region', labelOverride: t('ncea_auckland') },
+    { key: regionKey, labelOverride: _compLabel(regionKey || '') },
     { key: sameTypeKey, labelOverride: _compLabel(sameTypeKey || ''), tooltip: sameTypeKey },
     { key: 'New Zealand', labelOverride: t('ncea_nz_avg') },
   ].filter(r => r.key && comp[r.key]);
