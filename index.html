@@ -1362,8 +1362,14 @@ function setLang(lang) {
       renderFees(_cachedWebData);
       appendZoneToB(_cachedWebData);
     }
-    if (_cachedPerformance) {
-      renderPerformance(_cachedPerformance);
+    if (_cachedPerformance || _cachedNcea) {
+      let html = '';
+      if (_cachedPerformance) html += renderPerformanceHtml(_cachedPerformance, _cachedSchool.school_name);
+      if (_cachedNcea) html += renderMetroNcea(_cachedNcea);
+      if (html) {
+        document.getElementById('sectionH').style.display = '';
+        document.getElementById('bodyH').innerHTML = html;
+      }
     }
     return;
   }
@@ -1929,23 +1935,17 @@ function renderPerformanceHtml(data, schoolName) {
     ue: '#254D78',
   };
 
-  // ── Translate comparison group label ──
-  const _regionCn = {
-    'Auckland Region':'奥克兰地区','Canterbury Region':'坎特伯雷地区','Wellington Region':'惠灵顿地区',
-    'Waikato Region':'怀卡托地区','Bay of Plenty Region':'丰盛湾地区','Otago Region':'奥塔哥地区',
-    'Northland Region':'北部地区','Manawatū-Whanganui Region':'马纳瓦图-旺格努伊地区',
-    'Hawke\'s Bay Region':'霍克斯湾地区','Taranaki Region':'塔拉纳基地区',
-    'Southland Region':'南部地区','Nelson Region':'尼尔森地区',
-    'Gisborne Region':'吉斯伯恩地区','Marlborough Region':'马尔堡地区',
-    'West Coast Region':'西海岸地区','Tasman Region':'塔斯曼地区',
+  // ── Translate comparison group label (uses td() from translations.js) ──
+  const _compLabel = (k) => {
+    // 先尝试 comparison_group 翻译
+    const cg = td('comparison_group', k);
+    if (cg !== k) return cg;
+    // 再尝试 region 翻译
+    const rg = td('region', k);
+    if (rg !== k) return rg;
+    // fallback: 原始值
+    return k;
   };
-  const _compLabel = (k) => _lang === 'en' ? k : ({
-    'New Zealand':'全国平均',
-    'Secondary (Year 9-15)':'同类中学',
-    'State: Not integrated':'公立学校','State: Integrated':'公立整合学校',
-    'Private: Fully Registered':'私立学校','Private: Provisionally Registered':'私立学校',
-    ..._regionCn,
-  }[k] || k);
 
   // ── Identify school key and benchmark keys ──
   const schoolKey = schoolName && Object.keys(comp).find(k => k === schoolName);
@@ -1984,17 +1984,17 @@ function renderPerformanceHtml(data, schoolName) {
   let summaryHtml = '';
   const schoolL2 = schoolKey && comp[schoolKey].ncea2 ? comp[schoolKey].ncea2[latestYear] : null;
   const schoolL1 = schoolKey && comp[schoolKey].ncea1 ? comp[schoolKey].ncea1[latestYear] : null;
-  const summaryLevel = schoolL3 != null ? { val: schoolL3, metric: 'ncea3', label: () => _lang === 'en' ? 'L3 attainment' : 'L3达标率' }
-    : schoolL2 != null ? { val: schoolL2, metric: 'ncea2', label: () => _lang === 'en' ? 'L2 attainment' : 'L2达标率' }
-    : schoolL1 != null ? { val: schoolL1, metric: 'ncea1', label: () => _lang === 'en' ? 'L1 attainment' : 'L1达标率' }
+  const summaryLevel = schoolL3 != null ? { val: schoolL3, metric: 'ncea3', label: () => t('ncea_l3_attainment') }
+    : schoolL2 != null ? { val: schoolL2, metric: 'ncea2', label: () => t('ncea_l2_attainment') }
+    : schoolL1 != null ? { val: schoolL1, metric: 'ncea1', label: () => t('ncea_l1_attainment') }
     : null;
 
   if (summaryLevel) {
     const diffs = [];
     const benchmarks = [
-      { key: regionKey, short: () => _lang === 'en' ? (regionKey || '').replace(' Region','') : _compLabel(regionKey || '') },
-      { key: sameTypeKey, short: () => _lang === 'en' ? (sameTypeKey || '').replace(/:.*/,'').trim() : ({'State: Not integrated':'公立','State: Integrated':'公立整合','Private: Fully Registered':'私立'}[sameTypeKey] || sameTypeKey) },
-      { key: 'New Zealand', short: () => _lang === 'en' ? 'NZ' : '全国' },
+      { key: regionKey, short: () => _compLabel(regionKey || '') },
+      { key: sameTypeKey, short: () => _compLabel(sameTypeKey || '') },
+      { key: 'New Zealand', short: () => _compLabel('New Zealand') },
     ];
     for (const b of benchmarks) {
       if (!b.key || !comp[b.key] || !comp[b.key][summaryLevel.metric] || comp[b.key][summaryLevel.metric][latestYear] == null) continue;
@@ -2007,7 +2007,7 @@ function renderPerformanceHtml(data, schoolName) {
       // Determine prefix: all above / all below / mixed
       const allUp = diffs.every(d => d.diff > 0);
       const allDn = diffs.every(d => d.diff < 0);
-      const prefix = allUp ? (_lang === 'en' ? 'above ' : '高于') : allDn ? (_lang === 'en' ? 'below ' : '低于') : '';
+      const prefix = allUp ? t('ncea_above_prefix') : allDn ? t('ncea_below_prefix') : '';
       const sep = '<span style="margin:0 6px;color:var(--text-muted)">·</span>';
       partsHtml = sep + diffs.map((d, i) => {
         const arrow = d.diff > 0 ? '▲' : '▼';
@@ -2036,7 +2036,7 @@ function renderPerformanceHtml(data, schoolName) {
     <table class="ncea-table" style="width:100%;border-collapse:collapse;font-size:13px">
       <thead>
         <tr style="border-bottom:1px solid var(--border)">
-          <th style="text-align:left;padding:8px 12px;font-weight:500">${latestYear} ${_lang === 'en' ? '' : '年'}</th>
+          <th style="text-align:left;padding:8px 12px;font-weight:500">${latestYear}${_lang === 'en' ? '' : ' 年'}</th>
           <th style="text-align:right;padding:8px 6px;font-weight:500">L1</th>
           <th style="text-align:right;padding:8px 6px;font-weight:500">L2</th>
           <th style="text-align:right;padding:8px 6px;font-weight:500">L3</th>
@@ -2067,7 +2067,7 @@ function renderPerformanceHtml(data, schoolName) {
         </tr>`;
   }
   tableHtml += `</tbody></table>
-    <div style="font-size:11px;color:var(--text-muted);margin-top:6px;font-style:italic">* ${t('ncea_footnote')}${ _lang === 'en' ? '. Colored values = difference in percentage points vs school.' : '。彩色数值为与本校的百分点差距。'}</div>`;
+    <div style="font-size:11px;color:var(--text-muted);margin-top:6px;font-style:italic">* ${t('ncea_footnote')}${t('ncea_footnote_delta')}</div>`;
 
   // ── Stacked bars (school years only, no benchmark bar) ──
   function makeBar(year, label) {

@@ -38,11 +38,17 @@ const TRANSLATIONS = {
     ncea_below_l1:        { en: "Below Level 1", cn: "未达 Level 1" },
     ncea_l1_only:         { en: "NCEA L1", cn: "NCEA L1" },
     ncea_l2_only:         { en: "NCEA L2", cn: "NCEA L2" },
-    ncea_l3_ue:           { en: "L3", cn: "L3" },
+    ncea_l3_ue:           { en: "NCEA L3", cn: "NCEA L3" },
     ncea_comparison:      { en: "Comparison", cn: "对比" },
     // ncea_same_type is dynamic — see renderPerformance for label logic
     ncea_auckland:        { en: "Auckland Region", cn: "奥克兰地区" },
     ncea_nz_avg:          { en: "NZ Average", cn: "全国平均" },
+    ncea_l3_attainment:   { en: "L3 attainment", cn: "L3达标率" },
+    ncea_l2_attainment:   { en: "L2 attainment", cn: "L2达标率" },
+    ncea_l1_attainment:   { en: "L1 attainment", cn: "L1达标率" },
+    ncea_above_prefix:    { en: "above ", cn: "高于" },
+    ncea_below_prefix:    { en: "below ", cn: "低于" },
+    ncea_footnote_delta:  { en: ". Colored values = difference in percentage points vs school.", cn: "。彩色数值为与本校的百分点差距。" },
     ncea_no_data:         { en: "No NCEA data available", cn: "暂无 NCEA 数据" },
     ncea_footnote:        { en: "% of leavers achieving this level or above", cn: "达到该等级及以上的毕业生比例" },
 
@@ -229,6 +235,19 @@ const TRANSLATIONS = {
       "Nelson Region":                     { en: "Nelson", cn: "尼尔森地区" },
       "Marlborough Region":                { en: "Marlborough", cn: "马尔堡地区" },
       "West Coast Region":                 { en: "West Coast", cn: "西海岸地区" },
+    },
+
+    // comparison group labels (NCEA benchmarks)
+    comparison_group: {
+      "Secondary (Year 9-15)":               { en: "Secondary", cn: "中学" },
+      "Secondary (Year 7-15)":               { en: "Secondary", cn: "中学" },
+      "Composite (Year 1-15)":               { en: "Composite", cn: "一贯制学校" },
+      "Composite (Year 1-10)":               { en: "Composite", cn: "一贯制学校" },
+      "State: Not integrated":               { en: "State", cn: "公立" },
+      "State: Integrated":                   { en: "State Integrated", cn: "公立整合" },
+      "Private: Fully Registered":           { en: "Private", cn: "私立" },
+      "Private: Provisionally Registered":   { en: "Private", cn: "私立" },
+      "New Zealand":                         { en: "NZ Average", cn: "全国平均" },
     },
 
     // school_type split into type_label (school category) and year_range (grade range)

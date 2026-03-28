@@ -1,5 +1,27 @@
 # Changelog
 
+## 2026-03-28 — refactor: NCEA 区块多语言硬编码改为 t()/td() 翻译系统
+
+### Why
+renderPerformanceHtml 函数中有约 25 处中文硬编码（三元判断 `_lang === 'en' ? ... : ...`），与项目已有的 t()/td() 翻译系统不一致，导致维护困难且 both 模式无法正常工作。
+
+### What
+- 删除 `_regionCn` 硬编码映射表（与 translations.js 的 data.region 重复）
+- `_compLabel` 函数改为使用 `td('comparison_group', k)` + `td('region', k)` 级联查找
+- `summaryLevel.label` 改为 `t('ncea_l3_attainment')` / `t('ncea_l2_attainment')` / `t('ncea_l1_attainment')`
+- benchmarks 的 `short` 函数改为统一使用 `_compLabel()`
+- above/below prefix 改为 `t('ncea_above_prefix')` / `t('ncea_below_prefix')`
+- 脚注补充说明改为 `t('ncea_footnote_delta')`
+- 图例 `ncea_l3_ue` 标签从 "L3" 改为 "NCEA L3"
+
+### How
+1. `translations.js` 新增 5 个 UI key（ncea_l3/l2/l1_attainment, ncea_above/below_prefix, ncea_footnote_delta）
+2. `translations.js` 新增 `comparison_group` data 类别（9 个条目：中学类型、管理性质、全国平均）
+3. `index.html` renderPerformanceHtml 函数中所有 `_lang === 'en' ? ... : ...` 文本判断替换为对应的 t()/td() 调用
+4. 颜色相关的三元判断（_upColor/_dnColor）和年份后缀保持不变（非文本翻译）
+
+---
+
 ## 2026-03-28 — fix: NCEA 升学成绩展示区块三个 bug 修复
 
 ### Why
