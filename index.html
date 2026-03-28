@@ -1833,12 +1833,9 @@ function renderMetroNcea(data) {
   if (!s) return '';
   const en = _lang === 'en';
 
-  // Check if there's anything to show (scholarships, merit, distinction, or rankings)
-  const hasHonours = s.scholarships != null || s.outstanding_merit != null || s.distinction != null;
-  const hasRankings = data.subject_rankings && data.subject_rankings.length > 0;
-  if (!hasHonours && !hasRankings) return '';
-
-  const title = en ? 'Academic Honours (2023 Graduates)' : '学术荣誉与毕业成绩 (2023届毕业生)';
+  // Metro Magazine data hidden — using our own crawled NCEA data instead
+  // TODO: re-enable subject rankings when NZQA data is available
+  return '';
 
   // Info icon helper — styled as a circle (i), not a plain "?"
   const infoIcon = (text) => `<span style="cursor:help;display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:var(--text-muted);color:var(--bg);font-size:9px;font-weight:700;margin-left:5px;vertical-align:middle;opacity:0.5" title="${text}">i</span>`;
