@@ -1,250 +1,273 @@
-# 最终需求规格说明
+# 最终需求规格说明 — NZ School Finder 架构重构
 
-**来源**: docs/req.md
-**精炼过程**: 经过 8 轮 Claude + GPT 挑战
-**日期**: 2026-03-27
-**状态**: PARTIALLY_APPROVED (8/10)
+**来源**: docs/req-architecture.md
+**精炼过程**: 经过 9 轮 Claude + GPT 挑战（第 10 轮 GPT 幻觉，忽略）
+**日期**: 2026-03-28
+**状态**: APPROVED（连续 7 轮 8/10，所有核心问题已解决）
 
 ---
 
 ## 1. 需求摘要
 
-从 Metro Magazine Schools 2025 报告（PDF）中提取 Auckland 约 80 所高中的 2023 年 NCEA 成绩数据，包括核心汇总表和 11 个学科 Top 10 排名，存入 SQLite 数据库，整合到现有学校列表页（UE 列）和详情页（NCEA 板块）。Release 1 不含区域汇总、趋势图和对比功能。
+将 NZ School Finder 从 Python `http.server` 原型升级为 **FastAPI + SQLAlchemy + Jinja2** 的专业架构，部署到 **Render**。重构过程中**功能行为不变**——所有 API 响应、页面交互、i18n 行为与现有版本完全一致。
 
-## 2. 用户场景
+## 2. 表生命周期矩阵
 
-### 场景 1: 数据提取与导入
+| 表 | 数据归属 | SQLAlchemy Model | 初始迁移(PG) | 年度发布 | 生产环境 |
+|----|----------|-----------------|-------------|---------|---------|
+| schools | CSV 导入 | ✅ | ✅ | ❌ | ✅ |
+| school_fees | 爬虫 | ✅ | ✅ | ✅ | ✅ |
+| school_web_data | 爬虫 | ✅ | ✅ | ✅ | ✅ |
+| school_performance | 爬虫 | ✅ | ✅ | ✅ | ✅ |
+| school_performance_comparison | 爬虫 | ✅ | ✅ | ✅ | ✅ |
+| school_vocational_pathways | 爬虫 | ✅ | ✅ | ✅ | ✅ |
+| school_ncea_subjects | 爬虫 | ✅ | ✅ | ✅ | ✅ |
+| scrape_log | 爬虫 | ✅ | ❌ | ❌ | ❌ |
+
+## 3. 用户场景
+
+### 场景 1: API 请求（功能回归验证）
+
+- **参与者**: 前端 JS
+- **触发条件**: 用户搜索/筛选/查看学校
+- **正常路径**: JS fetch → FastAPI endpoint → SQLAlchemy query → JSON response
+- **API 兼容性规约**:
+  - 所有 query params 定义为 `Optional[str] = None`，不使用 FastAPI 自动 422
+  - Path params 定义为 `school_number: str`，service 层手动处理
+  - 无效/未知参数 → 忽略，返回默认结果
+  - 空搜索 `q=` → `{"schools":[],"total":0}`
+  - 不存在/非法 school_number → 404 `{"error":"not found"}`
+  - 重复参数 → 取最后一个值
+  - 分页: page≤0→1 | per_page>100→cap 100
+  - 不支持的 sort 字段 → 默认 name ASC
+  - 列表排序: `(sort_key, school_number)` 双键保证分页稳定
+- **关联数据缺失行为**（匹配现有 server.py）:
+  - `/api/school/{id}/ncea` — 无数据 → `{"subjects":[],"summary":{}}`
+  - `/api/school/{id}/performance` — 无数据 → `{"years":[]}`
+  - `/api/school/{id}/web` — 无数据 → `{"web_data":null,"fees":[]}`
+- **验收标准**: golden fixture diff = 0（顺序敏感），含 Unicode 测试和关联数据缺失用例
+- **跨引擎差异**: PostgreSQL 为权威引擎
+
+### 场景 2: 页面渲染（SPA include 模式）
+
+- **参与者**: 浏览器用户
+- **触发条件**: 访问 / 或 /subjects
+- **正常路径**: FastAPI → Jinja2 `{% include %}` 组装 → 完整英文单页 HTML → JS hash router → 客户端切换语言
+- **DOM 兼容性规则**: 模板拆分时必须保留所有 id, class, data-* 属性不变
+- **静态资源**: FastAPI StaticFiles mount（开发和生产均使用）
+- **视图级回归验证**:
+  - `#/` — dashboard 加载，统计数据显示
+  - `#/schools?type=Secondary` — 列表 + 筛选 + 分页
+  - `#/school/42` — 详情页加载，NCEA 数据
+  - `/subjects` — 学科页面
+  - 每个视图: 页面加载 + 搜索/筛选/分页/语言切换交互
+- **验收标准**: HTML diff + hash 路由切换 + 交互正常 + 静态资源 200
+
+### 场景 3: 数据导入
+
 - **参与者**: 开发者
-- **触发条件**: 运行 `python extract_metro_ncea.py`
-- **前置条件**: PDF 文件通过 MD5 checksum 校验
+- **触发条件**: 新环境初始化或 CSV 更新
+- **正常路径**: `python scripts/seed.py` → 读 CSV → SQLAlchemy bulk insert
+- **用途**: 开发/测试环境初始化 + 生产 schools 表更新（与爬虫发布独立）
+- **验收标准**: `COUNT(imported) = COUNT(csv_rows)`
+
+### 场景 4: 爬虫运行（仅本地）+ 手动发布
+
+- **参与者**: 开发者（本地机器）
+- **触发条件**: NCEA 数据年度更新
+- **正常路径**: 爬虫在本地 SQLite 运行 → 手动发布 6 张爬虫表
+- **本地约束**: SQLite 不支持并发，爬虫和 app 不同时运行（操作规范）
+- **发布操作手册**:
+  1. 备份生产 PG（Render Dashboard 或 pg_dump）
+  2. 设置维护页面
+  3. `python scripts/sync_to_prod.py --source schools.db --target $DATABASE_URL`
+     - 内置 Alembic revision 检查，schema 不匹配则退出
+     - 6 张爬虫表 truncate + bulk insert
+  4. 验证: 全部 7 个 API 端点返回正确数据
+  5. 移除维护页面
+  6. 失败: 从 PG 备份恢复
+- **验收标准**: 发布后数据完整，API 行为正常
+
+### 场景 5: Render 部署
+
+- **参与者**: 开发者
+- **触发条件**: git push to main
 - **正常路径**:
-  1. 校验 PDF 文件（文件名 + MD5 checksum），不匹配则 exit 1
-  2. PyMuPDF 提取第 31-33 页核心数据表（~80 所学校）
-  3. PyMuPDF 提取第 7-9 页学科 Top 10（11 学科 × ≤10 校）
-  4. 核心表学校匹配：精确 → 标准化（去标点、"H S"→"High School"）→ MAPPING dict
-  5. 多候选匹配（ambiguous）→ 同未匹配处理
-  6. 学科 Top10 学校匹配：
-     - 匹配成功且有 summary 记录 → 存储
-     - 未匹配且在 RANKING_SKIP_ALLOWLIST → 跳过，记录到 skip_report
-     - 未匹配且不在 ALLOWLIST → 导入失败
-  7. 核心表有未匹配学校 → 输出 unmatched_schools.json + exit 1
-  8. 全部匹配后：开启 SQLite 事务（WAL 模式，避免锁定读取）
-  9. DELETE FROM school_ncea_summary WHERE source='metro_2025' AND data_year=2023
-  10. DELETE FROM school_subject_ranking WHERE source='metro_2025' AND data_year=2023
-  11. INSERT 所有记录
-  12. 运行自动校验（见下方）
-  13. 校验通过 → COMMIT，输出统计报告
-  14. 校验失败 → ROLLBACK + exit 1
-- **错误路径**:
-  - Checksum 不匹配 → exit 1，不修改数据库
-  - 未匹配/ambiguous → exit 1 + unmatched_schools.json
-  - 正则断言失败 → exit 1
-  - 校验失败 → ROLLBACK + exit 1
+  1. Build: `pip install -r requirements.txt`
+  2. Release Command: `alembic upgrade head`（失败则不切换新版本）
+  3. Start: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+- **DB 不可用**: 请求返回 503（依赖 Render 自动重启）
+- **发布验证**（全部返回 200）:
+  - `GET /`, `GET /subjects`
+  - `GET /api/stats`, `/api/schools?page=1&per_page=5`, `/api/search?q=auckland`
+  - `GET /api/school/{id}`, `/api/school/{id}/ncea`, `/performance`, `/web`
+  - `GET /static/js/api.js`
+- **验收标准**: 全部 10 项检查通过
+
+### 场景 6: SQLite → PostgreSQL 初始迁移（一次性）
+
+- **参与者**: 开发者
+- **触发条件**: 首次部署到 Render
+- **权威数据源**: SQLite 数据库
+- **脚本**: `python scripts/migrate_to_pg.py --source schools.db --target $DATABASE_URL`
+  - 内置 Alembic revision 检查
+- **迁移范围**: 7 张表（见矩阵，scrape_log 排除）
+- **冲突策略**:
+
+| 表 | 主键/唯一键 | 策略 |
+|----|------------|------|
+| schools | school_number (UK) | ON CONFLICT DO UPDATE |
+| school_fees | (school_number, year) | ON CONFLICT DO NOTHING |
+| school_web_data | school_number (PK) | ON CONFLICT DO UPDATE |
+| school_performance | (school_number, year, level) | ON CONFLICT DO NOTHING |
+| school_performance_comparison | (school_number, year) | ON CONFLICT DO NOTHING |
+| school_vocational_pathways | (school_number, year) | ON CONFLICT DO NOTHING |
+| school_ncea_subjects | (school_number, subject, level, year) | ON CONFLICT DO NOTHING |
+
+- **验证**: 逐表 COUNT + golden fixture 在 PG 通过
+- **验收标准**: 可重复执行
+
+### 场景 7: 回归验证（双引擎门禁）
+
+- **方法**: 录制旧 server.py 响应 → FastAPI 对比 → PG 对比
+- **覆盖**: 正常路径 + 边界 + 排序 + Unicode + 关联数据缺失
+- **PG 验证作为发布门禁**
+- **数据源**: 现有 schools.db
+
+### 场景 8: i18n 保持验证
+
+- **约定**: Jinja2 输出英文 HTML = 原 index.html，JS 客户端切换语言
+- **允许首屏短暂英文**（保持现有行为）
 - **验收标准**:
-  - [ ] 100% 核心表学校已处理（匹配 + 已知跳过）
-  - [ ] 自动校验全部通过
-  - [ ] 10 所学校手动逐字段比对 PDF 一致
+  - [ ] translations.js 正确加载
+  - [ ] / 和 /subjects 均支持语言切换
+  - [ ] en/cn/both 三种模式均可切换
+  - [ ] 刷新后语言偏好保持（localStorage）
+  - [ ] 模板中无新增硬编码中英文
 
-**自动校验规则**:
-- 核心表行数 = PDF 提取数 - 跳过数
-- 所有百分比字段 ∈ [0, 100]
-- Below_L1 + L1 + L2 + L3 ∈ [98, 102]（舍入容差）
-- UE ∈ [0, 100]（独立校验，不参与分布加和）
-- 无重复 school_number
-- 学科排名：11 个学科全部存在，每学科 rank 序列连续（1..N, N≥8）
-- 跨表一致性：school_subject_ranking 中的 school_number 必须存在于 school_ncea_summary
-- Golden data 断言（checksum 绑定）:
-  - Auckland Grammar School: UE=74%, school_leavers=484
-  - Rangitoto College: 验证全部字段
-  - Macleans College: 验证全部字段
-  - Sciences 学科 Top 10: 验证完整排名列表
-  - Mathematics 学科 Top 10: 验证完整排名列表
+## 4. 非功能性需求
 
-### 场景 2: 列表页 UE 列
-- **参与者**: 家长/中介
-- **触发条件**: 浏览学校列表，在可配置列中勾选"大学入学率(UE)"
-- **正常路径**: 列表显示 UE%，支持升降序排序
-- **错误路径**: 无 UE 数据 → 显示 "-"，排序时排末尾（无论升降序）
-- **验收标准**:
-  - [ ] UE 列正确显示百分比值
-  - [ ] 排序逻辑正确（NULL 排末尾）
+- **性能**: API < 500ms（~3000 条记录）
+- **安全**: SQLAlchemy 参数化查询、环境变量管理（DATABASE_URL）、CORS
+- **数据**: SQLite 开发 / PostgreSQL 生产
 
-### 场景 3: 详情页 NCEA 板块
-- **参与者**: 家长
-- **触发条件**: 点击学校详情
-- **正常路径**: 显示 UE%、离校生分布（Below L1/L1/L2/L3 条形图）、奖学金数量、Outstanding Merit%、Distinction%、学科排名（仅显示有排名的学科，标注"Metro 2025 Top 10"）
-- **错误路径**: 无 Metro 数据 → 隐藏整个 NCEA 板块（不显示空状态提示）
-- **验收标准**:
-  - [ ] 10 所学校数据与 PDF 逐字段一致
-  - [ ] 无数据学校不显示 NCEA 板块
-  - [ ] NULL 字段不显示（非显示为 0）
-  - [ ] 年份标注正确："2023 NCEA 成绩" / "在校人数 (July 2024)"
+## 5. 架构
 
-## 3. 非功能性需求
-- **数据准确性**: Golden data 自动断言 + 10 所学校手动比对
-- **数据覆盖**: 仅 Auckland ~80 所高中，其余 2500 所学校不受影响
-- **数据来源标注**: UI 显示 "来源: Metro Magazine Schools 2025"
-- **导入安全**: SQLite WAL 模式，导入期间不影响读取；导入为离线管理操作
-- **与 school_performance 的关系**: 两表独立，不修改现有数据
-
-## 4. 架构
-
-### 数据语义（已从 PDF 第30页方法论 + 实际数据验证）
-- **Below_L1 + L1 + L2 + L3** = 100%（±2% 舍入容差），按最高达成级别的互斥离校生分布
-- **UE** = University Entrance，是 L3 的子集，独立报告
-- **Outstanding Merit**: % of leavers with NCEA endorsed with Merit
-- **Distinction**: % of leavers with NCEA endorsed with Excellence
-- **Scholarships**: 整数，奖学金展示数量
-- **School Roll**: July 2024 在校总人数，独立于 2023 成绩数据
-
-### NULL/空值处理
-| PDF 中的值 | 存储 | API 返回 | UI 显示 |
-|------------|------|----------|---------|
-| 数字值（如 74%） | REAL/INTEGER | 数字 | 数字 |
-| 空白/"-"/无值 | NULL | null | 隐藏该字段 |
-| "0" 或 "0%" | 0 | 0 | "0" 或 "0%" |
-
-### 存储 Schema
-
-```sql
-CREATE TABLE school_ncea_summary (
-    school_number        INTEGER NOT NULL,
-    data_year            INTEGER NOT NULL,
-    source               TEXT DEFAULT 'metro_2025',
-    school_roll_july2024 INTEGER,
-    school_leavers       INTEGER,
-    ue_percentage        REAL,
-    below_l1_pct         REAL,
-    l1_pct               REAL,
-    l2_pct               REAL,
-    l3_pct               REAL,
-    scholarships         INTEGER,
-    outstanding_merit    REAL,
-    distinction          REAL,
-    region               TEXT,
-    import_checksum      TEXT,
-    imported_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (school_number, data_year)
-);
-
-CREATE TABLE school_subject_ranking (
-    school_number     INTEGER NOT NULL,
-    data_year         INTEGER NOT NULL,
-    subject           TEXT NOT NULL,
-    rank              INTEGER,
-    level3_pct        REAL,
-    source            TEXT DEFAULT 'metro_2025',
-    PRIMARY KEY (school_number, data_year, subject)
-);
-
-CREATE INDEX idx_ncea_summary_year ON school_ncea_summary(data_year);
-CREATE INDEX idx_subject_ranking_subject ON school_subject_ranking(subject, data_year);
+### 组件概览
+```
+Browser → FastAPI (uvicorn)
+            ├── Jinja2 Templates ({% include %} SPA shell)
+            ├── API Routes (/api/*) → JSON
+            ├── Services (业务逻辑)
+            └── SQLAlchemy → SQLite / PostgreSQL
 ```
 
-### 学校名匹配策略
-1. **精确匹配**: PDF school_name == schools.school_name
-2. **标准化匹配**: 去标点、trim、缩写展开（"H S"→"High School", "St"→"Saint"）
-3. **MAPPING dict**: 硬编码已知差异的手动映射
-4. **多候选（ambiguous）**: 多条 schools 记录匹配 → fail
-5. **未匹配**: 输出 unmatched_schools.json + exit 1，人工审核
-6. **学科 Top10 跳过**: RANKING_SKIP_ALLOWLIST 白名单
+### 跨数据库兼容性规则
+| 问题 | 方案 |
+|------|------|
+| 文本匹配 | `func.lower(col).contains(func.lower(term))` |
+| NULL 排序 | `nulls_last()` |
+| 分页稳定 | `(sort_key, school_number)` 双键 |
 
-### API
+### 技术选型
+| 选择 | 理由 |
+|------|------|
+| FastAPI | 自动 OpenAPI 文档、Pydantic 校验、ASGI |
+| SQLAlchemy 2.0 | 类型安全 ORM、双引擎、Alembic |
+| Jinja2 | FastAPI 原生支持、拆分大 HTML |
+| uvicorn | ASGI 标准、Render 支持 |
 
-**列表 API** — `/api/schools` SQL 增加:
-```sql
-LEFT JOIN school_ncea_summary n
-  ON CAST(s.school_number AS INTEGER) = n.school_number
-  AND n.data_year = (SELECT MAX(data_year) FROM school_ncea_summary)
+### 脚本职责
+| 脚本 | 用途 | 环境 |
+|------|------|------|
+| migrate_to_pg.py | 一次性迁移 7 表 + revision 检查 | 生产首次 |
+| sync_to_prod.py | 年度发布 6 表 + revision 检查 | 生产维护 |
+| seed.py | CSV 初始化 | 开发/测试 + 生产 schools 更新 |
+| record_fixtures.py | 录制旧 API 响应 | 阶段 2 前 |
+
+### 文件结构
+```
+app/
+├── main.py, config.py, database.py
+├── models/ (school.py, ncea.py)
+├── schemas/ (school.py)
+├── routes/ (schools.py, ncea.py, stats.py, pages.py)
+├── services/ (school_service.py, ncea_service.py)
+├── templates/ (base.html, partials/, index.html, subjects.html)
+└── static/ (css/, js/, images/)
+scripts/ (seed.py, migrate_to_pg.py, sync_to_prod.py, record_fixtures.py)
+tests/ (fixtures/, test_api_parity.py)
+crawlers/ (SQLAlchemy)
+alembic/
+requirements.txt
 ```
 
-**新增端点** — `GET /api/school/{num}/ncea`:
-```json
-{
-  "ncea_summary": { "data_year": 2023, "ue_percentage": 74.0, "..." : "..." },
-  "subject_rankings": [{"subject": "Sciences", "rank": 3, "level3_pct": 58.97}]
-}
-// 无数据: {"ncea_summary": null, "subject_rankings": []}
-```
+**不迁移**: school_finder.py CLI 保持原样
 
-### 前端
-- **列表页**: UE 列（可配置），NULL → "-"
-- **详情页**: NCEA 板块（无数据隐藏），学科排名标注"Metro 2025 Top 10"
-- **年份标注**: "2023 NCEA 成绩" / "在校人数 (July 2024)"
-- **来源标注**: "来源: Metro Magazine Schools 2025"
+## 6. 实施计划
 
-## 5. 实施计划
+### 阶段 1: 数据层
+- SQLAlchemy models（8 表）+ database.py + config.py + Alembic init
+- 风险: 低 | 验证: models 映射现有 schools.db
 
-### 阶段 1: PDF 提取脚本
-- 编写 `extract_metro_ncea.py`
-- PyMuPDF 提取 + 正则解析
-- 依赖: PyMuPDF (已安装)
-- 风险: PDF 列错位 → 正则断言 + golden data
+### 阶段 2: API 层
+- FastAPI routes + services + golden fixture 录制 + 回归测试
+- 风险: 中（filter_schools 复杂查询）| 验证: 7 端点 fixture 通过
 
-### 阶段 2: 学校名匹配
-- 三层匹配 + ambiguous 检测
-- MAPPING dict + RANKING_SKIP_ALLOWLIST
-- 依赖: 阶段 1 + schools 表
-- 风险: 名称不一致 → 手动映射
+### 阶段 3: 视图层
+- Jinja2 模板 + CSS 提取 + StaticFiles + DOM 验证 + i18n
+- 风险: 中 | 验证: 视图回归 + 语言切换
 
-### 阶段 3: 数据库建表与导入
-- 创建两张新表
-- 事务式幂等导入（WAL 模式）
-- 自动校验 + golden data
-- 依赖: 阶段 2
+### 阶段 4: 爬虫迁移（可与 2-3 并行）
+- crawlers/ 改用 SQLAlchemy + sync_to_prod.py
+- 风险: 低 | 验证: 爬虫正常写入
 
-### 阶段 4: 数据验证
-- 自动校验通过
-- 10 所学校手动比对
-- 依赖: 阶段 3
+### 阶段 5: 部署
+- Render 配置 + migrate_to_pg.py + seed.py + 环境变量
+- 风险: 中 | 验证: 部署 + 10 项检查 + PG fixture 通过
 
-### 阶段 5: API 改造
-- `/api/schools` 增加 ue_percentage
-- 新增 `/api/school/{num}/ncea`
-- 依赖: 阶段 3
+## 7. 用户决策记录
 
-### 阶段 6: 前端展示
-- 列表页 UE 列 + 排序
-- 详情页 NCEA 板块
-- 依赖: 阶段 5
-
-## 6. 用户决策记录
 | 问题 | 决策 | 轮次 |
 |------|------|------|
-| 提取范围 | 核心表 + 学科 Top10 | 0 |
-| 存储方案 | 仅新表（不动 school_performance） | 0 |
-| Release 1 范围 | 仅学校级别数据（列表+详情） | 1 |
-| 无数据显示方式 | 隐藏/留白 | 3 |
-| 未匹配学校处理 | 人工审核 | 2 |
-| Top10 未匹配校 | 直接跳过 | 5 |
-| 对比页面 | Release 1 不含 | 4 |
+| 前端路由 | SPA include | 0 |
+| CLI 工具 | 不迁移 | 0 |
+| 数据迁移 | Python 脚本 | 0 |
+| 爬虫环境 | 仅本地 | 1 |
+| 数据新鲜度 | 手动年更 | 2 |
+| 发布范围 | 6 张爬虫表 | 3 |
+| seed.py | 保留推迟 | 3 |
+| 可用性 | 允许维护窗口 | 4 |
+| 权威数据源 | SQLite | 5 |
+| 原子性 | 备份恢复 | 6 |
+| 静态资源 | FastAPI 服务 | 7 |
+| i18n 首屏 | 允许先英文 | 8 |
+| 表范围 | scrape_log 不上生产 | 9 |
 
-## 7. 已知风险与已接受的权衡
+## 8. 已知风险与权衡
+
 | 风险 | 严重程度 | 缓解措施 |
 |------|----------|----------|
-| PDF 文本列错位 | 中 | 正则断言 + golden data + 分布交叉校验 |
-| 学校名匹配失败/歧义 | 中 | 三层匹配 + ambiguous 检测 + 人工审核 |
-| 学科排名部分遗漏 | 中 | 11 科完整性断言 + 连续 rank + golden data |
-| 数据截断 | 低 | 行数断言 |
-| PDF 版本变更 | 低 | Checksum 锁定 + import_checksum |
-| 数据仅覆盖 Auckland | 低 | UI 标注来源和范围 |
-| 年份混淆 | 低 | UI 分别标注 2023/July 2024 |
+| SQLite/PG 行为差异 | 中 | 双引擎 golden fixture 门禁 |
+| HTML 拆分破坏 JS | 中 | DOM 兼容规则 + HTML diff |
+| filter_schools 转 ORM | 中 | golden fixture 逐字段验证 |
+| 年度发布数据不一致 | 低 | 维护窗口 |
+| 本地 SQLite 并发 | 低 | 操作规范 |
 
-## 8. 范围之外
-- 区域汇总视图（第 3-6 页数据）
-- 2020-2023 年度趋势图
-- 多校对比页面 NCEA 整合
-- 非 Auckland 学校数据
-- 自动更新/爬取新年度 PDF
+## 9. 范围之外
+- 前端框架升级 | 用户认证 | SSR/SEO | CDN | CLI 迁移 | 爬虫自动调度
 
-## 9. 审查记录
+## 10. 审查记录
+
 | 轮次 | 分数 | 结论 | 文件 |
 |------|------|------|------|
-| 1 | 5/10 | CHANGES_REQUESTED | review-1.md |
-| 2 | 6/10 | CHANGES_REQUESTED | review-2.md |
-| 3 | 7/10 | CHANGES_REQUESTED | review-3.md |
-| 4 | 7/10 | CHANGES_REQUESTED | review-4.md |
-| 5 | 7/10 | CHANGES_REQUESTED | review-5.md |
-| 6 | 8/10 | CHANGES_REQUESTED | review-6.md |
-| 7 | 8/10 | CHANGES_REQUESTED | review-7.md |
-| 8 | 8/10 | CHANGES_REQUESTED | review-8.md |
+| 1 | 6/10 | CHANGES_REQUESTED | review-1.md, review-feedback-1.md |
+| 2 | 7/10 | CHANGES_REQUESTED | review-2.md, review-feedback-2.md |
+| 3 | 8/10 | CHANGES_REQUESTED | review-3.md, review-feedback-3.md |
+| 4 | 8/10 | CHANGES_REQUESTED | review-4.md, review-feedback-4.md |
+| 5 | 8/10 | CHANGES_REQUESTED | review-5.md, review-feedback-5.md |
+| 6 | 8/10 | CHANGES_REQUESTED | review-6.md, review-feedback-6.md |
+| 7 | 8/10 | CHANGES_REQUESTED | review-7.md, review-feedback-7.md |
+| 8 | 8/10 | CHANGES_REQUESTED | review-8.md, review-feedback-8.md |
+| 9 | 8/10 | CHANGES_REQUESTED | review-9.md, review-feedback-9.md |
+| 10 | 6/10 | GPT 幻觉（忽略） | review-10.md |
