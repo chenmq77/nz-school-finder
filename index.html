@@ -3498,14 +3498,16 @@ function onTableHeaderClick(key) {
   } else {
     _tableSort = { key: key, dir: col.firstDir || 'desc' };
   }
-  // Sync with dropdown sort if applicable, then reload from server
+  // Sync dropdown with table sort state, then reload from server
+  const select = document.getElementById('listSort');
   if (_tableSort.key) {
     const sortVal = _tableSort.key + '_' + _tableSort.dir;
-    const select = document.getElementById('listSort');
-    // Set dropdown if option exists, otherwise keep current
     if (select && [...select.options].some(o => o.value === sortVal)) {
       select.value = sortVal;
     }
+  } else if (select) {
+    // Cleared sort — reset dropdown to default (name A-Z)
+    select.value = 'name';
   }
   loadListData(1);
 }
