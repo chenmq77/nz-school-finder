@@ -42,7 +42,7 @@ const TRANSLATIONS = {
     ncea_comparison:      { en: "Comparison", cn: "对比" },
     // ncea_same_type is dynamic — see renderPerformance for label logic
     ncea_auckland:        { en: "Auckland Region", cn: "奥克兰地区" },
-    ncea_nz_avg:          { en: "NZ Average", cn: "全国平均" },
+    ncea_nz_avg:          { en: "New Zealand", cn: "全国" },
     ncea_l3_attainment:   { en: "L3 attainment", cn: "L3达标率" },
     ncea_l2_attainment:   { en: "L2 attainment", cn: "L2达标率" },
     ncea_l1_attainment:   { en: "L1 attainment", cn: "L1达标率" },
@@ -247,7 +247,7 @@ const TRANSLATIONS = {
       "State: Integrated":                   { en: "State Integrated", cn: "公立整合" },
       "Private: Fully Registered":           { en: "Private", cn: "私立" },
       "Private: Provisionally Registered":   { en: "Private", cn: "私立" },
-      "New Zealand":                         { en: "NZ Average", cn: "全国平均" },
+      "New Zealand":                         { en: "New Zealand", cn: "全国" },
     },
 
     // school_type split into type_label (school category) and year_range (grade range)
