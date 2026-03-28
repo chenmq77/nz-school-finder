@@ -3234,8 +3234,13 @@ async function loadListData(page) {
   }
   params.set('page', page);
   params.set('limit', 20);
-  const sort = document.getElementById('listSort').value;
-  params.set('sort', sort);
+  // Table header sort takes priority over dropdown
+  if (_tableSort.key) {
+    params.set('sort', _tableSort.key + '_' + _tableSort.dir);
+  } else {
+    const sort = document.getElementById('listSort').value;
+    params.set('sort', sort);
+  }
 
   const cards = document.getElementById('listCards');
   cards.innerHTML = '<div class="spinner"></div>';
@@ -3271,7 +3276,8 @@ const TABLE_COLUMNS = [
   { key:'intl_homestay',tKey:'col_intl_homestay', fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'asc' },
   { key:'intl_total',   tKey:'col_intl_total',    fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'asc' },
   { key:'ncea_l3',      tKey:'col_ncea_l3',       fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
-  { key:'ue',           tKey:'col_ue',            fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
+  // UE 列已隐藏 — 数据来源为 Metro Magazine (school_ncea_summary.ue_percentage)，已决定不再展示
+  // { key:'ue',           tKey:'col_ue',            fixed:false, default:false, gKey:'col_group_intl',       sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
   // Activities group
   { key:'curriculum',   tKey:'col_curriculum',    fixed:false, default:false, gKey:'col_group_activities', sortable:false, align:'left' },
   { key:'subjects',     tKey:'col_subjects',      fixed:false, default:false, gKey:'col_group_activities', sortable:true,  sortType:'number', align:'right', firstDir:'desc' },
@@ -3285,9 +3291,9 @@ const DEFAULT_COLS = TABLE_COLUMNS.filter(c => c.fixed || c.default).map(c => c.
 // Preset column configurations
 const COL_PRESETS = {
   compact:  ['name', 'suburb', 'school_level', 'gender', 'eqi', 'roll'],
-  intl:     ['name', 'eqi', 'roll', 'intl', 'eth_asian', 'intl_fee', 'intl_total', 'ncea_l3', 'ue'],
+  intl:     ['name', 'eqi', 'roll', 'intl', 'eth_asian', 'intl_fee', 'intl_total', 'ncea_l3'],
   local:    ['name', 'suburb', 'school_level', 'gender', 'eqi', 'roll', 'zone', 'ethnicity'],
-  full:     ['name', 'suburb', 'eqi', 'roll', 'ue', 'intl_fee', 'curriculum', 'subjects', 'sports', 'arts', 'ethnicity'],
+  full:     ['name', 'suburb', 'eqi', 'roll', 'ncea_l3', 'intl_fee', 'curriculum', 'subjects', 'sports', 'arts', 'ethnicity'],
 };
 let _visibleCols = [];
 let _tableSort = { key: null, dir: null };
@@ -3492,8 +3498,16 @@ function onTableHeaderClick(key) {
   } else {
     _tableSort = { key: key, dir: col.firstDir || 'desc' };
   }
-  // Re-render with current data
-  if (_lastListData) renderListCards(_lastListData.results, _lastListData.total, _lastListData.page, _lastListData.pages);
+  // Sync with dropdown sort if applicable, then reload from server
+  if (_tableSort.key) {
+    const sortVal = _tableSort.key + '_' + _tableSort.dir;
+    const select = document.getElementById('listSort');
+    // Set dropdown if option exists, otherwise keep current
+    if (select && [...select.options].some(o => o.value === sortVal)) {
+      select.value = sortVal;
+    }
+  }
+  loadListData(1);
 }
 
 let _lastListData = null;

@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-03-28 — fix: 学校列表页移除 UE 列 + 确认 NCEA L3 列逻辑
+
+### Why
+1. "大学入学率"(UE) 列的数据来自 Metro Magazine（school_ncea_summary.ue_percentage），已决定隐藏 Metro 数据来源，需从列表页移除。
+2. NCEA L3 列全显示 "—"，需排查原因。
+
+### What
+- 从 TABLE_COLUMNS 注释掉 UE 列定义（保留代码以便将来恢复）
+- 从 COL_PRESETS 的 `intl` 和 `full` 预设中移除 `'ue'`（`full` 预设中用 `'ncea_l3'` 替代）
+- getCellValue / formatCell 中的 `'ue'` 分支保留不动（列定义已隐藏，分支不会被调用）
+- NCEA L3 列逻辑经验证正确：server.py filter_schools 的 SQL 子查询能从 school_performance 表正确读取 ncea3/Total 数据
+- 确认 "全显示 —" 的原因：school_performance 表目前只有 11 所学校的数据（爬虫尚未批量运行），非代码 bug
+
+### How
+- index.html: 注释 UE 列定义，更新 COL_PRESETS
+- server.py: 无需修改（filter_schools 已正确返回 ncea_l3 字段）
+
+---
+
 ## 2026-03-28 — refactor: NCEA 区块多语言硬编码改为 t()/td() 翻译系统
 
 ### Why

@@ -312,10 +312,52 @@ def filter_schools(params):
         sort = params.get("sort", ["name"])[0].strip()
         sort_map = {
             "name": "s.school_name ASC",
+            "name_asc": "s.school_name ASC",
+            "name_desc": "s.school_name DESC",
+            "suburb_asc": "s.suburb ASC",
+            "suburb_desc": "s.suburb DESC",
             "roll_desc": "CAST(s.total_school_roll AS INTEGER) DESC",
             "roll_asc": "CAST(s.total_school_roll AS INTEGER) ASC",
             "eqi_asc": "CAST(s.equity_index_eqi AS REAL) ASC",
             "eqi_desc": "CAST(s.equity_index_eqi AS REAL) DESC",
+            # Ethnicity
+            "ethnicity_asc": "s.school_name ASC",  # composite field, fallback to name
+            "ethnicity_desc": "s.school_name ASC",
+            "eth_european_asc": "CAST(s.european_pakeha AS INTEGER) ASC",
+            "eth_european_desc": "CAST(s.european_pakeha AS INTEGER) DESC",
+            "eth_maori_asc": "CAST(s.maori AS INTEGER) ASC",
+            "eth_maori_desc": "CAST(s.maori AS INTEGER) DESC",
+            "eth_pacific_asc": "CAST(s.pacific AS INTEGER) ASC",
+            "eth_pacific_desc": "CAST(s.pacific AS INTEGER) DESC",
+            "eth_asian_asc": "CAST(s.asian AS INTEGER) ASC",
+            "eth_asian_desc": "CAST(s.asian AS INTEGER) DESC",
+            "eth_melaa_asc": "CAST(s.melaa AS INTEGER) ASC",
+            "eth_melaa_desc": "CAST(s.melaa AS INTEGER) DESC",
+            "eth_other_asc": "CAST(s.other AS INTEGER) ASC",
+            "eth_other_desc": "CAST(s.other AS INTEGER) DESC",
+            # International
+            "intl_asc": "CAST(s.international AS INTEGER) ASC",
+            "intl_desc": "CAST(s.international AS INTEGER) DESC",
+            "intl_fee_asc": "CAST(intl_tuition_annual AS REAL) ASC",
+            "intl_fee_desc": "CAST(intl_tuition_annual AS REAL) DESC",
+            "intl_homestay_asc": "CAST(intl_homestay_weekly AS REAL) ASC",
+            "intl_homestay_desc": "CAST(intl_homestay_weekly AS REAL) DESC",
+            "intl_total_asc": "(COALESCE(CAST(intl_tuition_annual AS REAL),0) + COALESCE(CAST(intl_homestay_weekly AS REAL),0)*42) ASC",
+            "intl_total_desc": "(COALESCE(CAST(intl_tuition_annual AS REAL),0) + COALESCE(CAST(intl_homestay_weekly AS REAL),0)*42) DESC",
+            # NCEA
+            "ncea_l3_asc": "CAST(ncea_l3 AS REAL) ASC",
+            "ncea_l3_desc": "CAST(ncea_l3 AS REAL) DESC",
+            "ue_asc": "CAST(ue_percentage AS REAL) ASC",
+            "ue_desc": "CAST(ue_percentage AS REAL) DESC",
+            # Activities
+            "subjects_asc": "CAST(w.subjects_count AS INTEGER) ASC",
+            "subjects_desc": "CAST(w.subjects_count AS INTEGER) DESC",
+            "sports_asc": "CAST(w.sports_count AS INTEGER) ASC",
+            "sports_desc": "CAST(w.sports_count AS INTEGER) DESC",
+            "arts_asc": "CAST(w.music_count AS INTEGER) ASC",
+            "arts_desc": "CAST(w.music_count AS INTEGER) DESC",
+            "clubs_asc": "CAST(w.activities_count AS INTEGER) ASC",
+            "clubs_desc": "CAST(w.activities_count AS INTEGER) DESC",
         }
         order_by = sort_map.get(sort, "s.school_name ASC")
 
