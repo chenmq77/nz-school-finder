@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-03-28 — feat: NCEA 批量爬取改造（569 所中学）
+
+### Why
+现有爬虫只硬编码了 10 所学校，需要扩展到全部 569 所中学/综合学校。需要分批、断点续爬、熔断机制、数据合并等能力。
+
+### What
+- `crawlers/ncea_crawler.py`: scrape_log 增加 status 字段（success/no_data/failed/timeout/parse_error），返回 per-metric 状态
+- `crawlers/batch_ncea.py`: 完全重写 — 动态查询学校、--batch-size/--offset 分批、自动备份、metric 级别熔断、启动时 schema migration
+- `scripts/merge_db.py`: 新建 — worktree DB 合并脚本（ATTACH + INSERT OR IGNORE + per-table 统计 + --verify）
+
+### How
+1. scrape_log.status 字段区分 5 种状态，resume 跳过 success/no_data，重试 failed/timeout/parse_error
+2. batch 从 DB 动态查询 WHERE school_type LIKE '%Secondary%' OR '%Composite%'
+3. 熔断基于连续 metric 失败，5 次触发暂停 10min，第二次退出
+4. merge_db.py 用 ATTACH + INSERT OR IGNORE 合并 4 张 NCEA 表
+
+---
+
 ## 2026-03-27 — refactor: 数据库路径支持环境变量，适配 worktree 共享
 
 ### Why

@@ -1,7 +1,7 @@
-# Requirement Challenge — Round 2 of 20
+# Requirement Challenge — Round 2 of 2
 
 **Model**: gpt-5.4-xhigh-fast
-**Date**: 2026-03-27 13:36:36
+**Date**: 2026-03-28 14:05:07
 
 ---
 
@@ -10,35 +10,32 @@
 ### SCORE: 6
 
 ### COMPLETENESS
-- [Core browse-and-click flow]: COVERED — The parent journey from overview tree to filtered school list is defined, and `school_count` is explicitly based on `COUNT(DISTINCT school_number)`.
-- [NZQA taxonomy alignment]: PARTIAL — The two-level structure is modeled, but the proposal does not define how junior courses, composite school-defined courses, or non-NZQA labels are treated.
-- [Crawler matching and review loop]: PARTIAL — Unmatched capture exists, but fuzzy-match rules, reviewer decision criteria, and the closed-loop backfill process are not defined.
-- [Vocational Pathways behavior]: PARTIAL — The display is specified, but the proposal adds a strong subject linkage that is still semantically unclear against the “independent dimension” requirement.
-- [Migration and data integrity]: GAP — There is no concrete plan for reconciling existing `school_subjects` data, preventing duplicate school-subject rows, or safely transitioning current 14-school data to the new taxonomy.
-- [Partial coverage communication]: GAP — The proposal says “no special handling,” but it does not define how to prevent users from misreading counts as full-market coverage while only a subset of schools is indexed.
+- User flows: PARTIAL — Batch crawl, resume, dry-run, merge, and no-data handling are present, but deterministic batch slicing across repeated runs is not defined.
+- Ambiguity: GAP — The proposal leaves `--offset` ordering, unique-key assumptions, and parser-failure semantics implicit even though correctness depends on them.
+- Architecture fit: PARTIAL — Worktree + SQLite snapshot + sequential crawling is a good fit for the requirement, but the merge and retry model is still too weak for a multi-day production run.
+- Boundary conditions: PARTIAL — There is no fail-fast rule for target-school count mismatch, zero-result queries, invalid `--batch-size`/`--offset`, or schema/version drift during the crawl window.
+- Dependency risks: PARTIAL — HTTP 403/500 and timeouts are covered, but layout drift, prolonged blocking/rate limiting, browser degradation over long runs, and snapshot staleness are not fully addressed.
+- Testability: PARTIAL — Dry-run and a 50-school pilot are useful, but merge correctness, idempotency, and failure classification are not specified in a measurable way.
+- Scope control: COVERED — The proposal stays close to the original requirement; the added status field and merge script are still directly in service of the batch crawl.
 
 ### ISSUES
-1. [critical] Scope boundary — The proposal never defines whether junior courses, school-specific composite courses, or marketing labels should be excluded, mapped to NZQA subjects, or split across multiple subjects — without this boundary, taxonomy alignment and school counts are not reliable.
-2. [critical] Data workflow — Manual review stops at `unmatched_subjects`, but there is no closed-loop process to reprocess skipped records and backfill `school_subjects` after a mapping decision — the core “store then periodically review” requirement is not operational yet.
-3. [major] Partial-data UX — Showing `N schools` without an explicit indexed-school denominator and last-updated context can still mislead users while coverage is only 14 schools and expanding — greyed-out zero counts do not solve this for nonzero counts.
-4. [major] Architecture fit — `subject_pathway` introduces a strong many-to-many coupling between pathways and subjects even though the requirement describes pathways as an independent dimension — this may be unnecessary scope growth unless explicitly confirmed.
-5. [major] Data model — `UNIQUE(school_number, raw_name)` plus `INSERT OR IGNORE` loses recurrence and freshness information for persistent unmatched rows — reviewers cannot see whether an issue is still active, frequent, or already fading.
-6. [major] Testability — Fuzzy-match thresholds, normalization rules, precedence between synonym mapping and fuzzy match, and false-positive safeguards are undefined — acceptance cannot be measured objectively.
-7. [minor] Frontend/API behavior — Empty states, API failure behavior, ordering of groups/subjects, and Chinese fallback behavior when `name_cn` is missing are not specified.
-8. [question] For user — Should vocational pathways remain informational cards only, or do you explicitly want them to drive subject-to-school navigation through a curated `subject_pathway` mapping?
-9. [question] For user — Should the overview represent only strict NZQA/NCEA subjects, or should junior/composite school course names also be surfaced through mapping rules for better discoverability?
+1. [critical] Batch partitioning — The proposal never defines whether `--offset` is applied before or after filtering out `success/no_data` records. In a resumable multi-day crawl, that can skip untouched schools or reprocess the wrong slice, so full coverage of all 569 schools is not guaranteed.
+2. [critical] Data integrity — Treating “HTML structure changed but parse failed” as `warning + success` is unsafe. That would permanently suppress retries for corrupted or incomplete data and hide parser regressions behind a success state.
+3. [major] Merge/idempotency — `INSERT OR REPLACE` and `INSERT OR IGNORE` are only safe if the four crawler tables have the correct unique constraints and a defined conflict policy. Those schema assumptions are not stated, and the proposed merge acceptance check (`scrape_log` row count >= worktree row count + 5-school sample) is too weak to detect silent drops or stale rows.
+4. [major] Boundary handling — `Found {N} target schools (expected ~569)` is informational only. The plan does not say whether the crawl must stop, warn, or continue when N is materially wrong, nor how invalid `--batch-size`/`--offset` values should be rejected.
+5. [question] For user — Should this 3-4 day crawl use a fixed snapshot of the `schools` table copied on day 1, or must each batch refresh school master data from the main DB? That trade-off between reproducibility and freshness is a product decision, not an implementation detail.
 
 ### SCENARIOS_ASSESSMENT
-- [scenario 1]: NEEDS_WORK — The drill-down is clear, but the meaning of the count is still ambiguous because the indexed-school coverage is not surfaced.
-- [scenario 2]: NEEDS_WORK — The taxonomy tree is defined, but the handling of non-NZQA or school-specific course names is missing, which weakens the promise of “official” alignment.
-- [scenario 3]: NEEDS_WORK — The UI is clear, but the business meaning and source of pathway-to-subject mappings are still unclear and may conflict with the original independence requirement.
-- [scenario 4]: NEEDS_WORK — Capturing unmatched courses is covered, but status semantics and the post-review reprocessing workflow are incomplete.
-- [scenario 5]: NEEDS_WORK — “No special handling” is too weak as an acceptance definition because it does not prevent misleading interpretation of partial coverage.
+- Batch crawl: NEEDS_WORK — The happy path is clear, but batch determinism, parameter validation, and fail-fast rules for unexpected school counts are missing.
+- Resume after interruption: NEEDS_WORK — Resume intent is clear, but behavior for partial writes, transaction boundaries, and batch slicing across retries is not defined.
+- Data merge: NEEDS_WORK — Backup/restore intent is good, but conflict resolution, schema compatibility, and measurable reconciliation are under-specified.
+- Dry-run preview: WELL_DEFINED — The purpose and expected “no HTTP requests” behavior are concrete.
+- No-data school handling: NEEDS_WORK — Permanent `no_data` skipping is reasonable, but the `<2 tables` detector is brittle and may confuse template changes with genuine absence of data.
 
 ### ARCHITECTURE_ASSESSMENT
 - Fitness: 6/10
-- Risks: Undefined inclusion boundary for real-world course names, no closed-loop remap/backfill process, misleading subject counts under partial coverage, unnecessary coupling via `subject_pathway`, loss of unmatched recurrence/freshness data, and ambiguous fuzzy-matching behavior.
-- Suggestions: Define strict inclusion/exclusion rules for non-NZQA and composite course names; add a review-to-reprocess workflow for unmatched items; expose coverage metadata such as indexed school count and last updated date; confirm whether pathway-to-subject mapping is truly in scope before keeping `subject_pathway`; add audit fields such as `first_seen_at`, `last_seen_at`, `occurrence_count`, `match_type`, or `confidence`; specify frontend/API error, empty, sorting, and bilingual fallback behavior.
+- Risks: [non-deterministic batch coverage because `offset` semantics are undefined, silent data loss because parse failures can be marked as success, merge safety depends on undocumented unique keys/conflict rules, external site layout/blocking changes can stall or poison a multi-day run, copied DB snapshot may become stale while the main DB continues evolving]
+- Suggestions: [define batching on a stable ordered school list before resume filtering or persist explicit batch manifests, treat parse/structure errors as retryable or manual-review states instead of success, document required unique constraints and transaction boundaries for all four crawler tables, strengthen merge validation with per-table inserted/updated counts and deterministic reconciliation queries, add fail-fast checks for unexpected target-school counts and invalid CLI parameters, decide explicitly whether the crawl uses a frozen snapshot or refreshed school master data]
 
 ### SUMMARY
-The proposal is directionally solid and much more concrete than a raw requirement, but it is not approval-ready because the most important operational boundaries are still unresolved: what exactly counts as an NZQA-aligned subject in messy school data, how manual review actually feeds corrected data back into production counts, and how the UI avoids overstating coverage while only a subset of schools is indexed. Resolve those points and explicitly confirm the intended role of vocational pathways, and the design will be much closer to a sound, testable implementation.
+The proposal is much closer to executable than round 1, and the overall direction is sensible: sequential crawling, worktree isolation, backups, and resumability all fit the original requirement. However, it is not yet production-ready because two correctness risks remain unresolved: batch boundaries are not deterministic across resumed runs, and parse failures can be misclassified as success. Until those are fixed, plus stronger merge/idempotency guarantees are specified, the architecture can still silently miss schools or mark bad data as complete.

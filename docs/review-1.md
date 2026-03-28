@@ -1,45 +1,45 @@
-# Requirement Challenge — Round 1 of 20
+# Requirement Challenge — Round 1 of 2
 
 **Model**: gpt-5.4-xhigh-fast
-**Date**: 2026-03-27 13:28:25
+**Date**: 2026-03-28 14:00:28
 
 ---
 
 ### VERDICT: CHANGES_REQUESTED
 
-### SCORE: 6
+### SCORE: 5
 
 ### COMPLETENESS
-- Official taxonomy alignment: PARTIAL — the proposal says it will align to NZQA, but it does not define the exact authoritative source, snapshot/versioning strategy, or how "complete" will be verified.
-- Course discovery flow: PARTIAL — the overview-to-school-list flow is covered, but unique-school counting rules, zero-count meaning, and the filtered-list contract are not defined.
-- Unmatched course handling: PARTIAL — capture is covered, but the storage target conflicts with the stated user decision, and deduplication/review mechanics are missing.
-- Vocational pathway display: PARTIAL — independent display is covered, but the exact card metrics, empty states, and data provenance are unclear.
-- Delivery and backfill: GAP — the plan does not explain how to avoid showing incomplete or misleading data before recrawl/backfill finishes.
+- Batch execution flow: PARTIAL — batching, dry-run, and resume are described, but the plan assumes every school yields all five metrics and does not define valid partial outcomes.
+- Missing-data handling: GAP — the requirement explicitly says some schools may have no NCEA data, but there is no terminal state, logging rule, or retry policy for that case.
+- Merge and source-of-truth rules: GAP — the merge is described mechanically, but not semantically; there is no rule for how to handle main-DB changes during a multi-day crawl.
+- Failure management: PARTIAL — a circuit breaker is mentioned, but the error classes, reset behavior, cooldown duration, and operator workflow are undefined.
+- Backup and recovery: PARTIAL — backup creation is included, but overwrite behavior, restore steps, and failed-merge recovery are not specified.
+- Acceptance and verification: PARTIAL — dry-run and row-count checks exist, but there are no measurable per-table, per-status, or per-school completion criteria.
 
 ### ISSUES
-1. [critical] Data semantics — the proposal never defines whether subject counts mean distinct schools or raw course rows, so one school could be counted multiple times when several course variants map to the same subject — define aggregation rules and validate them with examples.
-2. [major] External dependency — "align with NZQA official classification" is not operationalized: the exact NZQA source, extraction method, update cadence, and fallback when the source changes are missing — pin an authoritative dataset or snapshot and version it.
-3. [major] Requirement alignment — the design creates `unmatched_subjects`, but the stated user decision says unmatched records go to a raw table; the proposal does not reconcile this contradiction — choose one canonical storage model and document why.
-4. [major] Architecture integrity — `subject_pool` still allows invalid parent-child relationships and deeper nesting, so the promised two-level Learning Area → Subject hierarchy is not actually enforced — add validation or migration rules that reject invalid structures.
-5. [major] Operational workflow — scenario 4 says manual review exists, but there is no defined review mechanism, deduplication policy, or resolution flow for repeated unmatched rows across recrawls — define the minimum review operations and dedupe keys.
-6. [major] Scope/data mismatch — the vocational pathway cards now include "student statistics", but the original requirement only asked for independent display and the proposal does not specify what statistics exist in current tables — either reduce the card scope to supported metrics or define exact field meanings and sources.
-7. [major] Release sequencing — the overview page can be shipped before recrawl/backfill, which means the UI may present incomplete counts while claiming NZQA completeness — gate rollout on coverage thresholds or show a clear partial-data status.
-8. [minor] Scope creep — the search bar is newly introduced without corresponding requirement, bilingual search behavior, or acceptance criteria — treat it as optional after the core overview flow is stable.
-9. [question] For user — should zero-count NZQA subjects be visible as part of the official taxonomy, or hidden until at least one school is mapped?
-10. [question] For user — do you want unmatched courses stored in a dedicated review table or appended to an existing raw ingestion table, and how much manual review overhead is acceptable at ~50 schools?
-11. [question] For user — what exact metric should appear on each vocational pathway card: school count only, vocational achievement rate, or another business-defined KPI?
+1. [critical] Requirements coverage — The proposal does not define how a school with zero metrics or only partial metrics is recorded and considered complete — without explicit `success` / `no_data` / `failed` semantics, resume logic and acceptance criteria will be incorrect.
+2. [critical] Data consistency — The architecture allows normal work to continue in the main directory while a multi-day crawl runs in a worktree, but the merge plan assumes a static destination DB — `ATTACH` + `INSERT OR IGNORE` does not resolve concurrent changes, freshness, or conflicting `scrape_log` rows.
+3. [major] Contradictory write policy — The original proposal uses `INSERT OR IGNORE` for merge, while the architecture section claims `INSERT OR REPLACE` for idempotency — these have different overwrite semantics and can materially change data, so the policy must be chosen explicitly per table.
+4. [major] Failure model gap — The circuit breaker only covers “3 consecutive 403/500” — it does not address timeouts, browser crashes, HTML changes, DNS/network errors, reset conditions, or whether the threshold is per page, per school, or global.
+5. [major] School-selection ambiguity — “Query 569 secondary/composite schools from DB” is too vague — the exact filter, snapshot behavior, and expected handling when the query returns fewer or more than 569 are not defined.
+6. [major] Weak acceptance criteria — “50 schools’ 5 metrics all stored” conflicts with the stated requirement that some schools may legitimately have no NCEA data, and “row count equals worktree DB” is not sufficient to prove a correct merge.
+7. [minor] Backup design — `schools_backup_YYYYMMDD.db` can be overwritten by multiple same-day runs, and there is no explicit restore procedure if a batch or merge fails partway through.
+8. [minor] Scope/compliance risk — adding “User-Agent spoofing” is outside the original requirement and may be inappropriate for a polite government-site crawler unless the user explicitly approves that behavior.
+9. [question] For user — If a school has no data for one or more metrics, should that be treated as a successful terminal state and skipped on future runs, or should it be retried periodically?
+10. [question] For user — During the 3-4 day crawl, is the main DB allowed to keep receiving other changes, or should it be frozen until the worktree data is merged back?
 
 ### SCENARIOS_ASSESSMENT
-- Parent finds schools by course: NEEDS_WORK — the happy path is clear, but count semantics, zero-data meaning, and the filtered school-list contract are still undefined.
-- Parent explores NZQA course system: NEEDS_WORK — the hierarchy display is covered, but "complete NZQA classification" is not measurable without a fixed authoritative source and update rule.
-- Parent explores vocational pathways: NEEDS_WORK — independent display is covered, but the card contents, statistical definitions, and fallback behavior for missing data are unclear.
-- Crawler encounters unmatched course: NEEDS_WORK — saving unmatched rows is covered, but review tooling, deduplication, and mapping resolution are missing.
-- Partial-data rollout after taxonomy/mapping changes: MISSING — there is no scenario for what parents see while only part of the school set has been re-crawled.
+- Batch crawl: NEEDS_WORK — the happy path is clear, but completion rules for partial/no-data schools and out-of-range `--batch-size` / `--offset` behavior are missing.
+- Resume after interruption: NEEDS_WORK — resume depends on `scrape_log`, but the proposal does not define durable status types or a safe recovery strategy when logs are incomplete or corrupted.
+- Data merge back to main DB: NEEDS_WORK — the mechanics are simple, but the plan is unsafe unless DB ownership and conflict rules are defined first.
+- Dry-run planning: WELL_DEFINED — it is clearly non-mutating and useful, though it should explicitly report filtered target counts and skipped reasons.
+- Missing/partial-data schools: MISSING — this is an explicit requirement constraint, but there is no concrete flow or acceptance rule covering it.
 
 ### ARCHITECTURE_ASSESSMENT
-- Fitness: 6/10
-- Risks: [inflated or inconsistent school counts, unresolved unmatched-storage decision, fragile NZQA dependency handling, invalid hierarchy data, duplicate unmatched rows during recurring crawls, misleading partial-data UI before backfill completes]
-- Suggestions: [define a versioned authoritative NZQA taxonomy source, specify distinct-school counting and school-list filter behavior, resolve raw-table vs dedicated-table storage, enforce the two-level hierarchy with validation, define a minimal unmatched-review workflow, limit vocational cards to data that already exists or explicitly model new metrics, gate release on recrawl/backfill coverage or show data freshness status]
+- Fitness: 5
+- Risks: [undefined no-data completion semantics, silent merge conflicts after multi-day DB divergence, contradictory `IGNORE` vs `REPLACE` behavior, incomplete circuit-breaker definition, assumption that only `batch_ncea.py` must change]
+- Suggestions: [define explicit crawl statuses such as `success`, `no_data`, `failed`, and `retryable`, specify the exact school-selection query and expected count handling, define DB ownership and merge rules before allowing parallel main-DB work, use timestamped backups plus a documented restore path, replace vague acceptance criteria with measurable per-table and per-status checks]
 
 ### SUMMARY
-The proposal is directionally strong and mostly aligned with the original goal, but it is not yet precise enough to be implementation-safe. The biggest gaps are around data semantics, authoritative taxonomy sourcing, contradictory unmatched-course storage decisions, and rollout behavior while data is still being remapped and backfilled. Tightening those areas would make the architecture much more reliable and testable without materially increasing scope.
+The proposal is directionally sound and mostly stays within the original scope, but it is not yet production-ready because the most important operational semantics are still undefined: how to treat schools with missing data, how resume state is modeled, and how a multi-day worktree crawl safely merges into a potentially changing main database. Until those behaviors are made explicit and testable, the architecture remains brittle and the acceptance criteria are not reliable.

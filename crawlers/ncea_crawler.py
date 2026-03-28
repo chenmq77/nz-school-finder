@@ -227,20 +227,38 @@ def scrape_school(school_number, only=None, delay_range=(10, 15)):
     print(f"  Metrics: {', '.join(metrics_to_scrape)}")
     print(f"{'='*60}\n")
 
-    p = sync_playwright().start()
-    browser = p.chromium.launch(
-        headless=True,
-        args=["--disable-blink-features=AutomationControlled"],
-    )
-    ctx = browser.new_context(
-        user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        locale="en-NZ",
-        extra_http_headers={
-            "Accept-Language": "en-NZ,en;q=0.9",
-        },
-    )
-    page = ctx.new_page()
-    page.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined});")
+    try:
+        p = sync_playwright().start()
+        browser = p.chromium.launch(
+            headless=True,
+            args=["--disable-blink-features=AutomationControlled"],
+        )
+        ctx = browser.new_context(
+            user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            locale="en-NZ",
+            extra_http_headers={
+                "Accept-Language": "en-NZ,en;q=0.9",
+            },
+        )
+        page = ctx.new_page()
+        page.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined});")
+    except Exception as e:
+        # Browser startup failed — log failed status for all pending metrics
+        print(f"  [FATAL] Browser startup failed: {e}")
+        conn = sqlite3.connect(str(DB_PATH))
+        cur = conn.cursor()
+        for metric in metrics_to_scrape:
+            url = BASE_URL + METRICS[metric].format(id=school_number)
+            cur.execute(
+                "INSERT INTO scrape_log (school_number, metric, source_url, scraped_at, http_status, content_hash, success, status) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                (school_number, metric, url, datetime.now().isoformat(), 0, "", 0, "failed"),
+            )
+            logs.append((school_number, metric, url, datetime.now().isoformat(), 0, "", 0, "failed"))
+        conn.commit()
+        conn.close()
+        results["statuses"] = [l[7] for l in logs]
+        return results
 
     # Step 1: Visit homepage first to establish cookies
     print("  [0] Visiting Education Counts homepage...")
@@ -277,12 +295,10 @@ def scrape_school(school_number, only=None, delay_range=(10, 15)):
             page_text = page.inner_text("body")
             content_hash = hashlib.md5(page_text.encode()).hexdigest()
 
-            logs.append((school_number, metric, url, datetime.now().isoformat(), 200, content_hash, 1))
-
             # Validate: expect at least 2 tables
             if len(tables) < 2:
-                print(f"      [WARN] Expected >=2 tables, got {len(tables)}")
-                logs[-1] = (school_number, metric, url, datetime.now().isoformat(), 200, content_hash, 0)
+                print(f"      [NO_DATA] Expected >=2 tables, got {len(tables)}")
+                logs.append((school_number, metric, url, datetime.now().isoformat(), 200, content_hash, 0, "no_data"))
                 continue
 
             # Table 1: School performance data
@@ -301,14 +317,25 @@ def scrape_school(school_number, only=None, delay_range=(10, 15)):
                 results["vocational"].extend(voc_rows)
                 print(f"      Table 3: {len(voc_rows)} vocational pathway rows")
 
-            # Validate: Total row should exist
+            # Validate: Total row should exist — parse_error if missing
             total_rows = [r for r in perf_rows if r[3] == "Total"]
-            if not total_rows:
-                print(f"      [WARN] No 'Total' row found in {metric}")
+            if not total_rows and perf_rows:
+                print(f"      [PARSE_WARN] No 'Total' row found in {metric}")
 
+            # If we got tables but zero parsed rows, mark as parse_error
+            if len(tables) >= 2 and not perf_rows:
+                print(f"      [PARSE_ERROR] Tables found but no data parsed for {metric}")
+                logs.append((school_number, metric, url, datetime.now().isoformat(), 200, content_hash, 0, "parse_error"))
+            else:
+                logs.append((school_number, metric, url, datetime.now().isoformat(), 200, content_hash, 1, "success"))
+
+        except TimeoutError:
+            print(f"      [TIMEOUT] {metric}")
+            logs.append((school_number, metric, url, datetime.now().isoformat(), 0, "", 0, "timeout"))
         except Exception as e:
             print(f"      [ERROR] {e}")
-            logs.append((school_number, metric, url, datetime.now().isoformat(), 0, "", 0))
+            status = "timeout" if "timeout" in str(e).lower() else "failed"
+            logs.append((school_number, metric, url, datetime.now().isoformat(), 0, "", 0, status))
 
     browser.close()
     p.stop()
@@ -349,8 +376,8 @@ def scrape_school(school_number, only=None, delay_range=(10, 15)):
         # Scrape logs
         for log in logs:
             cur.execute(
-                "INSERT INTO scrape_log (school_number, metric, source_url, scraped_at, http_status, content_hash, success) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?)", log
+                "INSERT INTO scrape_log (school_number, metric, source_url, scraped_at, http_status, content_hash, success, status) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)", log
             )
         print(f"  ✅ scrape_log: {len(logs)} entries")
 
@@ -363,16 +390,18 @@ def scrape_school(school_number, only=None, delay_range=(10, 15)):
         conn.close()
 
     # Summary
-    total = len(results["performance"])
-    success = sum(1 for l in logs if l[6] == 1)
+    success = sum(1 for l in logs if l[7] == "success")
+    no_data = sum(1 for l in logs if l[7] == "no_data")
     print(f"\n{'='*60}")
     print(f"  NCEA Crawl Complete: School #{school_number}")
-    print(f"  Metrics scraped: {success}/{len(metrics_to_scrape)}")
+    print(f"  Metrics scraped: {success}/{len(metrics_to_scrape)} (no_data: {no_data})")
     print(f"  Performance rows: {len(results['performance'])}")
     print(f"  Comparison rows: {len(results['comparison'])}")
     print(f"  Vocational rows: {len(results['vocational'])}")
     print(f"{'='*60}\n")
 
+    # Return results + per-metric statuses for circuit breaker
+    results["statuses"] = [l[7] for l in logs]  # list of status strings
     return results
 
 
@@ -390,5 +419,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# TODO: add circuit breaker - stop after 2 consecutive 403s
