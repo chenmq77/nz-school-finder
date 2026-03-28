@@ -105,7 +105,7 @@ def auto_backup_db(db_path=None):
     return backup_path
 
 
-def run_batch(batch_size=None, offset=0, single_school=None, dry_run=False, strict=False):
+def run_batch(batch_size=None, offset=0, single_school=None, dry_run=False, strict=False, shuffle=True):
     """Run batch crawl with optional slicing, resume, and circuit breaker."""
 
     # Ensure schema is up to date
@@ -136,10 +136,15 @@ def run_batch(batch_size=None, offset=0, single_school=None, dry_run=False, stri
             print(f"  School {single_school} not in target list.")
             return
 
-    # Apply offset/batch-size slice (deterministic, on full ordered list)
+    # Shuffle school order to avoid sequential crawling patterns
+    if shuffle and not single_school:
+        random.shuffle(all_schools)
+        print(f"  🔀 School order randomised")
+
+    # Apply batch-size slice (offset ignored when shuffled — rely on resume logic)
     if batch_size is not None:
-        all_schools = all_schools[offset:offset + batch_size]
-        print(f"  Batch: offset={offset}, size={batch_size} → {len(all_schools)} schools")
+        all_schools = all_schools[:batch_size]
+        print(f"  Batch: size={batch_size} → {len(all_schools)} schools")
 
     # Build plan: check what's already done
     plan = []
@@ -199,7 +204,7 @@ def run_batch(batch_size=None, offset=0, single_school=None, dry_run=False, stri
               f"— {len(pending)} metrics | ETA: {eta_minutes:.0f}min")
 
         try:
-            result = scrape_school(num, only=pending, delay_range=(10, 15))
+            result = scrape_school(num, only=pending, delay_range=(12, 25))
             perf_rows = len(result.get("performance", []))
             comp_rows = len(result.get("comparison", []))
             results.append((num, name, "OK", perf_rows, comp_rows))
@@ -229,10 +234,15 @@ def run_batch(batch_size=None, offset=0, single_school=None, dry_run=False, stri
             breaker_tripped_once = True
             print(f"  🟡 Resumed after pause. Next failure burst will abort.")
 
-        # Pause between schools
+        # Random pause between schools (45-90s, with occasional longer rest)
         if i < len(schools_with_pending) - 1:
-            pause = random.uniform(30, 60)
-            print(f"\n  Pausing {pause:.0f}s before next school...")
+            if random.random() < 0.15:
+                # ~15% chance of a longer "coffee break" (2-4 min)
+                pause = random.uniform(120, 240)
+                print(f"\n  ☕ Taking a longer break {pause:.0f}s...")
+            else:
+                pause = random.uniform(45, 90)
+                print(f"\n  ⏳ Pausing {pause:.0f}s before next school...")
             time.sleep(pause)
 
     # Final summary
@@ -253,6 +263,9 @@ def main():
     parser.add_argument("--offset", type=int, default=0, help="Start position in ordered school list")
     parser.add_argument("--dry-run", action="store_true", help="Show plan without crawling")
     parser.add_argument("--strict", action="store_true", help="Abort if school count deviates >10%")
+    parser.add_argument("--shuffle", action="store_true", help="Randomise school order (default: True)")
+    parser.add_argument("--no-shuffle", dest="shuffle", action="store_false")
+    parser.set_defaults(shuffle=True)
     args = parser.parse_args()
 
     run_batch(
@@ -261,6 +274,7 @@ def main():
         single_school=args.school,
         dry_run=args.dry_run,
         strict=args.strict,
+        shuffle=args.shuffle,
     )
 
 
