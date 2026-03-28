@@ -2104,11 +2104,11 @@ function renderPerformanceHtml(data, schoolName) {
     barsHtml += makeBar(y, String(y));
   }
 
-  // Add best benchmark comparison bar (highest L3, same height, with opacity)
-  const benchKeys2 = Object.keys(comp).filter(k =>
-    k !== schoolKey && comp[k].ncea1 && comp[k].ncea3 && comp[k].ncea3[latestYear] != null);
+  // Add benchmark comparison bar — pick highest L3 from table's benchmark keys (region, sameType, NZ)
+  const benchCandidates = [regionKey, sameTypeKey, 'New Zealand'].filter(k =>
+    k && k !== schoolKey && comp[k] && comp[k].ncea3 && comp[k].ncea3[latestYear] != null);
   let bestBenchKey = null, bestBenchL3 = -1;
-  for (const k of benchKeys2) {
+  for (const k of benchCandidates) {
     const l3 = comp[k].ncea3[latestYear] || 0;
     if (l3 > bestBenchL3) { bestBenchL3 = l3; bestBenchKey = k; }
   }
